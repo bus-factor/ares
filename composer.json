@@ -1,0 +1,32 @@
+{
+  "name": "bus-factor/ares",
+  "description": "Leightweight standalone validation library",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Michael Leßnau",
+      "email": "michael.lessnau@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "UnitTest\\": "tests/unit-tests"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8.0"
+  },
+  "require": {
+  },
+  "scripts": {
+    "test": "phpunit",
+    "test:cov:text": "phpunit --coverage-text=php://stdout",
+    "test:cov:html": "phpunit --coverage-html=coverage"
+  }
+}
