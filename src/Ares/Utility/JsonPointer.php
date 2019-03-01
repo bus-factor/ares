@@ -11,13 +11,15 @@ declare(strict_types=1);
 
 namespace Ares\Utility;
 
+use JsonSerializable;
+
 /**
  * Class JsonPointer
  */
-class JsonPointer extends Stack
+class JsonPointer extends Stack implements JsonSerializable
 {
     /**
-     * Decodes an encoded reference within a JSON pointer.
+     * Decodes an encoded reference within a JSON pointer string.
      *
      * @param string $encodedReference Encoded reference.
      * @return string
@@ -28,7 +30,7 @@ class JsonPointer extends Stack
     }
 
     /**
-     * Encodes a reference to use it safely within a JSON pointer.
+     * Encodes a reference to use it safely within a JSON pointer string.
      *
      * @param string $reference Plain reference.
      * @return string
@@ -49,6 +51,16 @@ class JsonPointer extends Stack
         return ($jsonPointer === null)
             ? new JsonPointer()
             : new JsonPointer(array_map([self::class, 'decodeReference'], explode('/', $jsonPointer)));
+    }
+
+    /**
+     * Returns a JSON serializable representation of the JSON pointer.
+     *
+     * @return string
+     */
+    public function jsonSerialize()
+    {
+        return $this->toString();
     }
 
     /**

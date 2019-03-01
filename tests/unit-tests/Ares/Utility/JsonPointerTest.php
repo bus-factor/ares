@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace UnitTest\Ares\Utility;
 
 use Ares\Utility\JsonPointer;
-use Ares\Utility\Stack;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -24,13 +23,16 @@ use PHPUnit\Framework\TestCase;
 class JsonPointerTest extends TestCase
 {
     /**
+     * @testWith ["Ares\\Utility\\Stack"]
+     *
+     * @param string $fqcn Fully-qualified class or interface name.
      * @return void
      */
-    public function testInstanceOf(): void
+    public function testInstanceOf(string $fqcn): void
     {
         $jsonPointer = new JsonPointer();
 
-        $this->assertInstanceOf(Stack::class, $jsonPointer);
+        $this->assertInstanceOf($fqcn, $jsonPointer);
     }
 
     /**
@@ -55,6 +57,26 @@ class JsonPointerTest extends TestCase
         } else {
             $this->assertEquals($expectedReferences, $jsonPointer->getElements());
         }
+    }
+
+    /**
+     * @covers ::jsonSerialize
+     *
+     * @return void
+     */
+    public function testJsonSerialize(): void
+    {
+        $jsonPointerString = '/foo/0/bar';
+
+        $jsonPointer = $this->getMockBuilder(JsonPointer::class)
+            ->setMethods(['toString'])
+            ->getMock();
+
+        $jsonPointer->expects($this->once())
+            ->method('toString')
+            ->willReturn($jsonPointerString);
+
+        $this->assertSame($jsonPointerString, $jsonPointer->jsonSerialize());
     }
 
     /**
