@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Stack.php
+ * StackOfStrings.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
  * @since  2019-03-01
@@ -14,9 +14,9 @@ namespace Ares\Utility;
 use Ares\Exception\StackEmptyException;
 
 /**
- * Class Stack
+ * Class StackOfStrings
  */
-class Stack
+class StackOfStrings
 {
     /** @var array $elements */
     private $elements = [];
@@ -99,7 +99,7 @@ class Stack
     /**
      * Sets the stack elements.
      *
-     * @param array $elements Stack elements.
+     * @param array $elements StackOfStrings elements.
      * @return self
      */
     public function setElements(array $elements): self

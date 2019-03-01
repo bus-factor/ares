@@ -16,7 +16,7 @@ use JsonSerializable;
 /**
  * Class JsonPointer
  */
-class JsonPointer extends Stack implements JsonSerializable
+class JsonPointer extends StackOfStrings implements JsonSerializable
 {
     /**
      * Decodes an encoded reference within a JSON pointer string.
@@ -24,7 +24,7 @@ class JsonPointer extends Stack implements JsonSerializable
      * @param string $encodedReference Encoded reference.
      * @return string
      */
-    public static function decodeReference(string $encodedReference): string
+    private static function decodeReference(string $encodedReference): string
     {
         return str_replace(['~1', '~0'], ['/', '~'], $encodedReference);
     }
@@ -35,7 +35,7 @@ class JsonPointer extends Stack implements JsonSerializable
      * @param string $reference Plain reference.
      * @return string
      */
-    public static function encodeReference(string $reference): string
+    private static function encodeReference(string $reference): string
     {
         return str_replace(['~', '/'], ['~0', '~1'], $reference);
     }

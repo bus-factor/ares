@@ -18,12 +18,12 @@ use PHPUnit\Framework\TestCase;
  * Class JsonPointerTest
  *
  * @coversDefaultClass \Ares\Utility\JsonPointer
- * @uses \Ares\Utility\Stack
+ * @uses \Ares\Utility\StackOfStrings
  */
 class JsonPointerTest extends TestCase
 {
     /**
-     * @testWith ["Ares\\Utility\\Stack"]
+     * @testWith ["Ares\\Utility\\StackOfStrings"]
      *
      * @param string $fqcn Fully-qualified class or interface name.
      * @return void
@@ -39,7 +39,7 @@ class JsonPointerTest extends TestCase
      * @covers ::decodeReference
      * @covers ::fromString
      *
-     * @testWith [null, null]
+     * @testWith [null, []]
      *           ["", [""]]
      *           ["foo/bar", ["foo", "bar"]]
      *           [ "a~1b/~0a~1~0b", ["a/b", "~a/~b"]]
@@ -48,15 +48,11 @@ class JsonPointerTest extends TestCase
      * @param array       $references        References.
      * @return void
      */
-    public function testFromString(?string $jsonPointerString, ?array $expectedReferences): void
+    public function testFromString(?string $jsonPointerString, array $expectedReferences): void
     {
         $jsonPointer = JsonPointer::fromString($jsonPointerString);
 
-        if ($jsonPointerString === $expectedReferences) {
-            $this->assertTrue(true);
-        } else {
-            $this->assertEquals($expectedReferences, $jsonPointer->getElements());
-        }
+        $this->assertEquals($expectedReferences, $jsonPointer->getElements());
     }
 
     /**
