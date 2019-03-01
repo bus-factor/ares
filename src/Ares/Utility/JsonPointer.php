@@ -11,104 +11,56 @@ declare(strict_types=1);
 
 namespace Ares\Utility;
 
-use Ares\Exception\StackEmptyException;
-
 /**
  * Class JsonPointer
  */
-class JsonPointer
+class JsonPointer extends Stack
 {
-    /** @var array $references */
-    protected $references = [];
-
     /**
-     * @return boolean
-     */
-    public function empty(): bool
-    {
-        return empty($this->references);
-    }
-
-    /**
-     * @param string|null $jsonPointerString String-formatted JSON pointer.
-     * @return self
-     */
-    public static function fromString(?string $jsonPointerString): self
-    {
-        $jsonPointer = new self();
-
-        if ($jsonPointerString !== null) {
-            $jsonPointer->references = array_map(
-                function ($reference) {
-                    return str_replace(['~1', '~0'], ['/', '~'], $reference);
-                },
-                explode('/', $jsonPointerString)
-            );
-        }
-
-        return $jsonPointer;
-    }
-
-    /**
+     * Decodes an encoded reference within a JSON pointer.
+     *
+     * @param string $encodedReference Encoded reference.
      * @return string
-     * @throws \Ares\Exception\StackEmptyException
      */
-    public function peek(): string
+    public static function decodeReference(string $encodedReference): string
     {
-        if (empty($this->references)) {
-            throw new StackEmptyException();
-        }
-
-        return end($this->references);
+        return str_replace(['~1', '~0'], ['/', '~'], $encodedReference);
     }
 
     /**
+     * Encodes a reference to use it safely within a JSON pointer.
+     *
+     * @param string $reference Plain reference.
+     * @return string
+     */
+    public static function encodeReference(string $reference): string
+    {
+        return str_replace(['~', '/'], ['~0', '~1'], $reference);
+    }
+
+    /**
+     * Creates a JSON pointer object from its string representation.
+     *
+     * @param string|null $jsonPointer String-formatted JSON pointer.
      * @return self
      */
-    public function pop(): self
+    public static function fromString(?string $jsonPointer): self
     {
-        array_pop($this->references);
-
-        return $this;
+        return ($jsonPointer === null)
+            ? new JsonPointer()
+            : new JsonPointer(array_map([self::class, 'decodeReference'], explode('/', $jsonPointer)));
     }
 
     /**
-     * @param string $reference Reference.
-     * @return self
-     */
-    public function push(string $reference): self
-    {
-        array_push($this->references, $reference);
-
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function toArray(): array
-    {
-        return $this->references;
-    }
-
-    /**
+     * Returns the JSON pointer string representation of the instance.
+     *
      * @return string|null
      */
     public function toString(): ?string
     {
-        if (empty($this->references)) {
-            return null;
-        }
-
-        return implode(
-            '/',
-            array_map(
-                function ($reference) {
-                    return str_replace(['~', '/'], ['~0', '~1'], $reference);
-                },
-                $this->references
-            )
-        );
+        return $this->empty()
+            ? null
+            : implode('/', array_map([self::class, 'encodeReference'], $this->getElements()));
     }
 }
 

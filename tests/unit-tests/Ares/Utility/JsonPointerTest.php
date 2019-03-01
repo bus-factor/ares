@@ -11,54 +11,31 @@ declare(strict_types=1);
 
 namespace UnitTest\Ares\Utility;
 
-use Ares\Exception\StackEmptyException;
 use Ares\Utility\JsonPointer;
+use Ares\Utility\Stack;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class JsonPointerTest
  *
  * @coversDefaultClass \Ares\Utility\JsonPointer
+ * @uses \Ares\Utility\Stack
  */
 class JsonPointerTest extends TestCase
 {
     /**
-     * @covers ::empty
-     * @covers ::pop
-     * @covers ::push
-     *
-     * @testWith [[], 0, true]
-     *           [[""], 0, false]
-     *           [[""], 1, true]
-     *           [["foo"], 0, false]
-     *           [["foo"], 1, true]
-     *           [["foo", "bar"], 0, false]
-     *           [["foo", "bar"], 1, false]
-     *           [["foo", "bar"], 2, true]
-     *
-     * @param array   $references              JSON pointer references.
-     * @param integer $numberOfReferencesToPop Number of references to pop.
-     * @param boolean $expectedRetVal          Expected return value.
      * @return void
      */
-    public function testEmpty(array $references, int $numberOfReferencesToPop, bool $expectedRetVal): void
+    public function testInstanceOf(): void
     {
         $jsonPointer = new JsonPointer();
 
-        foreach ($references as $reference) {
-            $jsonPointer->push($reference);
-        }
-
-        for ($i = 0; $i < $numberOfReferencesToPop; $i++) {
-            $jsonPointer->pop();
-        }
-
-        $this->assertSame($expectedRetVal, $jsonPointer->empty());
+        $this->assertInstanceOf(Stack::class, $jsonPointer);
     }
 
     /**
+     * @covers ::decodeReference
      * @covers ::fromString
-     * @covers ::toArray
      *
      * @testWith [null, null]
      *           ["", [""]]
@@ -76,116 +53,28 @@ class JsonPointerTest extends TestCase
         if ($jsonPointerString === $expectedReferences) {
             $this->assertTrue(true);
         } else {
-            $this->assertEquals($expectedReferences, $jsonPointer->toArray());
+            $this->assertEquals($expectedReferences, $jsonPointer->getElements());
         }
     }
 
     /**
-     * @covers ::peek
-     * @covers ::pop
-     * @covers ::push
-     *
-     * @testWith [[""], 0, ""]
-     *           [["foo"], 0, "foo"]
-     *           [["foo", "bar"], 0, "bar"]
-     *           [["foo", "bar"], 1, "foo"]
-     *
-     * @param array   $references              JSON pointer references.
-     * @param integer $numberOfReferencesToPop Number of references to pop.
-     * @param string  $expectedRetVal          Expected return value.
-     * @return void
-     */
-    public function testPeek(array $references, int $numberOfReferencesToPop, string $expectedRetVal): void
-    {
-        $jsonPointer = new JsonPointer();
-
-        foreach ($references as $reference) {
-            $jsonPointer->push($reference);
-        }
-
-        for ($i = 0; $i < $numberOfReferencesToPop; $i++) {
-            $jsonPointer->pop();
-        }
-
-        $this->assertSame($expectedRetVal, $jsonPointer->peek());
-    }
-
-    /**
-     * @covers ::peek
-     *
-     * @return void
-     */
-    public function testPeekThrowsStackEmptyException(): void
-    {
-        $this->expectException(StackEmptyException::class);
-
-        (new JsonPointer())->peek();
-    }
-
-    /**
-     * @covers ::pop
-     * @covers ::push
-     * @covers ::toArray
-     *
-     * @testWith [[], 0, []]
-     *           [[""], 0, [""]]
-     *           [[""], 1, []]
-     *           [["foo"], 0, ["foo"]]
-     *           [["foo"], 1, []]
-     *           [["foo", "bar"], 0, ["foo", "bar"]]
-     *           [["foo", "bar"], 1, ["foo"]]
-     *           [["foo", "bar"], 2, []]
-     *
-     * @param array   $references              JSON pointer references.
-     * @param integer $numberOfReferencesToPop Number of references to pop.
-     * @param array   $expectedRetVal          Expected return value.
-     * @return void
-     */
-    public function testToArray(array $references, int $numberOfReferencesToPop, array $expectedRetVal): void
-    {
-        $jsonPointer = new JsonPointer();
-
-        foreach ($references as $reference) {
-            $jsonPointer->push($reference);
-        }
-
-        for ($i = 0; $i < $numberOfReferencesToPop; $i++) {
-            $jsonPointer->pop();
-        }
-
-        $this->assertEquals($expectedRetVal, $jsonPointer->toArray());
-    }
-
-    /**
-     * @covers ::pop
-     * @covers ::push
+     * @covers ::encodeReference
      * @covers ::toString
      *
-     * @testWith [[], 0, null]
-     *           [[""], 0, ""]
-     *           [["foo"], 0, "foo"]
-     *           [["foo"], 1, null]
-     *           [["", "foo", "bar"], 0, "/foo/bar"]
-     *           [["", "foo", "bar"], 1, "/foo"]
-     *           [["", "foo", "bar"], 2, ""]
-     *           [["a/b", "~a/~b"], 0, "a~1b/~0a~1~0b"]
+     * @testWith [[], null]
+     *           [[""], ""]
+     *           [["foo"], "foo"]
+     *           [["", "foo"], "/foo"]
+     *           [["", "foo", "bar"], "/foo/bar"]
+     *           [["a/b", "~a/~b"], "a~1b/~0a~1~0b"]
      *
-     * @param array       $references              JSON pointer references.
-     * @param integer     $numberOfReferencesToPop Number of references to pop.
-     * @param string|null $expectedRetVal          Expected return value.
+     * @param array       $references     JSON pointer references.
+     * @param string|null $expectedRetVal Expected return value.
      * @return void
      */
-    public function testToString(array $references, int $numberOfReferencesToPop, $expectedRetVal): void
+    public function testToString(array $references, ?string $expectedRetVal): void
     {
-        $jsonPointer = new JsonPointer();
-
-        foreach ($references as $reference) {
-            $jsonPointer->push($reference);
-        }
-
-        for ($i = 0; $i < $numberOfReferencesToPop; $i++) {
-            $jsonPointer->pop();
-        }
+        $jsonPointer = new JsonPointer($references);
 
         $this->assertEquals($expectedRetVal, $jsonPointer->toString());
     }
