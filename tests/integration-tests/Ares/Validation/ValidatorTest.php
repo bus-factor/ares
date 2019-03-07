@@ -13,6 +13,10 @@ namespace IntegrationTest\Ares\Validation;
 
 use Ares\Validation\Validator;
 use PHPUnit\Framework\TestCase;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RecursiveRegexIterator;
+use RegexIterator;
 
 /**
  * Class ValidatorTest
@@ -42,16 +46,14 @@ class ValidatorTest extends TestCase
     public function getValidateSamples(): array
     {
         $paths = [];
-        $files = scandir(INTEGRATION_TEST_SAMPLES_DIR);
 
-        foreach ($files as $file) {
-            if (in_array($file, ['.', '..'])) {
-                continue;
-            }
+        $directory = new RecursiveDirectoryIterator(INTEGRATION_TEST_SAMPLES_DIR);
+        $iterator = new RecursiveIteratorIterator($directory);
+        $regex = new RegexIterator($iterator, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH);
 
-            $paths[$file] = [
-                INTEGRATION_TEST_SAMPLES_DIR . '/' . $file
-            ];
+        foreach ($regex as $files) {
+            $key = str_replace(INTEGRATION_TEST_SAMPLES_DIR . '/', '', $files[0]);
+            $paths[$key] = [$files[0]];
         }
 
         return $paths;
