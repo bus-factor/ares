@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * ValueTypeTest.php
+ * TypeTest.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
  * @since  2019-03-07
@@ -11,15 +11,15 @@ declare(strict_types=1);
 
 namespace UnitTest\Ares\Validation\Schema;
 
-use Ares\Validation\Schema\ValueType;
+use Ares\Validation\Schema\Type;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class ValueTypeTest
+ * Class TypeTest
  *
- * @coversDefaultClass \Ares\Validation\Schema\ValueType
+ * @coversDefaultClass \Ares\Validation\Schema\Type
  */
-class ValueTypeTest extends TestCase
+class TypeTest extends TestCase
 {
     /**
      * @testWith ["BOOLEAN", "boolean"]
@@ -33,7 +33,7 @@ class ValueTypeTest extends TestCase
      */
     public function testValues(string $constantName, string $constantValue): void
     {
-        $values = ValueType::getValues();
+        $values = Type::getValues();
 
         $this->assertArrayHasKey($constantName, $values);
         $this->assertSame($constantValue, $values[$constantName]);

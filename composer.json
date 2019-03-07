@@ -16,6 +16,7 @@
   },
   "autoload-dev": {
     "psr-4": {
+      "IntegrationTest\\": "tests/integration-tests",
       "UnitTest\\": "tests/unit-tests"
     }
   },

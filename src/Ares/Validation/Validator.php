@@ -11,11 +11,27 @@ declare(strict_types=1);
 
 namespace Ares\Validation;
 
+use Ares\Validation\Schema\Type;
+
 /**
  * Class Validator
  */
 class Validator
 {
+    /** @const array TYPE_MAPPING */
+    const TYPE_MAPPING = [
+        'boolean'           => Type::BOOLEAN,
+        'integer'           => Type::INTEGER,
+        'double'            => Type::FLOAT,
+        'string'            => Type::STRING,
+        'array'             => null,
+        'object'            => null,
+        'resource'          => null,
+        'resource (closed)' => null,
+        'NULL'              => null,
+        'unknown type'      => null,
+    ];
+
     protected $errors = [];
     protected $schema;
 
@@ -36,12 +52,28 @@ class Validator
     }
 
     /**
-     * @param mixed $document Input document.
+     * @param mixed $data Input data.
      * @return boolean
      */
-    public function validate($document): bool
+    public function validate($data): bool
     {
         $this->errors = [];
+
+        // ------------
+
+        $source = [''];
+        $schema = $this->schema;
+
+        // ------------
+
+        $phpType = gettype($data);
+        $type = self::TYPE_MAPPING[$phpType];
+
+        if ($type !== $schema['type']) {
+            $this->errors[] = new Error($source, 'type', 'Invalid type');
+        }
+
+        // ------------
 
         return empty($this->errors);
     }

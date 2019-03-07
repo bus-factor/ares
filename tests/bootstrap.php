@@ -11,3 +11,5 @@ declare(strict_types=1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
+define('INTEGRATION_TEST_SAMPLES_DIR', __DIR__ . '/integration-test-samples');
+
