@@ -59,27 +59,23 @@ class Validator
     {
         $this->errors = [];
 
-        // ------------
-
         $source = [''];
         $schema = $this->schema + ['required' => false];
-
-        // ------------
 
         $phpType = gettype($data);
         $type = self::TYPE_MAPPING[$phpType];
 
-        if ($phpType === 'NULL') {
+        if ($type == $schema['type']) {
+            if ($type == Type::STRING && trim($data) == '') {
+                $this->errors[] = new Error($source, 'required', 'Value required');
+            }
+        } else if ($phpType === 'NULL') {
             if (!empty($schema['required'])) {
                 $this->errors[] = new Error($source, 'required', 'Value required');
             }
         } else {
-            if ($type !== $schema['type']) {
-                $this->errors[] = new Error($source, 'type', 'Invalid type');
-            }
+            $this->errors[] = new Error($source, 'type', 'Invalid type');
         }
-
-        // ------------
 
         return empty($this->errors);
     }
