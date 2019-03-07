@@ -3,18 +3,21 @@
 declare(strict_types=1);
 
 /**
- * type_integer_1.php
+ * non_integer_value_boolean.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
  * @since  2019-03-07
  */
 
+use Ares\Validation\Error;
 use Ares\Validation\Validator;
 
 $schema = ['type' => 'integer'];
-$data = 25;
+$data = true;
 
-$expectedErrors = [];
+$expectedErrors = [
+    new Error([''], 'type', 'Invalid type'),
+];
 
 $validator = new Validator($schema);
 

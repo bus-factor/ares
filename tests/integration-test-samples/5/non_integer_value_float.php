@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * non_float_value_boolean.php
+ * non_integer_value_boolean.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
  * @since  2019-03-07
@@ -12,8 +12,8 @@ declare(strict_types=1);
 use Ares\Validation\Error;
 use Ares\Validation\Validator;
 
-$schema = ['type' => 'float'];
-$data = true;
+$schema = ['type' => 'integer'];
+$data = 13.37;
 
 $expectedErrors = [
     new Error([''], 'type', 'Invalid type'),
