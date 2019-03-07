@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * type_string_1.php
+ * string_value.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
  * @since  2019-03-07
