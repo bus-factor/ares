@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Ares\Validation;
 
+use Ares\Validation\Schema\PhpType;
 use Ares\Validation\Schema\Type;
 
 /**
@@ -18,18 +19,23 @@ use Ares\Validation\Schema\Type;
  */
 class Validator
 {
+    /** @const array SCHEMA_DEFAULTS */
+    const SCHEMA_DEFAULTS = [
+        'required' => false,
+    ];
+
     /** @const array TYPE_MAPPING */
     const TYPE_MAPPING = [
-        'boolean'           => Type::BOOLEAN,
-        'integer'           => Type::INTEGER,
-        'double'            => Type::FLOAT,
-        'string'            => Type::STRING,
-        'array'             => null,
-        'object'            => null,
-        'resource'          => null,
-        'resource (closed)' => null,
-        'NULL'              => null,
-        'unknown type'      => null,
+        PhpType::BOOLEAN         => Type::BOOLEAN,
+        PhpType::INTEGER         => Type::INTEGER,
+        PhpType::DOUBLE          => Type::FLOAT,
+        PhpType::STRING          => Type::STRING,
+        PhpType::ARRAY           => null,
+        PhpType::OBJECT          => null,
+        PhpType::RESOURCE        => null,
+        PhpType::RESOURCE_CLOSED => null,
+        PhpType::NULL            => null,
+        PhpType::UNKNOWN         => null,
     ];
 
     protected $errors = [];
@@ -60,7 +66,7 @@ class Validator
         $this->errors = [];
 
         $source = [''];
-        $schema = $this->schema + ['required' => false];
+        $schema = $this->schema + self::SCHEMA_DEFAULTS;
 
         $phpType = gettype($data);
         $type = self::TYPE_MAPPING[$phpType];
@@ -69,7 +75,7 @@ class Validator
             if ($type == Type::STRING && trim($data) == '') {
                 $this->errors[] = new Error($source, 'required', 'Value required');
             }
-        } else if ($phpType === 'NULL') {
+        } else if ($phpType === PhpType::NULL) {
             if (!empty($schema['required'])) {
                 $this->errors[] = new Error($source, 'required', 'Value required');
             }
