@@ -22,6 +22,7 @@ class Validator
     /** @const array SCHEMA_DEFAULTS */
     const SCHEMA_DEFAULTS = [
         'required' => false,
+        'blankable' => false,
     ];
 
     /** @const array TYPE_MAPPING */
@@ -38,7 +39,9 @@ class Validator
         PhpType::UNKNOWN         => null,
     ];
 
+    /** @var array $errors */
     protected $errors = [];
+    /** @var array $schema */
     protected $schema;
 
     /**
@@ -72,8 +75,8 @@ class Validator
         $type = self::TYPE_MAPPING[$phpType];
 
         if ($type == $schema['type']) {
-            if ($type == Type::STRING && trim($data) == '') {
-                $this->errors[] = new Error($source, 'required', 'Value required');
+            if ($type == Type::STRING && !$schema['blankable'] && trim($data) == '') {
+                $this->errors[] = new Error($source, 'blank', 'Value must not be blank');
             }
         } else if ($phpType === PhpType::NULL) {
             if (!empty($schema['required'])) {

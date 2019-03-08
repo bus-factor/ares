@@ -3,21 +3,18 @@
 declare(strict_types=1);
 
 /**
- * string_containing_only_whitespace.php
+ * string_required_and_blankable.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
  * @since  2019-03-08
  */
 
-use Ares\Validation\Error;
 use Ares\Validation\Validator;
 
-$schema = ['type' => 'string', 'required' => true];
+$schema = ['type' => 'string', 'required' => true, 'blankable' => true];
 $data = " \n\t\r ";
 
-$expectedErrors = [
-    new Error([''], 'blank', 'Value must not be blank'),
-];
+$expectedErrors = [];
 
 $validator = new Validator($schema);
 
