@@ -26,3 +26,4 @@ class Enum
         return (new ReflectionClass(static::class))->getConstants();
     }
 }
+

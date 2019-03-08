@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * string_containing_only_whitespace.php
+ * string_required_but_not_blankable.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
  * @since  2019-03-08
