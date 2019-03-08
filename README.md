@@ -2,33 +2,87 @@
 
 Ares is a lightweight standalone validation library.
 
-## Usage
+## Basic Usage
 
-// validation schema
-$schema = ['type' => 'string', 'required' => true];
-// validator
-$validator = new \Ares\Validation\Validator($schema);
+```php
+<?php
 
-// data validation (true, false)
+use Ares\Validation\Validator;
+
+$validator = new Validator(['type' => 'string', 'required' => true]);
 $valid = $validator->validate($data);
-
-// get list of validation errors
 $errors = $validator->getErrors();
+```
 
-### Rules
+## Validation Errors
 
-#### type
+The ```validate()``` method returns ```true``` if the provided data is valid, otherwise ```false```.
 
-The ```type``` rule defines the expected/allowed value type. Supported types are:
+The ```getErrors()``` method returns a list of validation errors that occurred during the last data validation.
+The list of validation errors is reset each time ```validate()``` is called.
 
-* boolean
-* float
-* integer
-* string
+Each ```Ares\Validation\Error``` object implements the ```JsonSerializable``` interface and contains details about the error.
+
+
+## Validation Rules
+
+The validator uses a default set of validation rules which are applied to the provided schema during validator construction:
+
+```php
+Validator::SCHEMA_DEFAULTS = [
+    'required' => false,
+    'blankable' => false,
+];
+```
+
+### blankable
+
+The ```blankable``` rule applies to ```string``` typed values only.
+If set ```true```, blank strings are considered valid.
+If set ```false```, blank strings are considered invalid.
 
 Examples:
 
-$schema = ['type' => 'string'];
+```php
+$validator = new Validator(['type' => 'string', 'blankable' => false]);
+$validator->validate(''); // -> false
+$validator->validate('   '); // -> false
+$validator->validate('John Doe'); // -> true
 
-#### required
+$validator = new Validator(['type' => 'string', 'blankable' => true]);
+$validator->validate('   '); // -> true
+```
+
+### required
+
+Use the ```required``` rule to enforce the presence of a value.
+If set ```true```, values must not be ```null```.
+If set ```false```, values are allowed to be ```null```.
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'integer', 'required' => true]);
+$validator->validate(null); // -> false
+
+$validator = new Validator(['type' => 'integer', 'required' => false]);
+$validator->validate(null); // -> true
+```
+
+### type
+
+The ```type``` rule defines the expected/allowed value type. Supported types are:
+
+* ```boolean```
+* ```float```
+* ```integer```
+* ```string```
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'float']);
+$validator->validate(5); // -> false
+$validator->validate('John Doe'); // -> false
+```
 
