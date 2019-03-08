@@ -26,6 +26,15 @@ Each ```Ares\Validation\Error``` object implements the ```JsonSerializable``` in
 
 ## Validation Rules
 
+The validator uses a default set of validation rules which are applied to the provided schema during validator construction:
+
+```php
+Validator::SCHEMA_DEFAULTS = [
+    'required' => false,
+    'blankable' => false,
+];
+```
+
 ### blankable
 
 The ```blankable``` rule applies to ```string``` typed values only.
@@ -35,18 +44,18 @@ If set ```false```, blank strings are considered invalid.
 Examples:
 
 ```php
-$validator = new Validator(['type' => 'string', 'required' => true, 'blankable' => false]);
+$validator = new Validator(['type' => 'string', 'blankable' => false]);
 $validator->validate(''); // -> false
 $validator->validate('   '); // -> false
 $validator->validate('John Doe'); // -> true
 
-$validator = new Validator(['type' => 'string', 'required' => true, 'blankable' => true]);
+$validator = new Validator(['type' => 'string', 'blankable' => true]);
 $validator->validate('   '); // -> true
 ```
 
 ### required
 
-Use the ```required``` rule to enforce the presence of value.
+Use the ```required``` rule to enforce the presence of a value.
 If set ```true```, values must not be ```null```.
 If set ```false```, values are allowed to be ```null```.
 
