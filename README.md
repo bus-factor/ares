@@ -4,6 +4,7 @@ Ares is a lightweight standalone validation library.
 
 ## Usage
 
+```php
 // validation schema
 $schema = ['type' => 'string', 'required' => true];
 // validator
@@ -11,9 +12,9 @@ $validator = new \Ares\Validation\Validator($schema);
 
 // data validation (true, false)
 $valid = $validator->validate($data);
-
 // get list of validation errors
 $errors = $validator->getErrors();
+```
 
 ### Rules
 
@@ -28,7 +29,9 @@ The ```type``` rule defines the expected/allowed value type. Supported types are
 
 Examples:
 
+```php
 $schema = ['type' => 'string'];
+```
 
 #### required
 
