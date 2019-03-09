@@ -20,6 +20,11 @@ use Ares\Validation\Schema\Type;
  */
 class Validator
 {
+    /** @const array OPTIONS_DEFAULTS */
+    const OPTIONS_DEFAULTS = [
+        'allowUnknown' => false,
+    ];
+
     /** @const array SCHEMA_DEFAULTS */
     const SCHEMA_DEFAULTS = [
         'required' => false,
@@ -42,15 +47,19 @@ class Validator
 
     /** @var array $errors */
     protected $errors = [];
+    /** @var array $options */
+    protected $options;
     /** @var array $schema */
     protected $schema;
 
     /**
-     * @param array $schema
+     * @param array $schema Validation schema.
+     * @param array $options Validation options.
      */
-    public function __construct(array $schema)
+    public function __construct(array $schema, array $options = [])
     {
         $this->schema = $schema;
+        $this->options = $options + self::OPTIONS_DEFAULTS;
     }
 
     /**
@@ -84,8 +93,13 @@ class Validator
      * @return void
      * @throws \Ares\Exception\InvalidValidationSchemaException
      */
-    protected function performValidation(array $source, array $schema, array $schemaSource, $data, $field): void
-    {
+    protected function performValidation(
+        array $source,
+        array $schema,
+        array $schemaSource,
+        $data,
+        $field
+    ): void {
         if (!isset($schema['type'])) {
             $schemaSourceFormatted = '[\'' . implode('\'][\'', array_merge($schemaSource, ['type'])) . '\']';
             throw new InvalidValidationSchemaException('Missing schema option: $schema' . $schemaSourceFormatted);
@@ -100,7 +114,11 @@ class Validator
         if ($type == $schema['type']) {
             if ($schema['type'] == Type::STRING) {
                 if (!$schema['blankable'] && trim($data) == '') {
-                    $this->errors[] = new Error($source, 'blank', 'Value must not be blank');
+                    $this->errors[] = new Error(
+                        $source,
+                        'blank',
+                        'Value must not be blank'
+                    );
                 }
             } else if ($schema['type'] == Type::MAP) {
                 if (!isset($schema['schema'])) {
@@ -108,16 +126,27 @@ class Validator
                     throw new InvalidValidationSchemaException('Missing schema option: $schema' . $schemaSourceFormatted);
                 }
 
-                $schemaSource[] = 'schema';
-                $this->performMapValidation($source, $schema['schema'], $schemaSource, $data);
-                array_pop($schemaSource);
+                $this->performMapValidation(
+                    $source,
+                    $schema['schema'],
+                    array_merge($schemaSource, ['schema']),
+                    $data
+                );
             }
         } else if ($phpType === PhpType::NULL) {
             if (!empty($schema['required'])) {
-                $this->errors[] = new Error($source, 'required', 'Value required');
+                $this->errors[] = new Error(
+                    $source,
+                    'required',
+                    'Value required'
+                );
             }
         } else {
-            $this->errors[] = new Error($source, 'type', 'Invalid type');
+            $this->errors[] = new Error(
+                $source,
+                'type',
+                'Invalid type'
+            );
         }
 
         array_pop($source);
@@ -131,23 +160,43 @@ class Validator
      * @return void
      * @throws \Ares\Exception\InvalidValidationSchemaException
      */
-    protected function performMapValidation(array $source, array $schemasByField, array $schemaSource, array $data): void
-    {
+    protected function performMapValidation(
+        array $source,
+        array $schemasByField,
+        array $schemaSource,
+        array $data
+    ): void {
         foreach ($schemasByField as $field => $schema) {
             if (array_key_exists($field, $data)) {
-                $schemaSource[] = $field;
-                $this->performValidation($source, $schema, $schemaSource, $data[$field], $field);
-                array_pop($schemaSource);
+                $this->performValidation(
+                    $source,
+                    $schema,
+                    array_merge($schemaSource, [$field]),
+                    $data[$field],
+                    $field
+                );
             } else {
                 $schema = $schema + self::SCHEMA_DEFAULTS;
 
                 if (!empty($schema['required'])) {
-                    $source[] = $field;
-
-                    $this->errors[] = new Error($source, 'required', 'Value required');
-
-                    array_pop($source);
+                    $this->errors[] = new Error(
+                        array_merge($source, [$field]),
+                        'required',
+                        'Value required'
+                    );
                 }
+            }
+        }
+
+        if (empty($this->options['allowUnknown'])) {
+            $unknownFields = array_diff(array_keys($data), array_keys($schemasByField));
+
+            foreach ($unknownFields as $field) {
+                $this->errors[] = new Error(
+                    array_merge($source, [$field]),
+                    'unknown',
+                    'Unknown field'
+                );
             }
         }
     }
