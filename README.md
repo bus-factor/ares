@@ -9,9 +9,23 @@ Ares is a lightweight standalone validation library.
 
 use Ares\Validation\Validator;
 
+// atomic types
 $validator = new Validator(['type' => 'string', 'required' => true]);
-$valid = $validator->validate($data);
+$valid = $validator->validate('John Doe');
 $errors = $validator->getErrors();
+
+// complex/nested types
+$validator = new Validator([
+    'type' => 'map',
+    'required' => true,
+    'schema' => [
+        'firstName' => ['type' => 'string', 'required' => true],
+        'lastName' => ['type' => 'string', 'required' => true],
+    ],
+]);
+$valid = $validator->validate(['firstName' => 'John', 'lastName' => 'Doe']);
+$errors = $validator->getErrors();
+
 ```
 
 ## Validation Errors
@@ -69,6 +83,26 @@ $validator = new Validator(['type' => 'integer', 'required' => false]);
 $validator->validate(null); // -> true
 ```
 
+### schema (map)
+
+The ```schema``` rule is mandatory when using type ```map```. The validator expects the schema to define per field validation rules for associative array input.
+
+Example:
+
+```php
+$validator = new Validator([
+    'type' => 'map',
+    'required' => true,
+    'schema' => [
+        'email' => ['type' => 'string', 'required' => true],
+        'password' => ['type' => 'string', 'required' => true],
+    ],
+]);
+
+$validator->validate(['email' => 'john.doe@example.com']); // -> false
+$validator->validate(['email' => 'john.doe@example.com', 'password' => 'j4n3:)']); // -> true
+```
+
 ### type
 
 The ```type``` rule defines the expected/allowed value type. Supported types are:
@@ -77,6 +111,7 @@ The ```type``` rule defines the expected/allowed value type. Supported types are
 * ```float```
 * ```integer```
 * ```string```
+* ```map```
 
 Examples:
 

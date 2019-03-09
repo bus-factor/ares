@@ -18,10 +18,10 @@ use Ares\Utility\Enum;
  */
 class Type extends Enum
 {
-    // simple
     const BOOLEAN = 'boolean';
     const FLOAT   = 'float';
     const INTEGER = 'integer';
+    const MAP     = 'map';
     const STRING  = 'string';
 }
 

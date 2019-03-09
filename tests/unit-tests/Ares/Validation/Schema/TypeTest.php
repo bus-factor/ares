@@ -26,6 +26,7 @@ class TypeTest extends TestCase
      *           ["FLOAT", "float"]
      *           ["INTEGER", "integer"]
      *           ["STRING", "string"]
+     *           ["MAP", "map"]
      *
      * @param string $constantName  Constant name.
      * @param string $constantValue Constant value.
