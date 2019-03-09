@@ -63,6 +63,21 @@ This option applies to the type ```map``` only.
 If set ```true``` fields that occur in the input data but are not defined in the schema are considered invalid.
 If set ```false``` fields that occur in the input data but are not defined in the schema are considered valid.
 
+```php
+$schema = [
+    'type' => 'map',
+    'schema' => [
+        'name' => ['type' => 'string'],
+    ],
+];
+
+$validator = new Validator($schema, ['allowUnknown' => false]);
+$validator->validate(['name' => 'John Doe', 'initials' => 'JD']); // -> false
+
+$validator = new Validator($schema, ['allowUnknown' => true]);
+$validator->validate(['name' => 'John Doe', 'initials' => 'JD']); // -> true
+```
+
 ## Validation Rules
 
 The validator uses a default set of validation rules which are applied to the provided schema during validator construction:
