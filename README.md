@@ -39,6 +39,29 @@ The list of validation errors is reset each time ```validate()``` is called.
 
 Each ```Ares\Validation\Error``` object implements the ```JsonSerializable``` interface and contains details about the error.
 
+## Validation Options
+
+Validation options may be passed on validator construction:
+
+```php
+$schema = [];
+$options = [];
+$validator = new Validator($schema, $options);
+```
+
+Default validation options are:
+
+```php
+Validator::OPTIONS_DEFAULTS = [
+    'allowUnknown' => false,
+]
+```
+
+### allowUnknown
+
+This option applies to the type ```map``` only.
+If set ```true``` fields that occur in the input data but are not defined in the schema are considered invalid.
+If set ```false``` fields that occur in the input data but are not defined in the schema are considered valid.
 
 ## Validation Rules
 
@@ -48,7 +71,7 @@ The validator uses a default set of validation rules which are applied to the pr
 Validator::SCHEMA_DEFAULTS = [
     'required' => false,
     'blankable' => false,
-];
+]
 ```
 
 ### blankable
