@@ -87,7 +87,7 @@ $validator->validate(null); // -> true
 
 The ```schema``` rule is mandatory when using type ```map```. The validator expects the schema to define per field validation rules for associative array input.
 
-Example:
+Examples:
 
 ```php
 $validator = new Validator([
