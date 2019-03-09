@@ -2,6 +2,8 @@
 
 Ares is a lightweight standalone validation library.
 
+![](https://travis-ci.com/bus-factor/ares.svg?token=6CVThNyY94qpVvuMgX3F&branch=master)
+
 ## Basic Usage
 
 ```php
