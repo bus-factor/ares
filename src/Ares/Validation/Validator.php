@@ -70,21 +70,27 @@ class Validator
     {
         $this->errors = [];
 
-        $this->performValidation([], $this->schema, $data, '');
+        $this->performValidation([], $this->schema, [], $data, '');
 
         return empty($this->errors);
     }
 
     /**
-     * @param array $source Source references.
-     * @param array $schema Validation schema.
-     * @param mixed $data   Input data.
-     * @param mixed $field  Current field name or index (part of source reference).
+     * @param array $source       Source references.
+     * @param array $schema       Validation schema.
+     * @param array $schemaSource Current validation schema source.
+     * @param mixed $data         Input data.
+     * @param mixed $field        Current field name or index (part of source reference).
      * @return void
      * @throws \Ares\Exception\InvalidValidationSchemaException
      */
-    protected function performValidation(array $source, array $schema, $data, $field): void
+    protected function performValidation(array $source, array $schema, array $schemaSource, $data, $field): void
     {
+        if (!isset($schema['type'])) {
+            $schemaSourceFormatted = '[\'' . implode('\'][\'', array_merge($schemaSource, ['type'])) . '\']';
+            throw new InvalidValidationSchemaException('Missing schema option: $schema' . $schemaSourceFormatted);
+        }
+
         $source[] = $field;
         $schema += $schema + self::SCHEMA_DEFAULTS;
 
@@ -98,10 +104,13 @@ class Validator
                 }
             } else if ($schema['type'] == Type::MAP) {
                 if (!isset($schema['schema'])) {
-                    throw new InvalidValidationSchemaException('Missing schema option: $schema[\'schema\']');
+                    $schemaSourceFormatted = '[\'' . implode('\'][\'', array_merge($schemaSource, ['schema'])) . '\']';
+                    throw new InvalidValidationSchemaException('Missing schema option: $schema' . $schemaSourceFormatted);
                 }
 
-                $this->performMapValidation($source, $schema['schema'], $data);
+                $schemaSource[] = 'schema';
+                $this->performMapValidation($source, $schema['schema'], $schemaSource, $data);
+                array_pop($schemaSource);
             }
         } else if ($phpType === PhpType::NULL) {
             if (!empty($schema['required'])) {
@@ -117,15 +126,18 @@ class Validator
     /**
      * @param array $source         Source references.
      * @param array $schemasByField Schema by field.
+     * @param array $schemaSource   Current validation schema source.
      * @param array $data           Input data.
      * @return void
      * @throws \Ares\Exception\InvalidValidationSchemaException
      */
-    protected function performMapValidation(array $source, array $schemasByField, array $data): void
+    protected function performMapValidation(array $source, array $schemasByField, array $schemaSource, array $data): void
     {
         foreach ($schemasByField as $field => $schema) {
             if (array_key_exists($field, $data)) {
-                $this->performValidation($source, $schema, $data[$field], $field);
+                $schemaSource[] = $field;
+                $this->performValidation($source, $schema, $schemaSource, $data[$field], $field);
+                array_pop($schemaSource);
             } else {
                 $schema = $schema + self::SCHEMA_DEFAULTS;
 
