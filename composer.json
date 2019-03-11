@@ -2,6 +2,21 @@
   "name": "bus-factor/ares",
   "description": "Leightweight standalone validation library",
   "type": "library",
+  "keywords": [
+    "form",
+    "form-validation",
+    "forms",
+    "request",
+    "secure",
+    "security",
+    "stand-alone",
+    "standalone",
+    "valid",
+    "validate",
+    "validation",
+    "validator"
+  ],
+  "readme": "README.md",
   "license": "MIT",
   "authors": [
     {
