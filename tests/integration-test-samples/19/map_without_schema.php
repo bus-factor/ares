@@ -9,7 +9,6 @@ declare(strict_types=1);
  * @since  2019-03-09
  */
 
-use Ares\Exception\InvalidValidationSchemaException;
 use Ares\Validation\Validator;
 
 $schema = [
@@ -21,8 +20,5 @@ $data = [];
 
 $validator = new Validator($schema);
 
-$this->expectException(InvalidValidationSchemaException::class);
-$this->expectExceptionMessage('Missing schema option: $schema[\'schema\']');
-
-$validator->validate($data);
+$this->assertTrue($validator->validate($data));
 

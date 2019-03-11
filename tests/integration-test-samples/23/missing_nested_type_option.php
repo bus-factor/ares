@@ -19,10 +19,8 @@ $schema = [
     ],
 ];
 
-$validator = new Validator($schema);
-
 $this->expectException(InvalidValidationSchemaException::class);
 $this->expectExceptionMessage('Missing schema option: $schema[\'schema\'][\'name\'][\'type\']');
 
-$validator->validate(['name' => 'John Doe']);
+$validator = new Validator($schema);
 

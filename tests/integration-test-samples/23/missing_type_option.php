@@ -14,10 +14,8 @@ use Ares\Validation\Validator;
 
 $schema = [];
 
-$validator = new Validator($schema);
-
 $this->expectException(InvalidValidationSchemaException::class);
 $this->expectExceptionMessage('Missing schema option: $schema[\'type\']');
 
-$validator->validate(null);
+$validator = new Validator($schema);
 
