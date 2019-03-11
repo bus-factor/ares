@@ -13,6 +13,7 @@ namespace Ares\Validation;
 
 use Ares\Exception\InvalidValidationSchemaException;
 use Ares\Validation\Schema\PhpType;
+use Ares\Validation\Schema\Sanitizer as SchemaSanitizer;
 use Ares\Validation\Schema\Type;
 
 /**
@@ -55,10 +56,11 @@ class Validator
     /**
      * @param array $schema Validation schema.
      * @param array $options Validation options.
+     * @throws \Ares\Exception\InvalidValidationSchemaException
      */
     public function __construct(array $schema, array $options = [])
     {
-        $this->schema = $schema;
+        $this->schema = SchemaSanitizer::sanitize($schema, self::SCHEMA_DEFAULTS);
         $this->options = $options + self::OPTIONS_DEFAULTS;
     }
 
@@ -73,40 +75,26 @@ class Validator
     /**
      * @param mixed $data Input data.
      * @return boolean
-     * @throws \Ares\Exception\InvalidValidationSchemaException
      */
     public function validate($data): bool
     {
         $this->errors = [];
 
-        $this->performValidation([], $this->schema, [], $data, '');
+        $this->performValidation([], $this->schema, $data, '');
 
         return empty($this->errors);
     }
 
     /**
-     * @param array $source       Source references.
-     * @param array $schema       Validation schema.
-     * @param array $schemaSource Current validation schema source.
-     * @param mixed $data         Input data.
-     * @param mixed $field        Current field name or index (part of source reference).
+     * @param array $source Source references.
+     * @param array $schema Validation schema.
+     * @param mixed $data   Input data.
+     * @param mixed $field  Current field name or index (part of source reference).
      * @return void
-     * @throws \Ares\Exception\InvalidValidationSchemaException
      */
-    protected function performValidation(
-        array $source,
-        array $schema,
-        array $schemaSource,
-        $data,
-        $field
-    ): void {
-        if (!isset($schema['type'])) {
-            $schemaSourceFormatted = '[\'' . implode('\'][\'', array_merge($schemaSource, ['type'])) . '\']';
-            throw new InvalidValidationSchemaException('Missing schema option: $schema' . $schemaSourceFormatted);
-        }
-
+    protected function performValidation(array $source, array $schema, $data, $field): void
+    {
         $source[] = $field;
-        $schema += $schema + self::SCHEMA_DEFAULTS;
 
         $phpType = gettype($data);
         $type = self::TYPE_MAPPING[$phpType];
@@ -114,39 +102,17 @@ class Validator
         if ($type == $schema['type']) {
             if ($schema['type'] == Type::STRING) {
                 if (!$schema['blankable'] && trim($data) == '') {
-                    $this->errors[] = new Error(
-                        $source,
-                        'blank',
-                        'Value must not be blank'
-                    );
+                    $this->errors[] = new Error($source, 'blank', 'Value must not be blank');
                 }
             } else if ($schema['type'] == Type::MAP) {
-                if (!isset($schema['schema'])) {
-                    $schemaSourceFormatted = '[\'' . implode('\'][\'', array_merge($schemaSource, ['schema'])) . '\']';
-                    throw new InvalidValidationSchemaException('Missing schema option: $schema' . $schemaSourceFormatted);
-                }
-
-                $this->performMapValidation(
-                    $source,
-                    $schema['schema'],
-                    array_merge($schemaSource, ['schema']),
-                    $data
-                );
+                $this->performMapValidation($source, $schema['schema'], $data);
             }
         } else if ($phpType === PhpType::NULL) {
             if (!empty($schema['required'])) {
-                $this->errors[] = new Error(
-                    $source,
-                    'required',
-                    'Value required'
-                );
+                $this->errors[] = new Error($source, 'required', 'Value required');
             }
         } else {
-            $this->errors[] = new Error(
-                $source,
-                'type',
-                'Invalid type'
-            );
+            $this->errors[] = new Error($source, 'type', 'Invalid type');
         }
 
         array_pop($source);
@@ -155,35 +121,17 @@ class Validator
     /**
      * @param array $source         Source references.
      * @param array $schemasByField Schema by field.
-     * @param array $schemaSource   Current validation schema source.
      * @param array $data           Input data.
      * @return void
-     * @throws \Ares\Exception\InvalidValidationSchemaException
      */
-    protected function performMapValidation(
-        array $source,
-        array $schemasByField,
-        array $schemaSource,
-        array $data
-    ): void {
+    protected function performMapValidation(array $source, array $schemasByField, array $data): void
+    {
         foreach ($schemasByField as $field => $schema) {
             if (array_key_exists($field, $data)) {
-                $this->performValidation(
-                    $source,
-                    $schema,
-                    array_merge($schemaSource, [$field]),
-                    $data[$field],
-                    $field
-                );
+                $this->performValidation($source, $schema, $data[$field], $field);
             } else {
-                $schema = $schema + self::SCHEMA_DEFAULTS;
-
                 if (!empty($schema['required'])) {
-                    $this->errors[] = new Error(
-                        array_merge($source, [$field]),
-                        'required',
-                        'Value required'
-                    );
+                    $this->errors[] = new Error(array_merge($source, [$field]), 'required', 'Value required');
                 }
             }
         }
@@ -192,12 +140,9 @@ class Validator
             $unknownFields = array_diff(array_keys($data), array_keys($schemasByField));
 
             foreach ($unknownFields as $field) {
-                $this->errors[] = new Error(
-                    array_merge($source, [$field]),
-                    'unknown',
-                    'Unknown field'
-                );
+                $this->errors[] = new Error(array_merge($source, [$field]), 'unknown', 'Unknown field');
             }
         }
     }
 }
+
