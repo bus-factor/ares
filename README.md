@@ -60,9 +60,45 @@ Default validation options are:
 
 ```php
 Validator::OPTIONS_DEFAULTS = [
+    'allBlankable' => false,
     'allRequired'  => false,
     'allowUnknown' => false,
 ]
+```
+
+### allBlankable
+
+This option applies to the type ```string``` only.
+If set ```true``` blank values, are considered valid.
+If set ```false``` blank values are considered invalid.
+
+```php
+$schema = [
+    'type' => 'map',
+    'schema' => [
+        'name' => ['type' => 'string'],
+    ],
+];
+
+$validator = new Validator($schema, ['allBlankable' => true]);
+$validator->validate(['name' => '']); // -> true
+
+$validator = new Validator($schema, ['allBlankable' => false]);
+$validator->validate(['name' => '']); // -> false
+```
+
+This option may be overridden per field by using the ```blankable``` rule:
+```php
+$schema = [
+    'type' => 'map',
+    'schema' => [
+        'name' => ['type' => 'string'],
+        'email' => ['type' => 'string', 'blankable' => true],
+    ],
+];
+
+$validator = new Validator($schema, ['allBlankable' => false]);
+$validator->validate(['name' => 'John Doe', 'email' => '']); // -> true
 ```
 
 ### allRequired
@@ -122,19 +158,11 @@ $validator->validate(['name' => 'John Doe', 'initials' => 'JD']); // -> true
 
 ## Validation Rules
 
-The validator uses a default set of validation rules which are applied to the provided schema during validator construction:
-
-```php
-Validator::SCHEMA_DEFAULTS = [
-    'blankable' => false,
-]
-```
-
 ### blankable
 
 The ```blankable``` rule applies to ```string``` typed values only.
 If set ```true```, blank strings are considered valid.
-If set ```false```, blank strings are considered invalid.
+If set ```false```, blank strings are considered invalid (default).
 
 Examples:
 
@@ -148,21 +176,29 @@ $validator = new Validator(['type' => 'string', 'blankable' => true]);
 $validator->validate('   '); // -> true
 ```
 
+The ```blankable``` validation rule may be used in combination with the ```allBlankable``` validation option.
+
 ### required
 
 Use the ```required``` rule to enforce the presence of a value.
-If set ```true```, values must not be ```null```.
-If set ```false```, values are allowed to be ```null```.
+If set ```true```, absent fields are considered invalid.
+If set ```false```, absent fields are considered valid (default).
 
 Examples:
 
 ```php
-$validator = new Validator(['type' => 'integer', 'required' => true]);
-$validator->validate(null); // -> false
+$validator = new Validator([
+    'type' => 'map',
+    'schema' => [
+        'name' => ['type' => 'string', 'required' => true],
+    ],
+]);
 
-$validator = new Validator(['type' => 'integer', 'required' => false]);
-$validator->validate(null); // -> true
+$validator->validate([]); // -> false
+$validator->validate(['name' => 'John Doe']); // -> true
 ```
+
+The ```required``` validation rule may be used in combination with the ```allRequired``` validation option.
 
 ### schema (map)
 
