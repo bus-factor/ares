@@ -35,7 +35,7 @@ $data = [
 ];
 
 $expectedErrors = [
-    new Error(['', 'name'], 'blank', 'Value must not be blank'),
+    new Error(['', 'name'], 'blankable', 'Value must not be blank'),
 ];
 
 $validator = new Validator($schema, $options);
