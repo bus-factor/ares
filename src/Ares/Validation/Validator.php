@@ -98,7 +98,7 @@ class Validator
         if ($type == $schema['type']) {
             if ($schema['type'] == Type::STRING) {
                 if (!$schema['blankable'] && trim($data) == '') {
-                    $this->errors[] = new Error($source, 'blank', 'Value must not be blank');
+                    $this->errors[] = new Error($source, 'blankable', 'Value must not be blank');
                 }
             } else if ($schema['type'] == Type::MAP) {
                 $this->performMapValidation($source, $schema['schema'], $data);
