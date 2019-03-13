@@ -13,6 +13,7 @@ namespace Ares\Validation;
 
 use Ares\Exception\InvalidValidationSchemaException;
 use Ares\Validation\Schema\PhpType;
+use Ares\Validation\Schema\Sanitizer as SchemaSanitizer;
 use Ares\Validation\Schema\Type;
 
 /**
@@ -20,10 +21,11 @@ use Ares\Validation\Schema\Type;
  */
 class Validator
 {
-    /** @const array SCHEMA_DEFAULTS */
-    const SCHEMA_DEFAULTS = [
-        'required' => false,
-        'blankable' => false,
+    /** @const array OPTIONS_DEFAULTS */
+    const OPTIONS_DEFAULTS = [
+        'allBlankable' => false,
+        'allRequired'  => false,
+        'allowUnknown' => false,
     ];
 
     /** @const array TYPE_MAPPING */
@@ -42,15 +44,20 @@ class Validator
 
     /** @var array $errors */
     protected $errors = [];
+    /** @var array $options */
+    protected $options;
     /** @var array $schema */
     protected $schema;
 
     /**
-     * @param array $schema
+     * @param array $schema Validation schema.
+     * @param array $options Validation options.
+     * @throws \Ares\Exception\InvalidValidationSchemaException
      */
-    public function __construct(array $schema)
+    public function __construct(array $schema, array $options = [])
     {
-        $this->schema = $schema;
+        $this->options = $options + self::OPTIONS_DEFAULTS;
+        $this->schema = $this->prepareSchema($schema, $this->options);
     }
 
     /**
@@ -64,35 +71,26 @@ class Validator
     /**
      * @param mixed $data Input data.
      * @return boolean
-     * @throws \Ares\Exception\InvalidValidationSchemaException
      */
     public function validate($data): bool
     {
         $this->errors = [];
 
-        $this->performValidation([], $this->schema, [], $data, '');
+        $this->performValidation([], $this->schema, $data, '');
 
         return empty($this->errors);
     }
 
     /**
-     * @param array $source       Source references.
-     * @param array $schema       Validation schema.
-     * @param array $schemaSource Current validation schema source.
-     * @param mixed $data         Input data.
-     * @param mixed $field        Current field name or index (part of source reference).
+     * @param array $source Source references.
+     * @param array $schema Validation schema.
+     * @param mixed $data   Input data.
+     * @param mixed $field  Current field name or index (part of source reference).
      * @return void
-     * @throws \Ares\Exception\InvalidValidationSchemaException
      */
-    protected function performValidation(array $source, array $schema, array $schemaSource, $data, $field): void
+    protected function performValidation(array $source, array $schema, $data, $field): void
     {
-        if (!isset($schema['type'])) {
-            $schemaSourceFormatted = '[\'' . implode('\'][\'', array_merge($schemaSource, ['type'])) . '\']';
-            throw new InvalidValidationSchemaException('Missing schema option: $schema' . $schemaSourceFormatted);
-        }
-
         $source[] = $field;
-        $schema += $schema + self::SCHEMA_DEFAULTS;
 
         $phpType = gettype($data);
         $type = self::TYPE_MAPPING[$phpType];
@@ -103,14 +101,7 @@ class Validator
                     $this->errors[] = new Error($source, 'blank', 'Value must not be blank');
                 }
             } else if ($schema['type'] == Type::MAP) {
-                if (!isset($schema['schema'])) {
-                    $schemaSourceFormatted = '[\'' . implode('\'][\'', array_merge($schemaSource, ['schema'])) . '\']';
-                    throw new InvalidValidationSchemaException('Missing schema option: $schema' . $schemaSourceFormatted);
-                }
-
-                $schemaSource[] = 'schema';
-                $this->performMapValidation($source, $schema['schema'], $schemaSource, $data);
-                array_pop($schemaSource);
+                $this->performMapValidation($source, $schema['schema'], $data);
             }
         } else if ($phpType === PhpType::NULL) {
             if (!empty($schema['required'])) {
@@ -126,29 +117,46 @@ class Validator
     /**
      * @param array $source         Source references.
      * @param array $schemasByField Schema by field.
-     * @param array $schemaSource   Current validation schema source.
      * @param array $data           Input data.
      * @return void
-     * @throws \Ares\Exception\InvalidValidationSchemaException
      */
-    protected function performMapValidation(array $source, array $schemasByField, array $schemaSource, array $data): void
+    protected function performMapValidation(array $source, array $schemasByField, array $data): void
     {
         foreach ($schemasByField as $field => $schema) {
             if (array_key_exists($field, $data)) {
-                $schemaSource[] = $field;
-                $this->performValidation($source, $schema, $schemaSource, $data[$field], $field);
-                array_pop($schemaSource);
+                $this->performValidation($source, $schema, $data[$field], $field);
             } else {
-                $schema = $schema + self::SCHEMA_DEFAULTS;
-
                 if (!empty($schema['required'])) {
-                    $source[] = $field;
-
-                    $this->errors[] = new Error($source, 'required', 'Value required');
-
-                    array_pop($source);
+                    $this->errors[] = new Error(array_merge($source, [$field]), 'required', 'Value required');
                 }
             }
         }
+
+        if (empty($this->options['allowUnknown'])) {
+            $unknownFields = array_diff(array_keys($data), array_keys($schemasByField));
+
+            foreach ($unknownFields as $field) {
+                $this->errors[] = new Error(array_merge($source, [$field]), 'unknown', 'Unknown field');
+            }
+        }
+    }
+
+    /**
+     * Sets the schema.
+     *
+     * @param array $schema  Validation schema.
+     * @param array $options Validation options.
+     * @return array
+     * @throws \Ares\Exception\InvalidValidationSchemaException
+     */
+    protected function prepareSchema(array $schema, array $options): array
+    {
+        $schemaDefaults = [
+            'required'  => !empty($options['allRequired']),
+            'blankable' => !empty($options['allBlankable']),
+        ];
+
+        return SchemaSanitizer::sanitize($schema, $schemaDefaults);
     }
 }
+

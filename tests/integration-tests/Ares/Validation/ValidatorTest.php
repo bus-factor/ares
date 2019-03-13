@@ -30,6 +30,7 @@ class ValidatorTest extends TestCase
      * @covers ::getErrors
      * @covers ::performMapValidation
      * @covers ::performValidation
+     * @covers ::prepareSchema
      * @covers ::validate
      *
      * @dataProvider getValidateSamples
