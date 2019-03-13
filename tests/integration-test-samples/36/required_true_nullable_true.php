@@ -3,21 +3,28 @@
 declare(strict_types=1);
 
 /**
- * float_value_not_required.php
+ * required_true_nullable_true.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
- * @since  2019-03-07
+ * @since  2019-03-13
  */
 
-use Ares\Validation\Error;
 use Ares\Validation\Validator;
 
-$schema = ['type' => 'float'];
-$data = null;
-
-$expectedErrors = [
-    new Error([''], 'nullable', 'Value must not be null'),
+$schema = [
+    'type' => 'map',
+    'schema' => [
+        'name' => [
+            'type' => 'string',
+            'required' => true,
+            'nullable' => true,
+        ],
+    ],
 ];
+
+$data = ['name' => null];
+
+$expectedErrors = [];
 
 $validator = new Validator($schema);
 
