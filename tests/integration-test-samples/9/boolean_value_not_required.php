@@ -9,12 +9,15 @@ declare(strict_types=1);
  * @since  2019-03-07
  */
 
+use Ares\Validation\Error;
 use Ares\Validation\Validator;
 
 $schema = ['type' => 'boolean'];
 $data = null;
 
-$expectedErrors = [];
+$expectedErrors = [
+    new Error([''], 'nullable', 'Value must not be null'),
+];
 
 $validator = new Validator($schema);
 

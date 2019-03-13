@@ -21,7 +21,7 @@ $schema = [
 $data = null;
 
 $expectedErrors = [
-    new Error([''], 'required', 'Value required'),
+    new Error([''], 'nullable', 'Value must not be null'),
 ];
 
 $validator = new Validator($schema);

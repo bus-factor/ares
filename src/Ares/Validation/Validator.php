@@ -104,8 +104,8 @@ class Validator
                 $this->performMapValidation($source, $schema['schema'], $data);
             }
         } else if ($phpType === PhpType::NULL) {
-            if (!empty($schema['required'])) {
-                $this->errors[] = new Error($source, 'required', 'Value required');
+            if (empty($schema['nullable'])) {
+                $this->errors[] = new Error($source, 'nullable', 'Value must not be null');
             }
         } else {
             $this->errors[] = new Error($source, 'type', 'Invalid type');
@@ -154,6 +154,7 @@ class Validator
         $schemaDefaults = [
             'required'  => !empty($options['allRequired']),
             'blankable' => !empty($options['allBlankable']),
+            'nullable'  => false,
         ];
 
         return SchemaSanitizer::sanitize($schema, $schemaDefaults);

@@ -178,6 +178,22 @@ $validator->validate('   '); // -> true
 
 The ```blankable``` validation rule may be used in combination with the ```allBlankable``` validation option.
 
+### nullable
+
+If set ```true```, ```null``` is considered a valid value.
+If set ```false```, ```null``` is considered an invalid value (default).
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'string', 'nullable' => false]);
+$validator->validate(null); // -> false
+$validator->validate('John Doe'); // -> true
+
+$validator = new Validator(['type' => 'string', 'nullable' => true]);
+$validator->validate(null); // -> true
+```
+
 ### required
 
 Use the ```required``` rule to enforce the presence of a value.
