@@ -23,12 +23,12 @@ class Validator
 {
     /** @const array OPTIONS_DEFAULTS */
     const OPTIONS_DEFAULTS = [
+        'allRequired'  => false,
         'allowUnknown' => false,
     ];
 
     /** @const array SCHEMA_DEFAULTS */
     const SCHEMA_DEFAULTS = [
-        'required' => false,
         'blankable' => false,
     ];
 
@@ -60,8 +60,12 @@ class Validator
      */
     public function __construct(array $schema, array $options = [])
     {
-        $this->schema = SchemaSanitizer::sanitize($schema, self::SCHEMA_DEFAULTS);
         $this->options = $options + self::OPTIONS_DEFAULTS;
+
+        $this->schema = SchemaSanitizer::sanitize(
+            $schema,
+            ['required' => !empty($this->options['allRequired'])] + self::SCHEMA_DEFAULTS
+        );
     }
 
     /**

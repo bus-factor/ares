@@ -60,8 +60,43 @@ Default validation options are:
 
 ```php
 Validator::OPTIONS_DEFAULTS = [
+    'allRequired'  => false,
     'allowUnknown' => false,
 ]
+```
+
+### allRequired
+
+If set ```true``` fields that are defined in the schema and not present in the input, are considered invalid.
+If set ```false``` fields that are defined in the schema and not present in the input, are considered valid.
+
+```php
+$schema = [
+    'type' => 'map',
+    'schema' => [
+        'name' => ['type' => 'string'],
+    ],
+];
+
+$validator = new Validator($schema, ['allRequired' => true]);
+$validator->validate([]); // -> false
+
+$validator = new Validator($schema, ['allRequired' => false]);
+$validator->validate([]); // -> true
+```
+
+This option may be overridden per field by using the ```required``` rule:
+```php
+$schema = [
+    'type' => 'map',
+    'schema' => [
+        'name' => ['type' => 'string'],
+        'email' => ['type' => 'string', 'required' => false],
+    ],
+];
+
+$validator = new Validator($schema, ['allRequired' => true]);
+$validator->validate(['name' => 'John Doe']); // -> true
 ```
 
 ### allowUnknown
@@ -91,7 +126,6 @@ The validator uses a default set of validation rules which are applied to the pr
 
 ```php
 Validator::SCHEMA_DEFAULTS = [
-    'required' => false,
     'blankable' => false,
 ]
 ```
