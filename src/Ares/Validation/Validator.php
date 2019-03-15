@@ -24,6 +24,7 @@ class Validator
     /** @const array OPTIONS_DEFAULTS */
     const OPTIONS_DEFAULTS = [
         'allBlankable' => false,
+        'allNullable'  => false,
         'allRequired'  => false,
         'allowUnknown' => false,
     ];
@@ -100,10 +101,10 @@ class Validator
                 if (!$schema['blankable'] && trim($data) == '') {
                     $this->errors[] = new Error($source, 'blankable', 'Value must not be blank');
                 }
-            } else if ($schema['type'] == Type::MAP) {
+            } elseif ($schema['type'] == Type::MAP) {
                 $this->performMapValidation($source, $schema['schema'], $data);
             }
-        } else if ($phpType === PhpType::NULL) {
+        } elseif ($phpType === PhpType::NULL) {
             if (empty($schema['nullable'])) {
                 $this->errors[] = new Error($source, 'nullable', 'Value must not be null');
             }
@@ -125,10 +126,8 @@ class Validator
         foreach ($schemasByField as $field => $schema) {
             if (array_key_exists($field, $data)) {
                 $this->performValidation($source, $schema, $data[$field], $field);
-            } else {
-                if (!empty($schema['required'])) {
-                    $this->errors[] = new Error(array_merge($source, [$field]), 'required', 'Value required');
-                }
+            } elseif (!empty($schema['required'])) {
+                $this->errors[] = new Error(array_merge($source, [$field]), 'required', 'Value required');
             }
         }
 
@@ -154,7 +153,7 @@ class Validator
         $schemaDefaults = [
             'required'  => !empty($options['allRequired']),
             'blankable' => !empty($options['allBlankable']),
-            'nullable'  => false,
+            'nullable'  => !empty($options['allNullable']),
         ];
 
         return SchemaSanitizer::sanitize($schema, $schemaDefaults);
