@@ -61,6 +61,7 @@ Default validation options are:
 ```php
 Validator::OPTIONS_DEFAULTS = [
     'allBlankable' => false,
+    'allNullable'  => false,
     'allRequired'  => false,
     'allowUnknown' => false,
 ]
@@ -69,8 +70,8 @@ Validator::OPTIONS_DEFAULTS = [
 ### allBlankable
 
 This option applies to the type ```string``` only.
-If set ```true``` blank values, are considered valid.
-If set ```false``` blank values are considered invalid.
+If set ```true```, blank values are considered valid.
+If set ```false```, blank values are considered invalid.
 
 ```php
 $schema = [
@@ -99,6 +100,40 @@ $schema = [
 
 $validator = new Validator($schema, ['allBlankable' => false]);
 $validator->validate(['name' => 'John Doe', 'email' => '']); // -> true
+```
+
+### allNullable
+
+If set ```true```, ```null``` is considered a valid value.
+If set ```false```, ```null``` is not considered a valid value.
+
+```php
+$schema = [
+    'type' => 'map',
+    'schema' => [
+        'name' => ['type' => 'string'],
+    ],
+];
+
+$validator = new Validator($schema, ['allNullable' => true]);
+$validator->validate(['name' => null]); // -> true
+
+$validator = new Validator($schema, ['allNullable' => false]);
+$validator->validate(['name' => null]); // -> false
+```
+
+This option may be overridden per field by using the ```nullable``` rule:
+```php
+$schema = [
+    'type' => 'map',
+    'schema' => [
+        'name' => ['type' => 'string'],
+        'email' => ['type' => 'string', 'nullable' => true],
+    ],
+];
+
+$validator = new Validator($schema, ['allNullable' => false]);
+$validator->validate(['name' => 'John Doe', 'email' => null]); // -> true
 ```
 
 ### allRequired
@@ -193,6 +228,8 @@ $validator->validate('John Doe'); // -> true
 $validator = new Validator(['type' => 'string', 'nullable' => true]);
 $validator->validate(null); // -> true
 ```
+
+The ```nullable``` validation rule may be used in combination with the ```allNullable``` validation option.
 
 ### required
 
