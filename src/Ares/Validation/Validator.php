@@ -12,9 +12,11 @@ declare(strict_types=1);
 namespace Ares\Validation;
 
 use Ares\Exception\InvalidValidationSchemaException;
+use Ares\Validation\Rule\BlankableRule;
 use Ares\Validation\Schema\PhpType;
 use Ares\Validation\Schema\Sanitizer as SchemaSanitizer;
 use Ares\Validation\Schema\Type;
+use InvalidArgumentException;
 
 /**
  * Class Validator
@@ -23,10 +25,14 @@ class Validator
 {
     /** @const array OPTIONS_DEFAULTS */
     const OPTIONS_DEFAULTS = [
-        'allBlankable' => false,
-        'allNullable'  => false,
-        'allRequired'  => false,
-        'allowUnknown' => false,
+        Option::ALLOW_UNKNOWN => false,
+        Option::ALL_BLANKABLE => false,
+        Option::ALL_NULLABLE  => false,
+        Option::ALL_REQUIRED  => false,
+    ];
+
+    const RULE_CLASSMAP = [
+        'blankable' => BlankableRule::class,
     ];
 
     /** @const array TYPE_MAPPING */
@@ -43,8 +49,8 @@ class Validator
         PhpType::UNKNOWN         => null,
     ];
 
-    /** @var array $errors */
-    protected $errors = [];
+    /** @var \Ares\Validation\Context $context */
+    protected $context;
     /** @var array $options */
     protected $options;
     /** @var array $schema */
@@ -62,11 +68,38 @@ class Validator
     }
 
     /**
+     * @param array $schema Validation schema.
+     * @return array
+     */
+    protected function extractRuleIds(array $schema): array
+    {
+        return array_diff(
+            array_keys($schema),
+            ['required', 'type', 'schema']
+        );
+    }
+
+    /**
      * @return array
      */
     public function getErrors(): array
     {
-        return $this->errors;
+        return isset($this->context) ? $this->context->getErrors() : [];
+    }
+
+    /**
+     * @param string $ruleId Validation rule ID.
+     * @return mixed
+     */
+    protected function getRule(string $ruleId)
+    {
+        if (!isset(self::RULE_CLASSMAP[$ruleId])) {
+            throw new InvalidArgumentException("Unknown rule ID: {$ruleId}");
+        }
+
+        $className = self::RULE_CLASSMAP[$ruleId];
+
+        return new $className();
     }
 
     /**
@@ -75,68 +108,80 @@ class Validator
      */
     public function validate($data): bool
     {
-        $this->errors = [];
+        $this->prepareValidation();
+        $this->performValidation($this->schema, $data, '');
 
-        $this->performValidation([], $this->schema, $data, '');
-
-        return empty($this->errors);
+        return !$this->context->hasErrors();
     }
 
     /**
-     * @param array $source Source references.
      * @param array $schema Validation schema.
      * @param mixed $data   Input data.
      * @param mixed $field  Current field name or index (part of source reference).
      * @return void
      */
-    protected function performValidation(array $source, array $schema, $data, $field): void
+    protected function performValidation(array $schema, $data, $field): void
     {
-        $source[] = $field;
+        $this->context->pushSourceReference($field);
 
         $phpType = gettype($data);
-        $type = self::TYPE_MAPPING[$phpType];
 
-        if ($type == $schema['type']) {
+        /*
+        $ruleIds = $this->extractRuleIds($schema);
+
+        foreach ($ruleIds as $ruleId) {
+            $rule = $this->getRule($ruleId);
+
+            $rule(array_merge($source, [$field]), $data);
+        }
+        */
+
+        if (self::TYPE_MAPPING[$phpType] == $schema['type']) {
             if ($schema['type'] == Type::STRING) {
                 if (!$schema['blankable'] && trim($data) == '') {
-                    $this->errors[] = new Error($source, 'blankable', 'Value must not be blank');
+                    $this->context->addError('blankable', 'Value must not be blank');
                 }
             } elseif ($schema['type'] == Type::MAP) {
-                $this->performMapValidation($source, $schema['schema'], $data);
+                $this->performMapValidation($schema['schema'], $data);
             }
         } elseif ($phpType === PhpType::NULL) {
             if (empty($schema['nullable'])) {
-                $this->errors[] = new Error($source, 'nullable', 'Value must not be null');
+                $this->context->addError('nullable', 'Value must not be null');
             }
         } else {
-            $this->errors[] = new Error($source, 'type', 'Invalid type');
+            $this->context->addError('type', 'Invalid type');
         }
 
-        array_pop($source);
+        $this->context->popSourceReference();
     }
 
     /**
-     * @param array $source         Source references.
      * @param array $schemasByField Schema by field.
      * @param array $data           Input data.
      * @return void
      */
-    protected function performMapValidation(array $source, array $schemasByField, array $data): void
+    protected function performMapValidation(array $schemasByField, array $data): void
     {
         foreach ($schemasByField as $field => $schema) {
             if (array_key_exists($field, $data)) {
-                $this->performValidation($source, $schema, $data[$field], $field);
-            } elseif (!empty($schema['required'])) {
-                $this->errors[] = new Error(array_merge($source, [$field]), 'required', 'Value required');
+                $this->performValidation($schema, $data[$field], $field);
+            } elseif ($schema['required']) {
+                $this->context->pushSourceReference($field);
+                $this->context->addError('required', 'Value required');
+                $this->context->popSourceReference();
             }
         }
 
-        if (empty($this->options['allowUnknown'])) {
-            $unknownFields = array_diff(array_keys($data), array_keys($schemasByField));
+        if ($this->options[Option::ALLOW_UNKNOWN]) {
+            return;
+        }
 
-            foreach ($unknownFields as $field) {
-                $this->errors[] = new Error(array_merge($source, [$field]), 'unknown', 'Unknown field');
-            }
+        $unknownFields = array_diff_key($data, $schemasByField);
+
+        foreach ($unknownFields as $field => $value) {
+            $this->context->pushSourceReference($field);
+            $this->context->addError('unknown', 'Unknown field');
+            $this->context->popSourceReference();
         }
     }
 
@@ -151,12 +196,20 @@ class Validator
     protected function prepareSchema(array $schema, array $options): array
     {
         $schemaDefaults = [
-            'required'  => !empty($options['allRequired']),
-            'blankable' => !empty($options['allBlankable']),
-            'nullable'  => !empty($options['allNullable']),
+            'required'  => $options[Option::ALL_REQUIRED],
+            'blankable' => $options[Option::ALL_BLANKABLE],
+            'nullable'  => $options[Option::ALL_NULLABLE],
         ];
 
         return SchemaSanitizer::sanitize($schema, $schemaDefaults);
+    }
+
+    /**
+     * @return void
+     */
+    protected function prepareValidation(): void
+    {
+        $this->context = new Context();
     }
 }
 
