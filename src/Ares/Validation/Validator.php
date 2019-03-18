@@ -32,7 +32,7 @@ class Validator
     ];
 
     const RULE_CLASSMAP = [
-        'blankable' => BlankableRule::class,
+        BlankableRule::ID => BlankableRule::class,
     ];
 
     /** @const array TYPE_MAPPING */
@@ -65,18 +65,6 @@ class Validator
     {
         $this->options = $options + self::OPTIONS_DEFAULTS;
         $this->schema = $this->prepareSchema($schema, $this->options);
-    }
-
-    /**
-     * @param array $schema Validation schema.
-     * @return array
-     */
-    protected function extractRuleIds(array $schema): array
-    {
-        return array_diff(
-            array_keys($schema),
-            ['required', 'type', 'schema']
-        );
     }
 
     /**
@@ -126,23 +114,15 @@ class Validator
 
         $phpType = gettype($data);
 
-        /*
-        $ruleIds = $this->extractRuleIds($schema);
-
-        foreach ($ruleIds as $ruleId) {
-            $rule = $this->getRule($ruleId);
-
-            $rule(array_merge($source, [$field]), $data);
-        }
-        */
-
         if (self::TYPE_MAPPING[$phpType] == $schema['type']) {
-            if ($schema['type'] == Type::STRING) {
-                if (!$schema['blankable'] && trim($data) == '') {
-                    $this->context->addError('blankable', 'Value must not be blank');
-                }
-            } elseif ($schema['type'] == Type::MAP) {
+            if ($schema['type'] == Type::MAP) {
                 $this->performMapValidation($schema['schema'], $data);
+            } else {
+                foreach ($schema as $ruleId => $ruleConfig) {
+                    if (!in_array($ruleId, ['required', 'type', 'schema', 'nullable'])) {
+                        call_user_func_array($this->getRule($ruleId), [$ruleConfig, $data, $this->context]);
+                    }
+                }
             }
         } elseif ($phpType === PhpType::NULL) {
             if (empty($schema['nullable'])) {

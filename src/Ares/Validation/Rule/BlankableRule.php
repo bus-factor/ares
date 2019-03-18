@@ -11,17 +11,39 @@ declare(strict_types=1);
 
 namespace Ares\Validation\Rule;
 
+use Ares\Validation\Context;
+
 /**
  * Class BlankableRule
  */
-class BlankableRule
+class BlankableRule implements RuleInterface
 {
+    const ID = 'blankable';
+    const MESSAGE = 'Value must not be blank';
+
     /**
+     * @param mixed                    $config  Validation rule configuration.
+     * @param mixed                    $data    Input data.
+     * @param \Ares\Validation\Context $context Validation context.
      * @return boolean
      */
-    public function __invoke(array $source, $data): bool
+    public function __invoke($config, $data, Context $context): bool
     {
-        return true;
+        if ($config === true) {
+            return true;
+        }
+
+        if (!is_string($data)) {
+            return true;
+        }
+
+        if (trim($data) != '') {
+            return true;
+        }
+
+        $context->addError(self::ID, self::MESSAGE);
+
+        return false;
     }
 }
 
