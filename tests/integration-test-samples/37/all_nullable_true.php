@@ -3,13 +3,12 @@
 declare(strict_types=1);
 
 /**
- * all_blankable_false.php
+ * all_nullable_true.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
- * @since  2019-03-13
+ * @since  2019-03-15
  */
 
-use Ares\Validation\Error;
 use Ares\Validation\Validator;
 
 $schema = [
@@ -22,14 +21,12 @@ $schema = [
 ];
 
 $options = [
-    'allBlankable' => false,
+    'allNullable' => true,
 ];
 
-$data = ['name' => ''];
+$data = ['name' => null];
 
-$expectedErrors = [
-    new Error(['', 'name'], 'blankable', 'Value must not be blank'),
-];
+$expectedErrors = [];
 
 $validator = new Validator($schema, $options);
 

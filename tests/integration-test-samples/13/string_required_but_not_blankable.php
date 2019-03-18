@@ -16,7 +16,7 @@ $schema = ['type' => 'string', 'required' => true];
 $data = " \n\t\r ";
 
 $expectedErrors = [
-    new Error([''], 'blank', 'Value must not be blank'),
+    new Error([''], 'blankable', 'Value must not be blank'),
 ];
 
 $validator = new Validator($schema);
