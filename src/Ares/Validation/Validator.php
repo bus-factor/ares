@@ -13,7 +13,8 @@ namespace Ares\Validation;
 
 use Ares\Exception\InvalidValidationSchemaException;
 use Ares\Validation\Rule\BlankableRule;
-use Ares\Validation\Schema\PhpType;
+use Ares\Validation\Rule\NullableRule;
+use Ares\Validation\Rule\TypeRule;
 use Ares\Validation\Schema\Sanitizer as SchemaSanitizer;
 use Ares\Validation\Schema\Type;
 use InvalidArgumentException;
@@ -33,20 +34,8 @@ class Validator
 
     const RULE_CLASSMAP = [
         BlankableRule::ID => BlankableRule::class,
-    ];
-
-    /** @const array TYPE_MAPPING */
-    const TYPE_MAPPING = [
-        PhpType::ARRAY           => Type::MAP,
-        PhpType::BOOLEAN         => Type::BOOLEAN,
-        PhpType::DOUBLE          => Type::FLOAT,
-        PhpType::INTEGER         => Type::INTEGER,
-        PhpType::NULL            => null,
-        PhpType::OBJECT          => null,
-        PhpType::RESOURCE        => null,
-        PhpType::RESOURCE_CLOSED => null,
-        PhpType::STRING          => Type::STRING,
-        PhpType::UNKNOWN         => null,
+        NullableRule::ID  => NullableRule::class,
+        TypeRule::ID      => TypeRule::class,
     ];
 
     /** @var \Ares\Validation\Context $context */
@@ -81,10 +70,6 @@ class Validator
      */
     protected function getRule(string $ruleId)
     {
-        if (!isset(self::RULE_CLASSMAP[$ruleId])) {
-            throw new InvalidArgumentException("Unknown rule ID: {$ruleId}");
-        }
-
         $className = self::RULE_CLASSMAP[$ruleId];
 
         return new $className();
@@ -96,7 +81,7 @@ class Validator
      */
     public function validate($data): bool
     {
-        $this->prepareValidation();
+        $this->prepareValidation($data);
         $this->performValidation($this->schema, $data, '');
 
         return !$this->context->hasErrors();
@@ -108,28 +93,16 @@ class Validator
      * @param mixed $field  Current field name or index (part of source reference).
      * @return void
      */
-    protected function performValidation(array $schema, $data, $field): void
+    protected function performValidation(array $schema, &$data, $field): void
     {
         $this->context->pushSourceReference($field);
 
-        $phpType = gettype($data);
+        $valid = $this->getRule(TypeRule::ID)->validate($schema[TypeRule::ID], $data, $this->context)
+            && $this->getRule(NullableRule::ID)->validate($schema[NullableRule::ID], $data, $this->context)
+            && $this->getRule(BlankableRule::ID)->validate($schema[BlankableRule::ID], $data, $this->context);
 
-        if (self::TYPE_MAPPING[$phpType] == $schema['type']) {
-            if ($schema['type'] == Type::MAP) {
-                $this->performMapValidation($schema['schema'], $data);
-            } else {
-                foreach ($schema as $ruleId => $ruleConfig) {
-                    if (!in_array($ruleId, ['required', 'type', 'schema', 'nullable'])) {
-                        call_user_func_array($this->getRule($ruleId), [$ruleConfig, $data, $this->context]);
-                    }
-                }
-            }
-        } elseif ($phpType === PhpType::NULL) {
-            if (empty($schema['nullable'])) {
-                $this->context->addError('nullable', 'Value must not be null');
-            }
-        } else {
-            $this->context->addError('type', 'Invalid type');
+        if ($valid && $schema[TypeRule::ID] == Type::MAP) {
+            $this->performMapValidation($schema['schema'], $data);
         }
 
         $this->context->popSourceReference();
@@ -140,7 +113,7 @@ class Validator
      * @param array $data           Input data.
      * @return void
      */
-    protected function performMapValidation(array $schemasByField, array $data): void
+    protected function performMapValidation(array $schemasByField, array &$data): void
     {
         foreach ($schemasByField as $field => $schema) {
             if (array_key_exists($field, $data)) {
@@ -177,19 +150,20 @@ class Validator
     {
         $schemaDefaults = [
             'required'  => $options[Option::ALL_REQUIRED],
-            'blankable' => $options[Option::ALL_BLANKABLE],
-            'nullable'  => $options[Option::ALL_NULLABLE],
+            BlankableRule::ID => $options[Option::ALL_BLANKABLE],
+            NullableRule::ID  => $options[Option::ALL_NULLABLE],
         ];
 
         return SchemaSanitizer::sanitize($schema, $schemaDefaults);
     }
 
     /**
+     * @param mixed $datai Input data.
      * @return void
      */
-    protected function prepareValidation(): void
+    protected function prepareValidation(&$data): void
     {
-        $this->context = new Context();
+        $this->context = new Context($data);
     }
 }
 

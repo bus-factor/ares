@@ -24,6 +24,6 @@ interface RuleInterface
      * @param \Ares\Validation\Context $context Validation context.
      * @return boolean
      */
-    public function __invoke($config, $data, Context $context): bool;
+    public function validate($config, $data, Context $context): bool;
 }
 

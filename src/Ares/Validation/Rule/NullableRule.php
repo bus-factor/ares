@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 /**
- * BlankableRule.php
+ * NullableRule.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
- * @since  2019-03-16
+ * @since  2019-03-20
  */
 
 namespace Ares\Validation\Rule;
@@ -15,12 +15,12 @@ use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Validation\Context;
 
 /**
- * Class BlankableRule
+ * Class NullableRule
  */
-class BlankableRule implements RuleInterface
+class NullableRule implements RuleInterface
 {
-    const ID            = 'blankable';
-    const ERROR_MESSAGE = 'Value must not be blank';
+    const ID            = 'nullable';
+    const ERROR_MESSAGE = 'Value must not be null';
 
     /**
      * @param mixed                    $args    Validation rule configuration.
@@ -34,7 +34,7 @@ class BlankableRule implements RuleInterface
             throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
         }
 
-        if ($args || !is_string($data) || trim($data) != '') {
+        if ($args || $data !== null) {
             return true;
         }
 

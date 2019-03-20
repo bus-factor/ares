@@ -16,10 +16,20 @@ namespace Ares\Validation;
  */
 class Context
 {
+    /** @var mixed $data */
+    protected $data;
     /** @var array $errors */
     protected $errors = [];
     /** @var array $source */
     protected $source = [];
+
+    /**
+     * @param mixed $data Input data.
+     */
+    public function __construct(&$data = null)
+    {
+        $this->data = &$data;
+    }
 
     /**
      * @param string $code    Error code.
@@ -32,6 +42,14 @@ class Context
         $this->errors[] = new Error($this->source, $code, $message, $meta);
 
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function &getData()
+    {
+        return $this->data;
     }
 
     /**

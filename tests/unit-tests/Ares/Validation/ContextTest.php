@@ -23,6 +23,20 @@ use PHPUnit\Framework\TestCase;
 class ContextTest extends TestCase
 {
     /**
+     * @covers ::__construct
+     * @covers ::getData
+     *
+     * @return void
+     */
+    public function testDataAccessors(): void
+    {
+        $data = ['foo' => 'bar'];
+        $context = new Context($data);
+
+        $this->assertSame($data, $context->getData());
+    }
+
+    /**
      * @covers ::addError
      * @covers ::getErrors
      * @covers ::hasErrors
