@@ -14,6 +14,7 @@ namespace Ares\Validation;
 use Ares\Exception\InvalidValidationSchemaException;
 use Ares\Validation\Rule\BlankableRule;
 use Ares\Validation\Rule\NullableRule;
+use Ares\Validation\Rule\RequiredRule;
 use Ares\Validation\Rule\TypeRule;
 use Ares\Validation\Schema\Sanitizer as SchemaSanitizer;
 use Ares\Validation\Schema\Type;
@@ -35,6 +36,7 @@ class Validator
     const RULE_CLASSMAP = [
         BlankableRule::ID => BlankableRule::class,
         NullableRule::ID  => NullableRule::class,
+        RequiredRule::ID  => RequiredRule::class,
         TypeRule::ID      => TypeRule::class,
     ];
 
@@ -93,15 +95,20 @@ class Validator
      * @param mixed $field  Current field name or index (part of source reference).
      * @return void
      */
-    protected function performValidation(array $schema, &$data, $field): void
+    protected function performValidation(array $schema, $data, $field): void
     {
         $this->context->pushSourceReference($field);
 
-        $valid = $this->getRule(TypeRule::ID)->validate($schema[TypeRule::ID], $data, $this->context)
+        $valid = $this->getRule(RequiredRule::ID)->validate($schema[RequiredRule::ID], $data, $this->context)
+            && $this->getRule(TypeRule::ID)->validate($schema[TypeRule::ID], $data, $this->context)
             && $this->getRule(NullableRule::ID)->validate($schema[NullableRule::ID], $data, $this->context)
             && $this->getRule(BlankableRule::ID)->validate($schema[BlankableRule::ID], $data, $this->context);
 
         if ($valid && $schema[TypeRule::ID] == Type::MAP) {
+            foreach ($schema['schema'] as $childField => $childSchema) {
+                $this->performValidation($childSchema, $data[$childField] ?? null, $childField);
+            }
+
             $this->performMapValidation($schema['schema'], $data);
         }
 
@@ -113,18 +120,8 @@ class Validator
      * @param array $data           Input data.
      * @return void
      */
-    protected function performMapValidation(array $schemasByField, array &$data): void
+    protected function performMapValidation(array $schemasByField, array $data): void
     {
-        foreach ($schemasByField as $field => $schema) {
-            if (array_key_exists($field, $data)) {
-                $this->performValidation($schema, $data[$field], $field);
-            } elseif ($schema['required']) {
-                $this->context->pushSourceReference($field);
-                $this->context->addError('required', 'Value required');
-                $this->context->popSourceReference();
-            }
-        }
-
         if ($this->options[Option::ALLOW_UNKNOWN]) {
             return;
         }
@@ -149,7 +146,7 @@ class Validator
     protected function prepareSchema(array $schema, array $options): array
     {
         $schemaDefaults = [
-            'required'  => $options[Option::ALL_REQUIRED],
+            RequiredRule::ID  => $options[Option::ALL_REQUIRED],
             BlankableRule::ID => $options[Option::ALL_BLANKABLE],
             NullableRule::ID  => $options[Option::ALL_NULLABLE],
         ];
