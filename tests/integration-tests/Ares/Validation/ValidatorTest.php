@@ -20,18 +20,11 @@ use RegexIterator;
 
 /**
  * Class ValidatorTest
- *
- * @coversDefaultClass \Ares\Validation\Validator
  */
 class ValidatorTest extends TestCase
 {
     /**
-     * @covers ::__construct
-     * @covers ::getErrors
-     * @covers ::performMapValidation
-     * @covers ::performValidation
-     * @covers ::prepareSchema
-     * @covers ::validate
+     * @covers \Ares\Validation\Validator
      *
      * @dataProvider getValidateSamples
      *
