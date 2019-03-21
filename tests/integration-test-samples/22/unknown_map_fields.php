@@ -38,9 +38,9 @@ $data = [
 ];
 
 $expectedErrors = [
+    new Error(['', 'hobby'], 'unknown', 'Unknown field'),
     new Error(['', 'meta', 'size'], 'unknown', 'Unknown field'),
     new Error(['', 'meta', 'joined'], 'unknown', 'Unknown field'),
-    new Error(['', 'hobby'], 'unknown', 'Unknown field'),
 ];
 
 $validator = new Validator($schema);
