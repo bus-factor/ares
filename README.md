@@ -193,6 +193,18 @@ $validator->validate(['name' => 'John Doe', 'initials' => 'JD']); // -> true
 
 ## Validation Rules
 
+### allowed
+
+The ```allowed``` validation rule checks if a value is in a given set of allowed values (enumeration).
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'string', 'allowed' => ['small', 'large']]);
+$validator->validate('medium'); // -> false
+$validator->validate('small'); // -> true
+```
+
 ### blankable
 
 The ```blankable``` rule applies to ```string``` typed values only.

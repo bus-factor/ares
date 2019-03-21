@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Ares\Validation;
 
 use Ares\Exception\InvalidValidationSchemaException;
+use Ares\Validation\Rule\AllowedRule;
 use Ares\Validation\Rule\BlankableRule;
 use Ares\Validation\Rule\NullableRule;
 use Ares\Validation\Rule\RequiredRule;
@@ -34,7 +35,19 @@ class Validator
         Option::ALL_REQUIRED  => false,
     ];
 
+    /** @const array RESERVED_RULE_IDS */
+    const RESERVED_RULE_IDS = [
+        'schema'          => 'schema',
+        BlankableRule::ID => BlankableRule::ID,
+        NullableRule::ID  => NullableRule::ID,
+        RequiredRule::ID  => RequiredRule::ID,
+        TypeRule::ID      => TypeRule::ID,
+        UnknownRule::ID   => UnknownRule::ID,
+    ];
+
+    /** @const array RULE_CLASSMAP */
     const RULE_CLASSMAP = [
+        AllowedRule::ID   => AllowedRule::class,
         BlankableRule::ID => BlankableRule::class,
         NullableRule::ID  => NullableRule::class,
         RequiredRule::ID  => RequiredRule::class,
@@ -113,7 +126,13 @@ class Validator
                     $this->performValidation($childSchema, $data[$childField] ?? null, $childField);
                 }
             } else {
-                // run custom validation rules
+                $rules = array_diff_key($schema, self::RESERVED_RULE_IDS);
+
+                foreach ($rules as $ruleId => $ruleArgs) {
+                    if (!$this->getRule($ruleId)->validate($ruleArgs, $data, $this->context)) {
+                        break;
+                    }
+                }
             }
         }
 
