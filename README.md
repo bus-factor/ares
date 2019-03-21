@@ -1,4 +1,9 @@
-# Ares
+``
+  __ _ _ __ ___  ___
+ / _` | '__/ _ \/ __|
+| (_| | | |  __/\__ \
+ \__,_|_|  \___||___/
+``
 
 Ares is a lightweight standalone validation library.
 
