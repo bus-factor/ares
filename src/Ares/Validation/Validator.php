@@ -16,6 +16,7 @@ use Ares\Validation\Rule\BlankableRule;
 use Ares\Validation\Rule\NullableRule;
 use Ares\Validation\Rule\RequiredRule;
 use Ares\Validation\Rule\TypeRule;
+use Ares\Validation\Rule\UnknownRule;
 use Ares\Validation\Schema\Sanitizer as SchemaSanitizer;
 use Ares\Validation\Schema\Type;
 use InvalidArgumentException;
@@ -38,6 +39,7 @@ class Validator
         NullableRule::ID  => NullableRule::class,
         RequiredRule::ID  => RequiredRule::class,
         TypeRule::ID      => TypeRule::class,
+        UnknownRule::ID   => UnknownRule::class,
     ];
 
     /** @var \Ares\Validation\Context $context */
@@ -97,42 +99,25 @@ class Validator
      */
     protected function performValidation(array $schema, $data, $field): void
     {
-        $this->context->pushSourceReference($field);
+        $this->context->enter($field, $schema);
 
         $valid = $this->getRule(RequiredRule::ID)->validate($schema[RequiredRule::ID], $data, $this->context)
+            && $this->getRule(UnknownRule::ID)->validate($this->options[Option::ALLOW_UNKNOWN], $data, $this->context)
             && $this->getRule(TypeRule::ID)->validate($schema[TypeRule::ID], $data, $this->context)
             && $this->getRule(NullableRule::ID)->validate($schema[NullableRule::ID], $data, $this->context)
             && $this->getRule(BlankableRule::ID)->validate($schema[BlankableRule::ID], $data, $this->context);
 
-        if ($valid && $schema[TypeRule::ID] == Type::MAP) {
-            foreach ($schema['schema'] as $childField => $childSchema) {
-                $this->performValidation($childSchema, $data[$childField] ?? null, $childField);
+        if ($valid) {
+            if ($schema[TypeRule::ID] == Type::MAP) {
+                foreach ($schema['schema'] as $childField => $childSchema) {
+                    $this->performValidation($childSchema, $data[$childField] ?? null, $childField);
+                }
+            } else {
+                // run custom validation rules
             }
-
-            $this->performMapValidation($schema['schema'], $data);
         }
 
-        $this->context->popSourceReference();
-    }
-
-    /**
-     * @param array $schemasByField Schema by field.
-     * @param array $data           Input data.
-     * @return void
-     */
-    protected function performMapValidation(array $schemasByField, array $data): void
-    {
-        if ($this->options[Option::ALLOW_UNKNOWN]) {
-            return;
-        }
-
-        $unknownFields = array_diff_key($data, $schemasByField);
-
-        foreach ($unknownFields as $field => $value) {
-            $this->context->pushSourceReference($field);
-            $this->context->addError('unknown', 'Unknown field');
-            $this->context->popSourceReference();
-        }
+        $this->context->leave();
     }
 
     /**

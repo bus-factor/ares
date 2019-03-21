@@ -32,6 +32,8 @@ class TypeRuleTest extends TestCase
      *           ["foo"]
      *           [[]]
      *           [{}]
+     *           [true]
+     *           [false]
      *
      * @param mixed $args Validation rule configuration.
      * @return void

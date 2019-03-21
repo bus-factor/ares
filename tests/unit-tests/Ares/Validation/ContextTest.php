@@ -49,13 +49,13 @@ class ContextTest extends TestCase
 
         $this->assertFalse($context->hasErrors());
 
-        $context->pushSourceReference('foo');
+        $context->enter('foo', []);
 
         $this->assertSame($context, $context->addError('rule_id', 'message'));
         $this->assertTrue($context->hasErrors());
         $this->assertEquals([new Error(['foo'], 'rule_id', 'message')], $context->getErrors());
 
-        $context->pushSourceReference('bar');
+        $context->enter('bar', []);
 
         $this->assertSame($context, $context->addError('other_rule_id', 'other_message'));
         $this->assertTrue($context->hasErrors());
@@ -63,24 +63,28 @@ class ContextTest extends TestCase
     }
 
     /**
+     * @covers ::enter
+     * @covers ::getSchema
      * @covers ::getSource
-     * @covers ::popSourceReference
-     * @covers ::pushSourceReference
+     * @covers ::leave
      *
      * @return void
      */
-    public function testSourceAccessors(): void
+    public function testContextNesting(): void
     {
         $context = new Context();
 
         $this->assertEquals([], $context->getSource());
-        $this->assertSame($context, $context->pushSourceReference('foo'));
+        $this->assertSame($context, $context->enter('foo', ['a' => 1]));
         $this->assertEquals(['foo'], $context->getSource());
-        $this->assertSame($context, $context->pushSourceReference('bar'));
+        $this->assertEquals(['a' => 1], $context->getSchema());
+        $this->assertSame($context, $context->enter('bar', ['b' => 2]));
         $this->assertEquals(['foo', 'bar'], $context->getSource());
-        $this->assertSame($context, $context->popSourceReference());
+        $this->assertEquals(['b' => 2], $context->getSchema());
+        $this->assertSame($context, $context->leave());
         $this->assertEquals(['foo'], $context->getSource());
-        $this->assertSame($context, $context->popSourceReference());
+        $this->assertEquals(['a' => 1], $context->getSchema());
+        $this->assertSame($context, $context->leave());
         $this->assertEquals([], $context->getSource());
     }
 }

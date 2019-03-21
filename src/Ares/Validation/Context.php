@@ -20,6 +20,8 @@ class Context
     protected $data;
     /** @var array $errors */
     protected $errors = [];
+    /** @var array $schemas */
+    protected $schemas = [];
     /** @var array $source */
     protected $source = [];
 
@@ -63,6 +65,14 @@ class Context
     /**
      * @return array
      */
+    public function getSchema(): array
+    {
+        return end($this->schemas);
+    }
+
+    /**
+     * @return array
+     */
     public function getSource(): array
     {
         return $this->source;
@@ -77,22 +87,25 @@ class Context
     }
 
     /**
+     * @param mixed $reference Source reference.
+     * @param array $schema    Source specific validation schema.
      * @return self
      */
-    public function popSourceReference(): self
+    public function enter($reference, array $schema): self
     {
-        array_pop($this->source);
+        $this->source[] = $reference;
+        $this->schemas[] = $schema;
 
         return $this;
     }
 
     /**
-     * @param mixed $reference Source reference.
      * @return self
      */
-    public function pushSourceReference($reference): self
+    public function leave(): self
     {
-        $this->source[] = $reference;
+        array_pop($this->source);
+        array_pop($this->schemas);
 
         return $this;
     }
