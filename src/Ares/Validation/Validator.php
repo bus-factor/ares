@@ -14,6 +14,7 @@ namespace Ares\Validation;
 use Ares\Exception\InvalidValidationSchemaException;
 use Ares\Validation\Rule\AllowedRule;
 use Ares\Validation\Rule\BlankableRule;
+use Ares\Validation\Rule\ForbiddenRule;
 use Ares\Validation\Rule\NullableRule;
 use Ares\Validation\Rule\RequiredRule;
 use Ares\Validation\Rule\TypeRule;
@@ -49,6 +50,7 @@ class Validator
     const RULE_CLASSMAP = [
         AllowedRule::ID   => AllowedRule::class,
         BlankableRule::ID => BlankableRule::class,
+        ForbiddenRule::ID => ForbiddenRule::class,
         NullableRule::ID  => NullableRule::class,
         RequiredRule::ID  => RequiredRule::class,
         TypeRule::ID      => TypeRule::class,
@@ -98,7 +100,8 @@ class Validator
      */
     public function validate($data): bool
     {
-        $this->prepareValidation($data);
+        $this->context = new Context($data);
+
         $this->performValidation($this->schema, $data, '');
 
         return !$this->context->hasErrors();
@@ -126,10 +129,8 @@ class Validator
                     $this->performValidation($childSchema, $data[$childField] ?? null, $childField);
                 }
             } else {
-                $rules = array_diff_key($schema, self::RESERVED_RULE_IDS);
-
-                foreach ($rules as $ruleId => $ruleArgs) {
-                    if (!$this->getRule($ruleId)->validate($ruleArgs, $data, $this->context)) {
+                foreach ($schema as $ruleId => $ruleArgs) {
+                    if (!isset(self::RESERVED_RULE_IDS[$ruleId]) && !$this->getRule($ruleId)->validate($ruleArgs, $data, $this->context)) {
                         break;
                     }
                 }
@@ -156,15 +157,6 @@ class Validator
         ];
 
         return SchemaSanitizer::sanitize($schema, $schemaDefaults);
-    }
-
-    /**
-     * @param mixed $datai Input data.
-     * @return void
-     */
-    protected function prepareValidation(&$data): void
-    {
-        $this->context = new Context($data);
     }
 }
 

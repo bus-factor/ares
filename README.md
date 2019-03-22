@@ -210,6 +210,8 @@ $validator->validate('medium'); // -> false
 $validator->validate('small'); // -> true
 ```
 
+The ```allowed``` validation rule is the opposite of the ```forbidden``` validation rule.
+
 ### blankable
 
 The ```blankable``` rule applies to ```string``` typed values only.
@@ -229,6 +231,20 @@ $validator->validate('   '); // -> true
 ```
 
 The ```blankable``` validation rule may be used in combination with the ```allBlankable``` validation option.
+
+### forbidden
+
+The ```forbidden``` validation rule checks if a value is in a given set of forbidden values (enumeration).
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'string', 'forbidden' => ['small', 'medium']]);
+$validator->validate('medium'); // -> false
+$validator->validate('large'); // -> true
+```
+
+The ```forbidden``` validation rule is the opposite of the ```allowed``` validation rule.
 
 ### nullable
 
