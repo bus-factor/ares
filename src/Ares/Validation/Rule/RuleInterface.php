@@ -23,6 +23,7 @@ interface RuleInterface
      * @param mixed                    $data    Input data.
      * @param \Ares\Validation\Context $context Validation context.
      * @return boolean
+     * @throws \Ares\Exception\InvalidValidationRuleArgsException
      */
     public function validate($config, $data, Context $context): bool;
 }
