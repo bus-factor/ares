@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Ares\Validation;
 
 use Ares\Exception\InvalidValidationSchemaException;
+use Ares\Exception\UnknownValidationRuleIdException;
 use Ares\Validation\Rule\AllowedRule;
 use Ares\Validation\Rule\BlankableRule;
 use Ares\Validation\Rule\ForbiddenRule;
@@ -86,9 +87,14 @@ class Validator
     /**
      * @param string $ruleId Validation rule ID.
      * @return mixed
+     * @throws \Ares\Exception\UnknownValidationRuleIdException
      */
     protected function getRule(string $ruleId)
     {
+        if (empty(self::RULE_CLASSMAP[$ruleId])) {
+            throw new UnknownValidationRuleIdException("Unknown validation rule ID: {$ruleId}");
+        }
+
         $className = self::RULE_CLASSMAP[$ruleId];
 
         return new $className();
@@ -97,6 +103,7 @@ class Validator
     /**
      * @param mixed $data Input data.
      * @return boolean
+     * @throws \Ares\Exception\UnknownValidationRuleIdException
      */
     public function validate($data): bool
     {
@@ -112,6 +119,7 @@ class Validator
      * @param mixed $data   Input data.
      * @param mixed $field  Current field name or index (part of source reference).
      * @return void
+     * @throws \Ares\Exception\UnknownValidationRuleIdException
      */
     protected function performValidation(array $schema, $data, $field): void
     {
