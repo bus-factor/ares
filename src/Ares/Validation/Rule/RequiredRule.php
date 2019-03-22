@@ -27,6 +27,7 @@ class RequiredRule implements RuleInterface
      * @param mixed                    $data    Input data.
      * @param \Ares\Validation\Context $context Validation context.
      * @return boolean
+     * @throws \Ares\Exception\InvalidValidationRuleArgsException
      */
     public function validate($args, $data, Context $context): bool
     {

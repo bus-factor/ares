@@ -232,6 +232,26 @@ $validator->validate('   '); // -> true
 
 The ```blankable``` validation rule may be used in combination with the ```allBlankable``` validation option.
 
+### datetime
+
+This ```datetime``` validation rule applies to ```string``` typed values only.
+If set ```true```, any parsable date/time string is considered valid.
+If set ```false```, date/time validation will not take place at all.
+If set a specific date/time format string, the given value will be checked against that format too.
+See [DateTime::createFromFormat()](http://php.net/manual/en/datetime.createfromformat.php) for details about format strings.
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'string', 'datetime' => true]);
+$validator->validate('foo'); // -> false
+$validator->validate('2018-03-23'); // -> true
+
+$validator = new Validator(['type' => 'string', 'datetime' => 'd.m.Y H:i']);
+$validator->validate('2018-03-23'); // -> false
+$validator->validate('23.03.2019 00:20'); // -> true
+```
+
 ### forbidden
 
 The ```forbidden``` validation rule checks if a value is in a given set of forbidden values (enumeration).
