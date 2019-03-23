@@ -9,8 +9,8 @@ declare(strict_types=1);
  * @since  2019-03-07
  */
 
-use Ares\Validation\Error;
-use Ares\Validation\Validator;
+use Ares\Error;
+use Ares\Validator;
 
 $schema = ['type' => 'float', 'required' => true];
 $data = null;
