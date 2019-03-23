@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @since  2019-03-07
  */
 
-use Ares\Validation\Validator;
+use Ares\Validator;
 
 $schema = ['type' => 'boolean'];
 $data = false;

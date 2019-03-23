@@ -21,7 +21,7 @@ composer require bus-factor/ares
 ```php
 <?php
 
-use Ares\Validation\Validator;
+use Ares\Validator;
 
 // atomic types
 $validator = new Validator(['type' => 'string', 'required' => true]);
@@ -49,7 +49,7 @@ The ```validate()``` method returns ```true``` if the provided data is valid, ot
 The ```getErrors()``` method returns a list of validation errors that occurred during the last data validation.
 The list of validation errors is reset each time ```validate()``` is called.
 
-Each ```Ares\Validation\Error``` object implements the ```JsonSerializable``` interface and contains details about the error.
+Each ```Ares\Error``` object implements the ```JsonSerializable``` interface and contains details about the error.
 
 ## Validation Options
 
