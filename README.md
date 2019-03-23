@@ -279,6 +279,19 @@ $validator->validate('foobar'); // -> false
 $validator->validate('foo'); // -> true
 ```
 
+### minlength
+
+The ```minlength``` validation rule applies to ```string``` typed values only.
+The ```minlength``` validation rule checks if a string is not shorter than the given minimum length.
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'string', 'minlength' => 5]);
+$validator->validate('foo'); // -> false
+$validator->validate('foobar'); // -> true
+```
+
 ### nullable
 
 If set ```true```, ```null``` is considered a valid value.
