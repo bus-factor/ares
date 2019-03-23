@@ -234,7 +234,7 @@ The ```blankable``` validation rule may be used in combination with the ```allBl
 
 ### datetime
 
-This ```datetime``` validation rule applies to ```string``` typed values only.
+The ```datetime``` validation rule applies to ```string``` typed values only.
 If set ```true```, any parsable date/time string is considered valid.
 If set ```false```, date/time validation will not take place at all.
 If set a specific date/time format string, the given value will be checked against that format too.
@@ -265,6 +265,19 @@ $validator->validate('large'); // -> true
 ```
 
 The ```forbidden``` validation rule is the opposite of the ```allowed``` validation rule.
+
+### maxlength
+
+The ```maxlength``` validation rule applies to ```string``` typed values only.
+The ```maxlength``` validation rule checks if a string does not exceed the given maximum length.
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'string', 'maxlength' => 5]);
+$validator->validate('foobar'); // -> false
+$validator->validate('foo'); // -> true
+```
 
 ### nullable
 

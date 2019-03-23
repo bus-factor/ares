@@ -17,6 +17,7 @@ use Ares\Validation\Rule\AllowedRule;
 use Ares\Validation\Rule\BlankableRule;
 use Ares\Validation\Rule\DateTimeRule;
 use Ares\Validation\Rule\ForbiddenRule;
+use Ares\Validation\Rule\MaxLengthRule;
 use Ares\Validation\Rule\NullableRule;
 use Ares\Validation\Rule\RequiredRule;
 use Ares\Validation\Rule\TypeRule;
@@ -54,6 +55,7 @@ class Validator
         BlankableRule::ID => BlankableRule::class,
         DateTimeRule::ID  => DateTimeRule::class,
         ForbiddenRule::ID => ForbiddenRule::class,
+        MaxLengthRule::ID => MaxLengthRule::class,
         NullableRule::ID  => NullableRule::class,
         RequiredRule::ID  => RequiredRule::class,
         TypeRule::ID      => TypeRule::class,
