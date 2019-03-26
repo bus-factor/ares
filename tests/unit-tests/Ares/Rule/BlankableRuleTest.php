@@ -31,8 +31,6 @@ class BlankableRuleTest extends TestCase
      *           [17.2]
      *           [null]
      *           ["foo"]
-     *           [[]]
-     *           [{}]
      *
      * @param mixed $args Validation rule configuration.
      * @return void
@@ -62,23 +60,31 @@ class BlankableRuleTest extends TestCase
      *           [false, "  ",   false]
      *           [false, "\n ",  false]
      *           [false, "\n\t", false]
+     *           [{"message": "The field <{field}> must not be blank"}, "", false, "The field <name> must not be blank"]
      *
-     * @param bool  $args           Validation rule configuration.
-     * @param mixed $data           Validated data.
-     * @param bool  $expectedRetVal Expected validation return value.
+     * @param bool|array $args                 Validation rule configuration.
+     * @param mixed      $data                 Validated data.
+     * @param bool       $expectedRetVal       Expected validation return value.
+     * @param string     $expectedErrorMessage Expected error message.
      * @return void
      */
-    public function testValidate(bool $args, $data, bool $expectedRetVal): void
-    {
+    public function testValidate(
+        $args,
+        $data,
+        bool $expectedRetVal,
+        string $expectedErrorMessage = BlankableRule::ERROR_MESSAGE
+    ): void {
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
             ->setMethods(['addError'])
             ->getMock();
 
+        $context->enter('name', []);
+
         if ($expectedRetVal === false) {
             $context->expects($this->once())
                 ->method('addError')
-                ->with(BlankableRule::ID, BlankableRule::ERROR_MESSAGE);
+                ->with(BlankableRule::ID, $expectedErrorMessage);
         } else {
             $context->expects($this->never())
                 ->method('addError');
