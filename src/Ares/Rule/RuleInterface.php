@@ -6,7 +6,7 @@ declare(strict_types=1);
  * RuleInterface.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
- * @since  2019-03-16
+ * @since  2019-03-26
  */
 
 namespace Ares\Rule;

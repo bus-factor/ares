@@ -11,8 +11,9 @@ declare(strict_types=1);
 
 namespace UnitTest\Ares\Rule;
 
-use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Context;
+use Ares\Error\ErrorMessageRenderer;
+use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\DateTimeRule;
 use PHPUnit\Framework\TestCase;
 
@@ -37,7 +38,7 @@ class DateTimeRuleTest extends TestCase
     public function testValidateToHandleInvalidValidationRuleArgs($args): void
     {
         $data = 'foo';
-        $context = new Context();
+        $context = new Context($data, new ErrorMessageRenderer());
         $dateTimeRule = new DateTimeRule();
 
         $this->expectException(InvalidValidationRuleArgsException::class);
@@ -62,6 +63,7 @@ class DateTimeRuleTest extends TestCase
     public function testValidate($args, $data, bool $expectedRetVal, ?string $expectedErrorMessage = null): void
     {
         $context = $this->getMockBuilder(Context::class)
+            ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
             ->setMethods(['addError'])
             ->getMock();
 
