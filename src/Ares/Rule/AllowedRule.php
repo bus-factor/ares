@@ -35,11 +35,26 @@ class AllowedRule implements RuleInterface
             throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
         }
 
-        if (in_array($data, $args, true)) {
+        $values = isset($args['values']) ? $args['values'] : $args;
+
+        if (in_array($data, $values, true)) {
             return true;
         }
 
-        $context->addError(self::ID, self::ERROR_MESSAGE);
+        $source = $context->getSource();
+        $field = end($source);
+
+        $valuesFormatted = implode(', ', array_map('json_encode', $values));
+
+        $errorMessageFormat = $args['message'] ?? self::ERROR_MESSAGE;
+
+        $errorMessage = $context->getErrorMessageRenderer()
+            ->render($context, self::ID, $errorMessageFormat, ['field' => $field, 'values' => $valuesFormatted]);
+
+        $context->addError(
+            self::ID,
+            $errorMessage
+        );
 
         return false;
     }
