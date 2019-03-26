@@ -11,8 +11,9 @@ declare(strict_types=1);
 
 namespace UnitTest\Ares\Rule;
 
-use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Context;
+use Ares\Error\ErrorMessageRenderer;
+use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\RequiredRule;
 use PHPUnit\Framework\TestCase;
 
@@ -30,8 +31,6 @@ class RequiredRuleTest extends TestCase
      *           [17.2]
      *           [null]
      *           ["foo"]
-     *           [[]]
-     *           [{}]
      *
      * @param mixed $args Validation rule configuration.
      * @return void
@@ -39,7 +38,7 @@ class RequiredRuleTest extends TestCase
     public function testValidateToHandleInvalidValidationRuleArgs($args): void
     {
         $data = 'foo';
-        $context = new Context();
+        $context = new Context($data, new ErrorMessageRenderer());
         $requiredRule = new RequiredRule();
 
         $this->expectException(InvalidValidationRuleArgsException::class);
@@ -53,18 +52,25 @@ class RequiredRuleTest extends TestCase
      *
      * @dataProvider getValidateSamples
      *
-     * @param bool  $args           Validation rule configuration.
-     * @param mixed $data           Validated data.
-     * @param array $source         Source references.
-     * @param bool  $expectedRetVal Expected validation return value.
-     * @param bool  $expectError    Indicates if an error is expected.
+     * @param bool|array  $args               Validation rule configuration.
+     * @param mixed       $data               Validated data.
+     * @param array       $source             Source references.
+     * @param bool        $expectedRetVal     Expected validation return value.
+     * @param bool        $expectError        Indicates if an error is expected.
+     * @param string      $expectErrorMessage Expected error message string.
      * @return void
      */
-    public function testValidate(bool $args, $data, array $source, bool $expectedRetVal, bool $expectError): void
-    {
+    public function testValidate(
+        $args,
+        $data,
+        array $source,
+        bool $expectedRetVal,
+        bool $expectError,
+        string $expectErrorMessage = 'Value required'
+    ): void {
         $context = $this->getMockBuilder(Context::class)
-            ->setConstructorArgs([&$data])
-            ->setMethods(['addError'])
+            ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
+            ->setMethods(['addError', 'getMessage'])
             ->getMock();
 
         foreach ($source as $reference) {
@@ -74,7 +80,7 @@ class RequiredRuleTest extends TestCase
         if ($expectError) {
             $context->expects($this->once())
                 ->method('addError')
-                ->with(RequiredRule::ID, RequiredRule::ERROR_MESSAGE);
+                ->with(RequiredRule::ID, $expectErrorMessage);
         } else {
             $context->expects($this->never())
                 ->method('addError');
@@ -153,6 +159,21 @@ class RequiredRuleTest extends TestCase
                 ['', 'account', 'name'],
                 true,
                 false,
+            ],
+            'required + custom message #1' => [
+                ['message' => 'Value required 1337'],
+                ['account' => ['name' => 'John Doe']],
+                ['', 'account', 'name'],
+                true,
+                false,
+            ],
+            'required + custom message #2' => [
+                ['message' => 'Field "{field}" is required'],
+                ['account' => ['name' => 'John Doe']],
+                ['', 'account', 'name'],
+                true,
+                false,
+                'Field "name" is required',
             ],
         ];
     }

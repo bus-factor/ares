@@ -19,10 +19,12 @@ use Ares\Exception\InvalidValidationRuleArgsException;
  */
 class RequiredRule implements RuleInterface
 {
-    const ID            = 'required';
+    const ID = 'required';
     const ERROR_MESSAGE = 'Value required';
 
     /**
+     * Validates the presence of a required data field.
+     *
      * @param mixed         $args    Validation rule configuration.
      * @param mixed         $data    Input data.
      * @param \Ares\Context $context Validation context.
@@ -31,7 +33,7 @@ class RequiredRule implements RuleInterface
      */
     public function validate($args, $data, Context $context): bool
     {
-        if (!is_bool($args)) {
+        if (!is_bool($args) && !is_array($args)) {
             throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
         }
 
@@ -55,7 +57,15 @@ class RequiredRule implements RuleInterface
         }
 
         if ($args) {
-            $context->addError(self::ID, self::ERROR_MESSAGE);
+            $errorMessageFormat = $args['message'] ?? self::ERROR_MESSAGE;
+
+            $errorMessage = $context->getErrorMessageRenderer()
+                ->render($context, self::ID, $errorMessageFormat, ['field' => $field]);
+
+            $context->addError(
+                self::ID,
+                $errorMessage
+            );
         }
 
         return false;

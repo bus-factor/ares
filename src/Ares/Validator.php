@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Ares;
 
+use Ares\Error\ErrorMessageRenderer;
+use Ares\Error\ErrorMessageRendererInterface;
 use Ares\Exception\InvalidValidationSchemaException;
 use Ares\Exception\UnknownValidationRuleIdException;
 use Ares\Rule\AllowedRule;
@@ -72,14 +74,19 @@ class Validator
     protected $schema;
 
     /**
-     * @param array $schema  Validation schema.
-     * @param array $options Validation options.
+     * @param array                                          $schema               Validation schema.
+     * @param array                                          $options              Validation options.
+     * @param \Ares\Error\ErrorMessageRendererInterface|null $errorMessageRenderer Error message renderer instance.
      * @throws \Ares\Exception\InvalidValidationSchemaException
      */
-    public function __construct(array $schema, array $options = [])
+    public function __construct(array $schema, array $options = [], ?ErrorMessageRendererInterface $errorMessageRenderer = null)
     {
         $this->options = $options + self::OPTIONS_DEFAULTS;
         $this->schema = $this->prepareSchema($schema, $this->options);
+
+        $this->errorMessageRenderer = ($errorMessageRenderer === null)
+            ? new ErrorMessageRenderer()
+            : $errorMessageRenderer;
     }
 
     /**
@@ -103,7 +110,7 @@ class Validator
 
         $className = self::RULE_CLASSMAP[$ruleId];
 
-        return new $className();
+        return new $className($this->errorMessageRenderer);
     }
 
     /**
@@ -114,7 +121,7 @@ class Validator
      */
     public function validate($data): bool
     {
-        $this->context = new Context($data);
+        $this->context = new Context($data, $this->errorMessageRenderer);
 
         $this->performValidation($this->schema, $data, '');
 

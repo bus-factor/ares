@@ -12,7 +12,8 @@ declare(strict_types=1);
 namespace UnitTest\Ares;
 
 use Ares\Context;
-use Ares\Error;
+use Ares\Error\Error;
+use Ares\Error\ErrorMessageRenderer;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -31,9 +32,25 @@ class ContextTest extends TestCase
     public function testDataAccessors(): void
     {
         $data = ['foo' => 'bar'];
-        $context = new Context($data);
+        $errorMessageRenderer = new ErrorMessageRenderer();
+        $context = new Context($data, $errorMessageRenderer);
 
         $this->assertSame($data, $context->getData());
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getErrorMessageRenderer
+     *
+     * @return void
+     */
+    public function testGetErrorMessageRendererAccessors(): void
+    {
+        $data = ['foo' => 'bar'];
+        $errorMessageRenderer = new ErrorMessageRenderer();
+        $context = new Context($data, $errorMessageRenderer);
+
+        $this->assertSame($errorMessageRenderer, $context->getErrorMessageRenderer());
     }
 
     /**
@@ -45,7 +62,9 @@ class ContextTest extends TestCase
      */
     public function testErrorsAccessors(): void
     {
-        $context = new Context();
+        $data = ['foo' => 'bar'];
+        $errorMessageRenderer = new ErrorMessageRenderer();
+        $context = new Context($data, $errorMessageRenderer);
 
         $this->assertFalse($context->hasErrors());
 
@@ -72,7 +91,9 @@ class ContextTest extends TestCase
      */
     public function testContextNesting(): void
     {
-        $context = new Context();
+        $data = ['foo' => 'bar'];
+        $errorMessageRenderer = new ErrorMessageRenderer();
+        $context = new Context($data, $errorMessageRenderer);
 
         $this->assertEquals([], $context->getSource());
         $this->assertSame($context, $context->enter('foo', ['a' => 1]));
