@@ -9,15 +9,15 @@ declare(strict_types=1);
  * @since  2019-02-24
  */
 
-namespace UnitTest\Ares;
+namespace UnitTest\Ares\Error;
 
-use Ares\Error;
+use Ares\Error\Error;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class ErrorTest
  *
- * @coversDefaultClass \Ares\Error
+ * @coversDefaultClass \Ares\Error\Error
  * @uses \Ares\Utility\JsonPointer
  */
 class ErrorTest extends TestCase

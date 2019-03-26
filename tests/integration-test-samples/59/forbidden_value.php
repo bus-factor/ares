@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @since  2019-03-21
  */
 
-use Ares\Error;
+use Ares\Error\Error;
 use Ares\Validator;
 
 $schema = [

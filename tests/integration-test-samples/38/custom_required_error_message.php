@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 /**
- * all_nullable_false.php
+ * custom_required_error_message.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
- * @since  2019-03-15
+ * @since  2019-03-26
  */
 
 use Ares\Error\Error;
@@ -17,21 +17,20 @@ $schema = [
     'schema' => [
         'name' => [
             'type' => 'string',
+            'required' => [
+                'message' => 'The field <{field}> is required',
+            ],
         ],
     ],
 ];
 
-$options = [
-    'allNullable' => false,
-];
-
-$data = ['name' => null];
+$data = [];
 
 $expectedErrors = [
-    new Error(['', 'name'], 'nullable', 'Value must not be null'),
+    new Error(['', 'name'], 'required', 'The field <name> is required'),
 ];
 
-$validator = new Validator($schema, $options);
+$validator = new Validator($schema);
 
 $this->assertSame(empty($expectedErrors), $validator->validate($data));
 $this->assertEquals($expectedErrors, $validator->getErrors());

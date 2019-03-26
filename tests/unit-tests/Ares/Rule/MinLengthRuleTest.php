@@ -11,8 +11,9 @@ declare(strict_types=1);
 
 namespace UnitTest\Ares\Rule;
 
-use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Context;
+use Ares\Error\ErrorMessageRenderer;
+use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\MinLengthRule;
 use PHPUnit\Framework\TestCase;
 
@@ -40,7 +41,7 @@ class MinLengthRuleTest extends TestCase
     public function testValidateToHandleInvalidValidationRuleArgs($args): void
     {
         $data = 'foo';
-        $context = new Context();
+        $context = new Context($data, new ErrorMessageRenderer());
         $minLengthRule = new MinLengthRule();
 
         $this->expectException(InvalidValidationRuleArgsException::class);
@@ -62,6 +63,7 @@ class MinLengthRuleTest extends TestCase
     public function testValidate($args, $data, bool $expectedRetVal): void
     {
         $context = $this->getMockBuilder(Context::class)
+            ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
             ->setMethods(['addError'])
             ->getMock();
 

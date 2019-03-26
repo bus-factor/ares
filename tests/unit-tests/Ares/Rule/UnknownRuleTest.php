@@ -11,9 +11,10 @@ declare(strict_types=1);
 
 namespace UnitTest\Ares\Rule;
 
-use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Context;
-use Ares\Error;
+use Ares\Error\Error;
+use Ares\Error\ErrorMessageRenderer;
+use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\UnknownRule;
 use PHPUnit\Framework\TestCase;
 
@@ -37,7 +38,7 @@ class UnknownRuleTest extends TestCase
      */
     public function testValidate(bool $args, $data, array $schema, array $expectedErrors): void
     {
-        $context = new Context();
+        $context = new Context($data, new ErrorMessageRenderer());
         $context->enter('', $schema);
 
         $unknownRule = new UnknownRule();

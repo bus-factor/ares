@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @since  2019-02-24
  */
 
-namespace Ares;
+namespace Ares\Error;
 
 use JsonSerializable;
 

@@ -11,8 +11,9 @@ declare(strict_types=1);
 
 namespace UnitTest\Ares\Rule;
 
-use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Context;
+use Ares\Error\ErrorMessageRenderer;
+use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\ForbiddenRule;
 use PHPUnit\Framework\TestCase;
 
@@ -39,7 +40,7 @@ class ForbiddenRuleTest extends TestCase
     public function testValidateToHandleInvalidValidationRuleArgs($args): void
     {
         $data = 'foo';
-        $context = new Context();
+        $context = new Context($data, new ErrorMessageRenderer());
         $forbiddenRule = new ForbiddenRule();
 
         $this->expectException(InvalidValidationRuleArgsException::class);
@@ -61,6 +62,7 @@ class ForbiddenRuleTest extends TestCase
     public function testValidate(array $args, $data, bool $expectedRetVal): void
     {
         $context = $this->getMockBuilder(Context::class)
+            ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
             ->setMethods(['addError'])
             ->getMock();
 

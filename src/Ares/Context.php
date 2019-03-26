@@ -11,6 +11,9 @@ declare(strict_types=1);
 
 namespace Ares;
 
+use Ares\Error\Error;
+use Ares\Error\ErrorMessageRendererInterface;
+
 /**
  * Class Context
  */
@@ -20,17 +23,21 @@ class Context
     protected $data;
     /** @var array $errors */
     protected $errors = [];
+    /** @var \Ares\Error\ErrorMessageRendererInterface $errorMessageRenderer */
+    protected $errorMessageRenderer;
     /** @var array $schemas */
     protected $schemas = [];
     /** @var array $source */
     protected $source = [];
 
     /**
-     * @param mixed $data Input data.
+     * @param mixed                                     $data                 Input data.
+     * @param \Ares\Error\ErrorMessageRendererInterface $errorMessageRenderer Error message renderer.
      */
-    public function __construct(&$data = null)
+    public function __construct(&$data, ErrorMessageRendererInterface $errorMessageRenderer)
     {
         $this->data = &$data;
+        $this->errorMessageRenderer = $errorMessageRenderer;
     }
 
     /**
@@ -60,6 +67,14 @@ class Context
     public function getErrors(): array
     {
         return $this->errors;
+    }
+
+    /**
+     * @return \Ares\Error\ErrorMessageRendererInterface
+     */
+    public function getErrorMessageRenderer(): ErrorMessageRendererInterface
+    {
+        return $this->errorMessageRenderer;
     }
 
     /**
