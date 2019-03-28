@@ -11,9 +11,6 @@ declare(strict_types=1);
 
 namespace UnitTest\Ares;
 
-use Ares\Context;
-use Ares\Error\ErrorMessageRenderer;
-use Ares\Error\ErrorMessageRendererInterface;
 use Ares\Exception\UnknownValidationRuleIdException;
 use Ares\Validator;
 use PHPUnit\Framework\TestCase;
@@ -41,48 +38,6 @@ class ValidationTest extends TestCase
         $this->expectExceptionMessage('Unknown validation rule ID: uargh');
 
         $validator->validate('foobar');
-    }
-
-    /**
-     * @covers ::__construct
-     * @covers ::getErrorMessageRenderer
-     * @covers ::setErrorMessageRenderer
-     *
-     * @return void
-     */
-    public function testErrorMessageRendererAccessors(): void
-    {
-        $validator = new Validator(['type' => 'integer']);
-
-        $this->assertInstanceOf(ErrorMessageRenderer::class, $validator->getErrorMessageRenderer());
-
-        $errorMessageRenderer = new class implements ErrorMessageRendererInterface {
-            public function render(Context $context, string $ruleId, string $message, array $substitutions = []): string {
-                return '';
-            }
-        };
-
-        $this->assertSame($validator, $validator->setErrorMessageRenderer($errorMessageRenderer));
-        $this->assertSame($errorMessageRenderer, $validator->getErrorMessageRenderer());
-    }
-
-    /**
-     * @covers ::__construct
-     * @covers ::getErrorMessageRenderer
-     *
-     * @return void
-     */
-    public function testConstructorUsesProvidedErrorMessageRenderer(): void
-    {
-        $errorMessageRenderer = new class implements ErrorMessageRendererInterface {
-            public function render(Context $context, string $ruleId, string $message, array $substitutions = []): string {
-                return '';
-            }
-        };
-
-        $validator = new Validator(['type' => 'integer'], [], $errorMessageRenderer);
-
-        $this->assertSame($errorMessageRenderer, $validator->getErrorMessageRenderer());
     }
 }
 
