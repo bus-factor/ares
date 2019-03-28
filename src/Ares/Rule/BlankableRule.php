@@ -31,26 +31,15 @@ class BlankableRule implements RuleInterface
      */
     public function validate($args, $data, Context $context): bool
     {
-        if (!is_bool($args) && !is_array($args)) {
+        if (!is_bool($args)) {
             throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
         }
 
-        if ($args === true || !is_string($data) || trim($data) != '') {
+        if ($args || !is_string($data) || trim($data) != '') {
             return true;
         }
 
-        $source = $context->getSource();
-        $field = end($source);
-
-        $errorMessageFormat = $args['message'] ?? self::ERROR_MESSAGE;
-
-        $errorMessage = $context->getErrorMessageRenderer()
-            ->render($context, self::ID, $errorMessageFormat, ['field' => $field]);
-
-        $context->addError(
-            self::ID,
-            $errorMessage
-        );
+        $context->addError(self::ID, self::ERROR_MESSAGE);
 
         return false;
     }
