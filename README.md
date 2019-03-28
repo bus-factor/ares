@@ -232,20 +232,6 @@ $validator->validate('   '); // -> true
 
 The ```blankable``` validation rule may be used in combination with the ```allBlankable``` validation option.
 
-The validation error message can be customized by passing an options array containing a ```'message'``` instead of passing just ```false```:
-
-```php
-$validator = new Validator([
-    'type' => 'map',
-    'schema' => [
-        'name' => ['type' => 'string', 'blankable' => ['message' => 'Field {field} must not be blank']],
-    ],
-]);
-
-$validator->validate(['name' => '']); // false
-$validator->getErrors()[0]->getMessage(); // 'Field name must not be blank'
-```
-
 ### datetime
 
 The ```datetime``` validation rule applies to ```string``` typed values only.
@@ -345,20 +331,6 @@ $validator->validate(['name' => 'John Doe']); // -> true
 ```
 
 The ```required``` validation rule may be used in combination with the ```allRequired``` validation option.
-
-The validation error message can be customized by passing an options array containing a ```'message'``` instead of passing just ```true```:
-
-```php
-$validator = new Validator([
-    'type' => 'map',
-    'schema' => [
-        'name' => ['type' => 'string', 'required' => ['message' => 'Field {field} is required']],
-    ],
-]);
-
-$validator->validate([]); // false
-$validator->getErrors()[0]->getMessage(); // 'Field name is required'
-```
 
 ### schema (map)
 
