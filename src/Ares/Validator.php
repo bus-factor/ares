@@ -18,6 +18,7 @@ use Ares\Exception\UnknownValidationRuleIdException;
 use Ares\Rule\AllowedRule;
 use Ares\Rule\BlankableRule;
 use Ares\Rule\DateTimeRule;
+use Ares\Rule\EmailRule;
 use Ares\Rule\ForbiddenRule;
 use Ares\Rule\MaxLengthRule;
 use Ares\Rule\MinLengthRule;
@@ -57,6 +58,7 @@ class Validator
         AllowedRule::ID   => AllowedRule::class,
         BlankableRule::ID => BlankableRule::class,
         DateTimeRule::ID  => DateTimeRule::class,
+        EmailRule::ID     => EmailRule::class,
         ForbiddenRule::ID => ForbiddenRule::class,
         MaxLengthRule::ID => MaxLengthRule::class,
         MinLengthRule::ID => MinLengthRule::class,
