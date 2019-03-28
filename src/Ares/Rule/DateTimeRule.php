@@ -67,7 +67,10 @@ class DateTimeRule implements RuleInterface
     protected function validateDataProcessability($data, Context $context): bool
     {
         if (!is_string($data)) {
-            $context->addError(self::ID, self::ERROR_MESSAGES['default']);
+            $context->addError(
+                self::ID,
+                $context->getErrorMessageRenderer()->render($context, self::ID, self::ERROR_MESSAGES['default'])
+            );
 
             return false;
         }
@@ -75,7 +78,10 @@ class DateTimeRule implements RuleInterface
         $time = strtotime($data);
 
         if ($time === false) {
-            $context->addError(self::ID, self::ERROR_MESSAGES['default']);
+            $context->addError(
+                self::ID,
+                $context->getErrorMessageRenderer()->render($context, self::ID, self::ERROR_MESSAGES['default'])
+            );
 
             return false;
         }
@@ -95,7 +101,10 @@ class DateTimeRule implements RuleInterface
         $dateTime = DateTime::createFromFormat($format, $data);
 
         if ($dateTime === false) {
-            $context->addError(self::ID, self::ERROR_MESSAGES['format']);
+            $context->addError(
+                self::ID,
+                $context->getErrorMessageRenderer()->render($context, self::ID, self::ERROR_MESSAGES['format'])
+            );
 
             return false;
         }

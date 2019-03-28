@@ -57,12 +57,9 @@ class RequiredRule implements RuleInterface
         }
 
         if ($args) {
-            $errorMessage = $context->getErrorMessageRenderer()
-                ->render($context, self::ID, self::ERROR_MESSAGE, ['field' => $field]);
-
             $context->addError(
                 self::ID,
-                $errorMessage
+                $context->getErrorMessageRenderer()->render($context, self::ID, self::ERROR_MESSAGE)
             );
         }
 

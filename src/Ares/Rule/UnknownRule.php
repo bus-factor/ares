@@ -45,7 +45,12 @@ class UnknownRule implements RuleInterface
 
         foreach ($unknownFields as $field => $value) {
             $context->enter($field, []);
-            $context->addError(self::ID, self::ERROR_MESSAGE);
+
+            $context->addError(
+                self::ID,
+                $context->getErrorMessageRenderer()->render($context, self::ID, self::ERROR_MESSAGE)
+            );
+
             $context->leave();
         }
 
