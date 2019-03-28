@@ -212,21 +212,6 @@ $validator->validate('small'); // -> true
 
 The ```allowed``` validation rule is the opposite of the ```forbidden``` validation rule.
 
-The validation error message can be customized by using this alternative parameterization:
-
-```php
-$validator = new Validator([
-    'type' => 'string',
-    'allowed' => [
-        'values' => ['small', 'medium'],
-        'message' => 'The value must be one of these: {values}',
-    ],
-]);
-
-$validator->validate('large'); // false
-$validator->getErrors()[0]->getMessage(); // 'The value must be one of these: "small", "medium"'
-```
-
 ### blankable
 
 The ```blankable``` rule applies to ```string``` typed values only.

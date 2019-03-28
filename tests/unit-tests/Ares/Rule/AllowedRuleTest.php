@@ -54,29 +54,22 @@ class AllowedRuleTest extends TestCase
      *
      * @dataProvider getValidateSamples
      *
-     * @param array  $args                 Validation rule configuration.
-     * @param mixed  $data                 Validated data.
-     * @param bool   $expectedRetVal       Expected validation return value.
-     * @param string $expectedErrorMessage Expected validation error message.
+     * @param array $args           Validation rule configuration.
+     * @param mixed $data           Validated data.
+     * @param bool  $expectedRetVal Expected validation return value.
      * @return void
      */
-    public function testValidate(
-        array $args,
-        $data,
-        bool $expectedRetVal,
-        string $expectedErrorMessage = AllowedRule::ERROR_MESSAGE
-    ): void {
+    public function testValidate(array $args, $data, bool $expectedRetVal): void
+    {
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
             ->setMethods(['addError'])
             ->getMock();
 
-        $context->enter('name', []);
-
         if ($expectedRetVal === false) {
             $context->expects($this->once())
                 ->method('addError')
-                ->with(AllowedRule::ID, $expectedErrorMessage);
+                ->with(AllowedRule::ID, AllowedRule::ERROR_MESSAGE);
         } else {
             $context->expects($this->never())
                 ->method('addError');
@@ -93,115 +86,16 @@ class AllowedRuleTest extends TestCase
     public function getValidateSamples(): array
     {
         return [
-            'allowed value #1' => [
-                ['foo', 'bar'],
-                'foo',
-                true,
-            ],
-            'allowed value #2' => [
-                ['foo', 'bar'],
-                'bar',
-                true,
-            ],
-            'allowed value #3' => [
-                ['values' => ['foo', 'bar']],
-                'foo',
-                true,
-            ],
-            'allowed value #4' => [
-                ['values' => ['foo', 'bar']],
-                'bar',
-                true,
-            ],
-            'mixed allowed values #1' => [
-                [1, 'foo'],
-                1,
-                true,
-            ],
-            'mixed allowed values #2' => [
-                [1, 'foo'],
-                'foo',
-                true,
-            ],
-            'mixed allowed values #3' => [
-                [['foo'], 'bar'],
-                ['foo'],
-                true,
-            ],
-            'mixed allowed values #4' => [
-                ['values' => [1, 'foo']],
-                1,
-                true,
-            ],
-            'mixed allowed values #5' => [
-                ['values' => [1, 'foo']],
-                'foo',
-                true,
-            ],
-            'mixed allowed values #6' => [
-                ['values' => [['foo'], 'bar']],
-                ['foo'],
-                true,
-            ],
-            'forbidden value #1' => [
-                ['foo', 'bar'],
-                'fizz',
-                false,
-            ],
-            'forbidden value #2' => [
-                ['1', 'bar'],
-                1,
-                false,
-            ],
-            'forbidden value #3' => [
-                ['1.0', 'bar'],
-                1,
-                false,
-            ],
-            'forbidden value #4' => [
-                ['1.0', 'bar'],
-                1.0,
-                false,
-            ],
-            'forbidden value #5' => [
-                [['foo'], 'bar'],
-                ['fizz'],
-                false,
-            ],
-            'forbidden value #6' => [
-                ['values' => ['foo', 'bar']],
-                'fizz',
-                false,
-            ],
-            'forbidden value #7' => [
-                ['values' => ['1', 'bar']],
-                1,
-                false,
-            ],
-            'forbidden value #8' => [
-                ['values' => ['1.0', 'bar']],
-                1,
-                false,
-            ],
-            'forbidden value #9' => [
-                ['values' => ['1.0', 'bar']],
-                1.0,
-                false,
-            ],
-            'forbidden value #10' => [
-                ['values' => [['foo'], 'bar']],
-                ['fizz'],
-                false,
-            ],
-            'custom message' => [
-                [
-                    'values' => ['a', 'b'],
-                    'message' => 'Invalid value for field <{field}>. Valid values are: {values}.',
-                ],
-                'c',
-                false,
-                'Invalid value for field <name>. Valid values are: "a", "b".',
-            ],
+            'allowed value #1'        => [['foo', 'bar'],   'foo',    true],
+            'allowed value #2'        => [['foo', 'bar'],   'bar',    true],
+            'mixed allowed values #1' => [[1, 'foo'],       1,        true],
+            'mixed allowed values #2' => [[1, 'foo'],       'foo',    true],
+            'mixed allowed values #3' => [[['foo'], 'bar'], ['foo'],  true],
+            'forbidden value #1'      => [['foo', 'bar'],   'fizz',   false],
+            'forbidden value #2'      => [['1', 'bar'],     1,        false],
+            'forbidden value #3'      => [['1.0', 'bar'],   1,        false],
+            'forbidden value #4'      => [['1.0', 'bar'],   1.0,      false],
+            'forbidden value #5'      => [[['foo'], 'bar'], ['fizz'], false],
         ];
     }
 }
