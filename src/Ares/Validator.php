@@ -79,8 +79,11 @@ class Validator
      * @param \Ares\Error\ErrorMessageRendererInterface|null $errorMessageRenderer Error message renderer instance.
      * @throws \Ares\Exception\InvalidValidationSchemaException
      */
-    public function __construct(array $schema, array $options = [], ?ErrorMessageRendererInterface $errorMessageRenderer = null)
-    {
+    public function __construct(
+        array $schema,
+        array $options = [],
+        ?ErrorMessageRendererInterface $errorMessageRenderer = null
+    ) {
         $this->options = $options + self::OPTIONS_DEFAULTS;
         $this->schema = $this->prepareSchema($schema, $this->options);
 
@@ -98,6 +101,14 @@ class Validator
     }
 
     /**
+     * @return \Ares\Error\ErrorMessageRendererInterface
+     */
+    public function getErrorMessageRenderer(): ErrorMessageRendererInterface
+    {
+        return $this->errorMessageRenderer;
+    }
+
+    /**
      * @param string $ruleId Validation rule ID.
      * @return mixed
      * @throws \Ares\Exception\UnknownValidationRuleIdException
@@ -111,21 +122,6 @@ class Validator
         $className = self::RULE_CLASSMAP[$ruleId];
 
         return new $className($this->errorMessageRenderer);
-    }
-
-    /**
-     * @param mixed $data Input data.
-     * @return boolean
-     * @throws \Ares\Exception\InvalidValidationRuleArgsException
-     * @throws \Ares\Exception\UnknownValidationRuleIdException
-     */
-    public function validate($data): bool
-    {
-        $this->context = new Context($data, $this->errorMessageRenderer);
-
-        $this->performValidation($this->schema, $data, '');
-
-        return !$this->context->hasErrors();
     }
 
     /**
@@ -180,6 +176,32 @@ class Validator
         ];
 
         return SchemaSanitizer::sanitize($schema, $schemaDefaults);
+    }
+
+    /**
+     * @param \Ares\Error\ErrorMessageRendererInterface $errorMessageRenderer Error message renderer.
+     * @return self
+     */
+    public function setErrorMessageRenderer(ErrorMessageRendererInterface $errorMessageRenderer): self
+    {
+        $this->errorMessageRenderer = $errorMessageRenderer;
+
+        return $this;
+    }
+
+    /**
+     * @param mixed $data Input data.
+     * @return boolean
+     * @throws \Ares\Exception\InvalidValidationRuleArgsException
+     * @throws \Ares\Exception\UnknownValidationRuleIdException
+     */
+    public function validate($data): bool
+    {
+        $this->context = new Context($data, $this->errorMessageRenderer);
+
+        $this->performValidation($this->schema, $data, '');
+
+        return !$this->context->hasErrors();
     }
 }
 
