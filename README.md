@@ -252,6 +252,18 @@ $validator->validate('2018-03-23'); // -> false
 $validator->validate('23.03.2019 00:20'); // -> true
 ```
 
+### email
+
+The ```email``` validation rule checks if a value is a valid email address.
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'string', 'email' => true]);
+$validator->validate('John Doe'); // -> false
+$validator->validate('john.doe@example.com'); // -> true
+```
+
 ### forbidden
 
 The ```forbidden``` validation rule checks if a value is in a given set of forbidden values (enumeration).
@@ -368,5 +380,17 @@ Examples:
 $validator = new Validator(['type' => 'float']);
 $validator->validate(5); // -> false
 $validator->validate('John Doe'); // -> false
+```
+
+### url
+
+The ```url``` validation rule checks if a value is a valid URL.
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'string', 'url' => true]);
+$validator->validate('example'); // -> false
+$validator->validate('https://example.com'); // -> true
 ```
 
