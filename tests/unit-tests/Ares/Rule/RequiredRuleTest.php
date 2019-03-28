@@ -160,21 +160,6 @@ class RequiredRuleTest extends TestCase
                 true,
                 false,
             ],
-            'required + custom message #1' => [
-                ['message' => 'Value required 1337'],
-                ['account' => ['name' => 'John Doe']],
-                ['', 'account', 'name'],
-                true,
-                false,
-            ],
-            'required + custom message #2' => [
-                ['message' => 'Field "{field}" is required'],
-                ['account' => ['name' => 'John Doe']],
-                ['', 'account', 'name'],
-                true,
-                false,
-                'Field "name" is required',
-            ],
         ];
     }
 }
