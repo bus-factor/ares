@@ -332,20 +332,6 @@ $validator->validate(['name' => 'John Doe']); // -> true
 
 The ```required``` validation rule may be used in combination with the ```allRequired``` validation option.
 
-The validation error message can be customized by passing an options array containing a ```'message'``` instead of passing just ```true```:
-
-```php
-$validator = new Validator([
-    'type' => 'map',
-    'schema' => [
-        'name' => ['type' => 'string', 'required' => ['message' => 'Field {field} is required']],
-    ],
-]);
-
-$validator->validate([]); // false
-$validator->getErrors()[0]->getMessage(); // 'Field name is required'
-```
-
 ### schema (map)
 
 The ```schema``` rule is mandatory when using type ```map```. The validator expects the schema to define per field validation rules for associative array input.

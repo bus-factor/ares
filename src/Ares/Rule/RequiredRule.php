@@ -33,7 +33,7 @@ class RequiredRule implements RuleInterface
      */
     public function validate($args, $data, Context $context): bool
     {
-        if (!is_bool($args) && !is_array($args)) {
+        if (!is_bool($args)) {
             throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
         }
 
@@ -57,10 +57,8 @@ class RequiredRule implements RuleInterface
         }
 
         if ($args) {
-            $errorMessageFormat = $args['message'] ?? self::ERROR_MESSAGE;
-
             $errorMessage = $context->getErrorMessageRenderer()
-                ->render($context, self::ID, $errorMessageFormat, ['field' => $field]);
+                ->render($context, self::ID, self::ERROR_MESSAGE, ['field' => $field]);
 
             $context->addError(
                 self::ID,
