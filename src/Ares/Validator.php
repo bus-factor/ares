@@ -26,6 +26,7 @@ use Ares\Rule\NullableRule;
 use Ares\Rule\RequiredRule;
 use Ares\Rule\TypeRule;
 use Ares\Rule\UnknownRule;
+use Ares\Rule\UrlRule;
 use Ares\Schema\Sanitizer as SchemaSanitizer;
 use Ares\Schema\Type;
 use InvalidArgumentException;
@@ -66,6 +67,7 @@ class Validator
         RequiredRule::ID  => RequiredRule::class,
         TypeRule::ID      => TypeRule::class,
         UnknownRule::ID   => UnknownRule::class,
+        UrlRule::ID       => UrlRule::class,
     ];
 
     /** @var \Ares\Context $context */

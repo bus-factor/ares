@@ -382,3 +382,15 @@ $validator->validate(5); // -> false
 $validator->validate('John Doe'); // -> false
 ```
 
+### url
+
+The ```url``` validation rule checks if a value is a valid URL.
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'string', 'url' => true]);
+$validator->validate('example'); // -> false
+$validator->validate('https://example.com'); // -> true
+```
+

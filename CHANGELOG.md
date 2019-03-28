@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - ```email``` validation rule
+- ```url``` validation rule
 
 ## [v0.1.0] 2019-03-28
 ### Added
