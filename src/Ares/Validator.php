@@ -22,6 +22,7 @@ use Ares\Rule\EmailRule;
 use Ares\Rule\ForbiddenRule;
 use Ares\Rule\MaxLengthRule;
 use Ares\Rule\MinLengthRule;
+use Ares\Rule\MinRule;
 use Ares\Rule\NullableRule;
 use Ares\Rule\RequiredRule;
 use Ares\Rule\TypeRule;
@@ -29,7 +30,6 @@ use Ares\Rule\UnknownRule;
 use Ares\Rule\UrlRule;
 use Ares\Schema\Sanitizer as SchemaSanitizer;
 use Ares\Schema\Type;
-use InvalidArgumentException;
 
 /**
  * Class Validator
@@ -63,6 +63,7 @@ class Validator
         ForbiddenRule::ID => ForbiddenRule::class,
         MaxLengthRule::ID => MaxLengthRule::class,
         MinLengthRule::ID => MinLengthRule::class,
+        MinRule::ID       => MinRule::class,
         NullableRule::ID  => NullableRule::class,
         RequiredRule::ID  => RequiredRule::class,
         TypeRule::ID      => TypeRule::class,

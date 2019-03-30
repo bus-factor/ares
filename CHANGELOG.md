@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - ```email``` validation rule
 - ```url``` validation rule
+- ```min``` validation rule (float, integer)
 
 ## [v0.1.0] 2019-03-28
 ### Added
