@@ -21,6 +21,7 @@ use Ares\Rule\DateTimeRule;
 use Ares\Rule\EmailRule;
 use Ares\Rule\ForbiddenRule;
 use Ares\Rule\MaxLengthRule;
+use Ares\Rule\MaxRule;
 use Ares\Rule\MinLengthRule;
 use Ares\Rule\MinRule;
 use Ares\Rule\NullableRule;
@@ -62,6 +63,7 @@ class Validator
         EmailRule::ID     => EmailRule::class,
         ForbiddenRule::ID => ForbiddenRule::class,
         MaxLengthRule::ID => MaxLengthRule::class,
+        MaxRule::ID       => MaxRule::class,
         MinLengthRule::ID => MinLengthRule::class,
         MinRule::ID       => MinRule::class,
         NullableRule::ID  => NullableRule::class,
