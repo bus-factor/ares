@@ -291,6 +291,21 @@ $validator->validate('foobar'); // -> false
 $validator->validate('foo'); // -> true
 ```
 
+### min
+
+The ```min``` validation rule applies to ```float``` and ```integer``` typed values only.
+The ```min``` validation rule checks if a value is equal to or greater a specified minimum value.
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'integer', 'min' => 5]);
+$validator->validate(4); // -> false
+$validator->validate(8); // -> true
+```
+
+*Note* this validation rule will throw a ```Ares\Exception\InapplicableValidationRuleException``` when used in conjunction with non-supported value types.
+
 ### minlength
 
 The ```minlength``` validation rule applies to ```string``` typed values only.
@@ -366,7 +381,7 @@ $validator->validate(['email' => 'john.doe@example.com', 'password' => 'j4n3:)']
 
 ### type
 
-The ```type``` rule defines the expected/allowed value type. Supported types are:
+The ```type``` rule is mandatory and defines the expected/allowed value type. Supported types are:
 
 * ```boolean```
 * ```float```
