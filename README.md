@@ -278,6 +278,21 @@ $validator->validate('large'); // -> true
 
 The ```forbidden``` validation rule is the opposite of the ```allowed``` validation rule.
 
+### max
+
+The ```max``` validation rule applies to ```float``` and ```integer``` typed values only.
+The ```max``` validation rule checks if a value is equal to or smaller a specified maximum value.
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'integer', 'max' => 5]);
+$validator->validate(6); // -> false
+$validator->validate(2); // -> true
+```
+
+*Note* this validation rule will throw a ```Ares\Exception\InapplicableValidationRuleException``` when used in conjunction with non-supported value types.
+
 ### maxlength
 
 The ```maxlength``` validation rule applies to ```string``` typed values only.
