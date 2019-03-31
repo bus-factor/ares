@@ -105,6 +105,8 @@ class TypeRuleTest extends TestCase
             'string + integer'         => ['integer', 'John Doe',      false],
             'boolean + string'         => ['string',  true,            false],
             'object + string'          => ['string',  new \stdClass(), false],
+            'array + list'             => ['list',    [],              true],
+            'integer + list'           => ['list',    1337,            false],
         ];
     }
 }
