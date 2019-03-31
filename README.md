@@ -352,6 +352,28 @@ $validator->validate(null); // -> true
 
 The ```nullable``` validation rule may be used in combination with the ```allNullable``` validation option.
 
+### regex
+
+The ```regex``` validation rule applies to ```string``` typed values only.
+The ```regex``` validation rule checks if a string matches a regular expression.
+
+Examples:
+
+```php
+$validator = new Validator([
+    'type' => 'map',
+    'schema' => [
+        'key' => [
+            'type' => 'string',
+            'regex' => '/^[A-Z]{3}$/',
+        ],
+    ],
+]);
+
+$validator->validate(['key' => 'foobar']); // -> false
+$validator->validate(['key' => 'FOO']); // -> true
+```
+
 ### required
 
 Use the ```required``` rule to enforce the presence of a value.

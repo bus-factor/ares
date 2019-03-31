@@ -6,10 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- ```email``` validation rule
-- ```url``` validation rule
+- ```email``` validation rule (string)
+- ```url``` validation rule (string)
 - ```min``` validation rule (float, integer)
 - ```max``` validation rule (float, integer)
+- ```regex``` validation rule (string)
 
 ## [v0.1.0] 2019-03-28
 ### Added
