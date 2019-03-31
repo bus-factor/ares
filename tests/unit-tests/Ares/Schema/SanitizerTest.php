@@ -117,15 +117,34 @@ class SanitizerTest extends TestCase
                 InvalidValidationSchemaException::class,
                 'Invalid schema option value: $schema[\'schema\'][\'name\'][\'type\'] = \'fizz\'',
             ],
-            'missing schema option (top level)' => [
+            'missing schema option for map (top level)' => [
                 ['type' => 'map'],
                 [],
                 ['type' => 'map', 'schema' => []],
             ],
-            'missing schema option (nested)' => [
+            'missing schema option for map (nested)' => [
                 ['type' => 'map', 'schema' => ['meta' => ['type' => 'map']]],
                 [],
                 ['type' => 'map', 'schema' => ['meta' => ['type' => 'map', 'schema' => []]]],
+            ],
+            'missing schema option for list (top level)' => [
+                ['type' => 'list'],
+                [],
+                null,
+                InvalidValidationSchemaException::class,
+                'Missing schema option: $schema[\'schema\']',
+            ],
+            'missing schema option for list (nested)' => [
+                ['type' => 'map', 'schema' => ['meta' => ['type' => 'list']]],
+                [],
+                null,
+                InvalidValidationSchemaException::class,
+                'Missing schema option: $schema[\'schema\'][\'meta\'][\'schema\']',
+            ],
+            'defaults set for list' => [
+                ['type' => 'list', 'schema' => ['type' => 'integer']],
+                ['required' => true],
+                ['type' => 'list', 'schema' => ['type' => 'integer', 'required' => true], 'required' => true],
             ],
         ];
     }

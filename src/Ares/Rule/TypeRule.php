@@ -25,11 +25,11 @@ class TypeRule implements RuleInterface
 
     /* @const array TYPE_MAPPING maps PHP types to validator specific types */
     const TYPE_MAPPING = [
-        'array'   => Type::MAP,
-        'boolean' => Type::BOOLEAN,
-        'double'  => Type::FLOAT,
-        'integer' => Type::INTEGER,
-        'string'  => Type::STRING,
+        'array'   => [Type::LIST, Type::MAP],
+        'boolean' => [Type::BOOLEAN],
+        'double'  => [Type::FLOAT],
+        'integer' => [Type::INTEGER],
+        'string'  => [Type::STRING],
     ];
 
     /**
@@ -47,7 +47,7 @@ class TypeRule implements RuleInterface
 
         $phpType = gettype($data);
 
-        if (isset(self::TYPE_MAPPING[$phpType]) && self::TYPE_MAPPING[$phpType] == $args || $data === null) {
+        if (isset(self::TYPE_MAPPING[$phpType]) && in_array($args, self::TYPE_MAPPING[$phpType], true) || $data === null) {
             return true;
         }
 

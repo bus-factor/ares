@@ -156,6 +156,10 @@ class Validator
                 foreach ($schema['schema'] as $childField => $childSchema) {
                     $this->performValidation($childSchema, $data[$childField] ?? null, $childField);
                 }
+            } elseif ($schema[TypeRule::ID] == Type::LIST) {
+                foreach ($data as $listItemKey => $listItemValue) {
+                    $this->performValidation($schema['schema'], $listItemValue, $listItemKey);
+                }
             } else {
                 foreach ($schema as $ruleId => $ruleArgs) {
                     if (!isset(self::RESERVED_RULE_IDS[$ruleId]) && !$this->getRule($ruleId)->validate($ruleArgs, $data, $this->context)) {

@@ -396,9 +396,31 @@ $validator->validate(['name' => 'John Doe']); // -> true
 
 The ```required``` validation rule may be used in combination with the ```allRequired``` validation option.
 
-### schema (map)
+### schema
 
-The ```schema``` rule is mandatory when using type ```map```. The validator expects the schema to define per field validation rules for associative array input.
+The ```schema``` rule is mandatory when using type ```list```, or ```map```.
+
+#### schema (list)
+
+The validator expects the schema to define a list item's validation rules.
+
+Examples:
+
+```php
+$validator = new Validator([
+    'type' => 'list',
+    'schema' => [
+        'type' => 'integer',
+    ],
+]);
+
+$validator->validate(['foo', 'bar']); // -> false
+$validator->validate([1, 2, 3]); // -> true
+```
+
+#### schema (map)
+
+The validator expects the schema to define per field validation rules for associative array input.
 
 Examples:
 
@@ -425,6 +447,7 @@ The ```type``` rule is mandatory and defines the expected/allowed value type. Su
 * ```integer```
 * ```string```
 * ```map```
+* ```list```
 
 Examples:
 
