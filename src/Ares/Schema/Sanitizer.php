@@ -76,6 +76,19 @@ class Sanitizer
             } else {
                 $schema['schema'] = [];
             }
+        } elseif ($schema['type'] === Type::LIST) {
+            if (!isset($schema['schema'])) {
+                $sourceFormatted = implode('\'][\'', array_merge($source, ['schema']));
+                $message = sprintf('Missing schema option: $schema[\'%s\']', $sourceFormatted);
+
+                throw new InvalidValidationSchemaException($message);
+            }
+
+            $schema['schema'] = self::performSanitization(
+                array_merge($source, ['schema']),
+                $schema['schema'],
+                $schemaDefaults
+            );
         }
 
         return $schema;

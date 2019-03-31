@@ -25,8 +25,9 @@ class TypeTest extends TestCase
      * @testWith ["BOOLEAN", "boolean"]
      *           ["FLOAT", "float"]
      *           ["INTEGER", "integer"]
-     *           ["STRING", "string"]
+     *           ["LIST", "list"]
      *           ["MAP", "map"]
+     *           ["STRING", "string"]
      *
      * @param string $constantName  Constant name.
      * @param string $constantValue Constant value.

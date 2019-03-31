@@ -252,6 +252,18 @@ $validator->validate('2018-03-23'); // -> false
 $validator->validate('23.03.2019 00:20'); // -> true
 ```
 
+### email
+
+The ```email``` validation rule checks if a value is a valid email address.
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'string', 'email' => true]);
+$validator->validate('John Doe'); // -> false
+$validator->validate('john.doe@example.com'); // -> true
+```
+
 ### forbidden
 
 The ```forbidden``` validation rule checks if a value is in a given set of forbidden values (enumeration).
@@ -266,6 +278,21 @@ $validator->validate('large'); // -> true
 
 The ```forbidden``` validation rule is the opposite of the ```allowed``` validation rule.
 
+### max
+
+The ```max``` validation rule applies to ```float``` and ```integer``` typed values only.
+The ```max``` validation rule checks if a value is equal to or smaller a specified maximum value.
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'integer', 'max' => 5]);
+$validator->validate(6); // -> false
+$validator->validate(2); // -> true
+```
+
+*Note* this validation rule will throw a ```Ares\Exception\InapplicableValidationRuleException``` when used in conjunction with non-supported value types.
+
 ### maxlength
 
 The ```maxlength``` validation rule applies to ```string``` typed values only.
@@ -278,6 +305,21 @@ $validator = new Validator(['type' => 'string', 'maxlength' => 5]);
 $validator->validate('foobar'); // -> false
 $validator->validate('foo'); // -> true
 ```
+
+### min
+
+The ```min``` validation rule applies to ```float``` and ```integer``` typed values only.
+The ```min``` validation rule checks if a value is equal to or greater a specified minimum value.
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'integer', 'min' => 5]);
+$validator->validate(4); // -> false
+$validator->validate(8); // -> true
+```
+
+*Note* this validation rule will throw a ```Ares\Exception\InapplicableValidationRuleException``` when used in conjunction with non-supported value types.
 
 ### minlength
 
@@ -310,6 +352,28 @@ $validator->validate(null); // -> true
 
 The ```nullable``` validation rule may be used in combination with the ```allNullable``` validation option.
 
+### regex
+
+The ```regex``` validation rule applies to ```string``` typed values only.
+The ```regex``` validation rule checks if a string matches a regular expression.
+
+Examples:
+
+```php
+$validator = new Validator([
+    'type' => 'map',
+    'schema' => [
+        'key' => [
+            'type' => 'string',
+            'regex' => '/^[A-Z]{3}$/',
+        ],
+    ],
+]);
+
+$validator->validate(['key' => 'foobar']); // -> false
+$validator->validate(['key' => 'FOO']); // -> true
+```
+
 ### required
 
 Use the ```required``` rule to enforce the presence of a value.
@@ -332,9 +396,31 @@ $validator->validate(['name' => 'John Doe']); // -> true
 
 The ```required``` validation rule may be used in combination with the ```allRequired``` validation option.
 
-### schema (map)
+### schema
 
-The ```schema``` rule is mandatory when using type ```map```. The validator expects the schema to define per field validation rules for associative array input.
+The ```schema``` rule is mandatory when using type ```list```, or ```map```.
+
+#### schema (list)
+
+The validator expects the schema to define a list item's validation rules.
+
+Examples:
+
+```php
+$validator = new Validator([
+    'type' => 'list',
+    'schema' => [
+        'type' => 'integer',
+    ],
+]);
+
+$validator->validate(['foo', 'bar']); // -> false
+$validator->validate([1, 2, 3]); // -> true
+```
+
+#### schema (map)
+
+The validator expects the schema to define per field validation rules for associative array input.
 
 Examples:
 
@@ -354,13 +440,14 @@ $validator->validate(['email' => 'john.doe@example.com', 'password' => 'j4n3:)']
 
 ### type
 
-The ```type``` rule defines the expected/allowed value type. Supported types are:
+The ```type``` rule is mandatory and defines the expected/allowed value type. Supported types are:
 
 * ```boolean```
 * ```float```
 * ```integer```
 * ```string```
 * ```map```
+* ```list```
 
 Examples:
 
@@ -368,5 +455,17 @@ Examples:
 $validator = new Validator(['type' => 'float']);
 $validator->validate(5); // -> false
 $validator->validate('John Doe'); // -> false
+```
+
+### url
+
+The ```url``` validation rule checks if a value is a valid URL.
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'string', 'url' => true]);
+$validator->validate('example'); // -> false
+$validator->validate('https://example.com'); // -> true
 ```
 

@@ -21,6 +21,7 @@ class Type extends Enum
     const BOOLEAN = 'boolean';
     const FLOAT   = 'float';
     const INTEGER = 'integer';
+    const LIST    = 'list';
     const MAP     = 'map';
     const STRING  = 'string';
 }

@@ -18,16 +18,20 @@ use Ares\Exception\UnknownValidationRuleIdException;
 use Ares\Rule\AllowedRule;
 use Ares\Rule\BlankableRule;
 use Ares\Rule\DateTimeRule;
+use Ares\Rule\EmailRule;
 use Ares\Rule\ForbiddenRule;
 use Ares\Rule\MaxLengthRule;
+use Ares\Rule\MaxRule;
 use Ares\Rule\MinLengthRule;
+use Ares\Rule\MinRule;
 use Ares\Rule\NullableRule;
+use Ares\Rule\RegexRule;
 use Ares\Rule\RequiredRule;
 use Ares\Rule\TypeRule;
 use Ares\Rule\UnknownRule;
+use Ares\Rule\UrlRule;
 use Ares\Schema\Sanitizer as SchemaSanitizer;
 use Ares\Schema\Type;
-use InvalidArgumentException;
 
 /**
  * Class Validator
@@ -57,13 +61,18 @@ class Validator
         AllowedRule::ID   => AllowedRule::class,
         BlankableRule::ID => BlankableRule::class,
         DateTimeRule::ID  => DateTimeRule::class,
+        EmailRule::ID     => EmailRule::class,
         ForbiddenRule::ID => ForbiddenRule::class,
         MaxLengthRule::ID => MaxLengthRule::class,
+        MaxRule::ID       => MaxRule::class,
         MinLengthRule::ID => MinLengthRule::class,
+        MinRule::ID       => MinRule::class,
         NullableRule::ID  => NullableRule::class,
+        RegexRule::ID     => RegexRule::class,
         RequiredRule::ID  => RequiredRule::class,
         TypeRule::ID      => TypeRule::class,
         UnknownRule::ID   => UnknownRule::class,
+        UrlRule::ID       => UrlRule::class,
     ];
 
     /** @var \Ares\Context $context */
@@ -146,6 +155,10 @@ class Validator
             if ($schema[TypeRule::ID] == Type::MAP) {
                 foreach ($schema['schema'] as $childField => $childSchema) {
                     $this->performValidation($childSchema, $data[$childField] ?? null, $childField);
+                }
+            } elseif ($schema[TypeRule::ID] == Type::LIST) {
+                foreach ($data as $listItemKey => $listItemValue) {
+                    $this->performValidation($schema['schema'], $listItemValue, $listItemKey);
                 }
             } else {
                 foreach ($schema as $ruleId => $ruleArgs) {
