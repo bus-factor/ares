@@ -25,6 +25,7 @@ use Ares\Rule\MaxRule;
 use Ares\Rule\MinLengthRule;
 use Ares\Rule\MinRule;
 use Ares\Rule\NullableRule;
+use Ares\Rule\RegexRule;
 use Ares\Rule\RequiredRule;
 use Ares\Rule\TypeRule;
 use Ares\Rule\UnknownRule;
@@ -67,6 +68,7 @@ class Validator
         MinLengthRule::ID => MinLengthRule::class,
         MinRule::ID       => MinRule::class,
         NullableRule::ID  => NullableRule::class,
+        RegexRule::ID     => RegexRule::class,
         RequiredRule::ID  => RequiredRule::class,
         TypeRule::ID      => TypeRule::class,
         UnknownRule::ID   => UnknownRule::class,
