@@ -15,6 +15,7 @@ use Ares\Context;
 use Ares\Error\ErrorMessageRenderer;
 use Ares\Error\ErrorMessageRendererInterface;
 use Ares\Exception\UnknownValidationRuleIdException;
+use Ares\RuleFactory;
 use Ares\Validator;
 use PHPUnit\Framework\TestCase;
 
@@ -28,7 +29,6 @@ class ValidationTest extends TestCase
     /**
      * @covers ::validate
      * @covers ::performValidation
-     * @covers ::getRule
      *
      * @return void
      */
@@ -83,6 +83,20 @@ class ValidationTest extends TestCase
         $validator = new Validator(['type' => 'integer'], [], $errorMessageRenderer);
 
         $this->assertSame($errorMessageRenderer, $validator->getErrorMessageRenderer());
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getRuleFactory
+     *
+     * @return void
+     */
+    public function testConstructorUsesProvidedRuleFactory(): void
+    {
+        $ruleFactory = new RuleFactory();
+        $validator = new Validator(['type' => 'integer'], [], null, $ruleFactory);
+
+        $this->assertSame($ruleFactory, $validator->getRuleFactory());
     }
 }
 
