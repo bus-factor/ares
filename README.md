@@ -9,14 +9,44 @@ Ares is a lightweight standalone validation library.
 
 ![](https://travis-ci.com/bus-factor/ares.svg?token=6CVThNyY94qpVvuMgX3F&branch=master)
 
-## Installation
+# Table of Contents
+
+* [Installation](#installation)
+* [Basic Usage](#basic-usage)
+* [Validation Errors](#validation-errors)
+* [Validation Options](#validation-options)
+  * [allBlankable](#validation-options_all-blankable)
+  * [allNullable](#validation-options_all-nullable)
+  * [allRequired](#validation-options_all-required)
+  * [allowUnknown](#validation-options_allow-unknown)
+* [Validation Rules](#validation-rules)
+  * [allowed](#validation-rules_allowed)
+  * [blankable](#validation-rules_blankable)
+  * [datetime](#validation-rules_datetime)
+  * [email](#validation-rules_email)
+  * [forbidden](#validation-rules_forbidden)
+  * [max](#validation-rules_max)
+  * [maxlength](#validation-rules_maxlength)
+  * [min](#validation-rules_min)
+  * [minlength](#validation-rules_minlength)
+  * [nullable](#validation-rules_nullable)
+  * [regex](#validation-rules_regex)
+  * [required](#validation-rules_required)
+  * [schema](#validation-rules_schema)
+    * [schema (list)](#validation-rules_schema_schema-list)
+    * [schema (map)](#validation-rules_schema_schema-map)
+  * [type](#validation-rules_type)
+  * [url](#validation-rules_url)
+* [Custom Validation Rules](#custom-validation-rules)
+
+# <a name="installation"></a>Installation
 
 Install the library via composer:
 ```
 composer require bus-factor/ares
 ```
 
-## Basic Usage
+# <a name="basic-usage"></a>Basic Usage
 
 ```php
 <?php
@@ -42,7 +72,7 @@ $errors = $validator->getErrors();
 
 ```
 
-## Validation Errors
+# <a name="validation-errors"></a>Validation Errors
 
 The ```validate()``` method returns ```true``` if the provided data is valid, otherwise ```false```.
 
@@ -51,7 +81,7 @@ The list of validation errors is reset each time ```validate()``` is called.
 
 Each ```Ares\Error``` object implements the ```JsonSerializable``` interface and contains details about the error.
 
-## Validation Options
+# <a name="validation-options"></a>Validation Options
 
 Validation options may be passed on validator construction:
 
@@ -72,7 +102,7 @@ Validator::OPTIONS_DEFAULTS = [
 ]
 ```
 
-### allBlankable
+## <a name="validation-options_all-blankable"></a>allBlankable
 
 This option applies to the type ```string``` only.
 If set ```true```, blank values are considered valid.
@@ -107,7 +137,7 @@ $validator = new Validator($schema, ['allBlankable' => false]);
 $validator->validate(['name' => 'John Doe', 'email' => '']); // -> true
 ```
 
-### allNullable
+## <a name="validation-options_all-nullable"></a>allNullable
 
 If set ```true```, ```null``` is considered a valid value.
 If set ```false```, ```null``` is not considered a valid value.
@@ -141,7 +171,7 @@ $validator = new Validator($schema, ['allNullable' => false]);
 $validator->validate(['name' => 'John Doe', 'email' => null]); // -> true
 ```
 
-### allRequired
+## <a name="validation-options_all-required"></a>allRequired
 
 If set ```true``` fields that are defined in the schema and not present in the input, are considered invalid.
 If set ```false``` fields that are defined in the schema and not present in the input, are considered valid.
@@ -175,7 +205,7 @@ $validator = new Validator($schema, ['allRequired' => true]);
 $validator->validate(['name' => 'John Doe']); // -> true
 ```
 
-### allowUnknown
+## <a name="validation-options_allow-unknown"></a>allowUnknown
 
 This option applies to the type ```map``` only.
 If set ```true``` fields that occur in the input data but are not defined in the schema are considered invalid.
@@ -196,9 +226,9 @@ $validator = new Validator($schema, ['allowUnknown' => true]);
 $validator->validate(['name' => 'John Doe', 'initials' => 'JD']); // -> true
 ```
 
-## Validation Rules
+# <a name="validation-rules"></a>Validation Rules
 
-### allowed
+## <a name="validation-rules_allowed"></a>allowed
 
 The ```allowed``` validation rule checks if a value is in a given set of allowed values (enumeration).
 
@@ -212,7 +242,7 @@ $validator->validate('small'); // -> true
 
 The ```allowed``` validation rule is the opposite of the ```forbidden``` validation rule.
 
-### blankable
+## <a name="validation-rules_blankable"></a>blankable
 
 The ```blankable``` rule applies to ```string``` typed values only.
 If set ```true```, blank strings are considered valid.
@@ -232,7 +262,7 @@ $validator->validate('   '); // -> true
 
 The ```blankable``` validation rule may be used in combination with the ```allBlankable``` validation option.
 
-### datetime
+## <a name="validation-rules_datetime"></a>datetime
 
 The ```datetime``` validation rule applies to ```string``` typed values only.
 If set ```true```, any parsable date/time string is considered valid.
@@ -252,7 +282,7 @@ $validator->validate('2018-03-23'); // -> false
 $validator->validate('23.03.2019 00:20'); // -> true
 ```
 
-### email
+## <a name="validation-rules_email"></a>email
 
 The ```email``` validation rule checks if a value is a valid email address.
 
@@ -264,7 +294,7 @@ $validator->validate('John Doe'); // -> false
 $validator->validate('john.doe@example.com'); // -> true
 ```
 
-### forbidden
+## <a name="validation-rules_forbidden"></a>forbidden
 
 The ```forbidden``` validation rule checks if a value is in a given set of forbidden values (enumeration).
 
@@ -278,7 +308,7 @@ $validator->validate('large'); // -> true
 
 The ```forbidden``` validation rule is the opposite of the ```allowed``` validation rule.
 
-### max
+## <a name="validation-rules_max"></a>max
 
 The ```max``` validation rule applies to ```float``` and ```integer``` typed values only.
 The ```max``` validation rule checks if a value is equal to or smaller a specified maximum value.
@@ -293,7 +323,7 @@ $validator->validate(2); // -> true
 
 *Note* this validation rule will throw a ```Ares\Exception\InapplicableValidationRuleException``` when used in conjunction with non-supported value types.
 
-### maxlength
+## <a name="validation-rules_maxlength"></a>maxlength
 
 The ```maxlength``` validation rule applies to ```string``` typed values only.
 The ```maxlength``` validation rule checks if a string does not exceed the given maximum length.
@@ -306,7 +336,7 @@ $validator->validate('foobar'); // -> false
 $validator->validate('foo'); // -> true
 ```
 
-### min
+## <a name="validation-rules_min"></a>min
 
 The ```min``` validation rule applies to ```float``` and ```integer``` typed values only.
 The ```min``` validation rule checks if a value is equal to or greater a specified minimum value.
@@ -321,7 +351,7 @@ $validator->validate(8); // -> true
 
 *Note* this validation rule will throw a ```Ares\Exception\InapplicableValidationRuleException``` when used in conjunction with non-supported value types.
 
-### minlength
+## <a name="validation-rules_minlength"></a>minlength
 
 The ```minlength``` validation rule applies to ```string``` typed values only.
 The ```minlength``` validation rule checks if a string is not shorter than the given minimum length.
@@ -334,7 +364,7 @@ $validator->validate('foo'); // -> false
 $validator->validate('foobar'); // -> true
 ```
 
-### nullable
+## <a name="validation-rules_nullable"></a>nullable
 
 If set ```true```, ```null``` is considered a valid value.
 If set ```false```, ```null``` is considered an invalid value (default).
@@ -352,7 +382,7 @@ $validator->validate(null); // -> true
 
 The ```nullable``` validation rule may be used in combination with the ```allNullable``` validation option.
 
-### regex
+## <a name="validation-rules_regex"></a>regex
 
 The ```regex``` validation rule applies to ```string``` typed values only.
 The ```regex``` validation rule checks if a string matches a regular expression.
@@ -374,7 +404,7 @@ $validator->validate(['key' => 'foobar']); // -> false
 $validator->validate(['key' => 'FOO']); // -> true
 ```
 
-### required
+## <a name="validation-rules_required"></a>required
 
 Use the ```required``` rule to enforce the presence of a value.
 If set ```true```, absent fields are considered invalid.
@@ -396,11 +426,11 @@ $validator->validate(['name' => 'John Doe']); // -> true
 
 The ```required``` validation rule may be used in combination with the ```allRequired``` validation option.
 
-### schema
+## <a name="validation-rules_schema"></a>schema
 
 The ```schema``` rule is mandatory when using type ```list```, or ```map```.
 
-#### schema (list)
+### <a name="validation-rules_schema_schema-list"></a>schema (list)
 
 The validator expects the schema to define a list item's validation rules.
 
@@ -418,7 +448,7 @@ $validator->validate(['foo', 'bar']); // -> false
 $validator->validate([1, 2, 3]); // -> true
 ```
 
-#### schema (map)
+### <a name="validation-rules_schema_schema-map"></a>schema (map)
 
 The validator expects the schema to define per field validation rules for associative array input.
 
@@ -438,7 +468,7 @@ $validator->validate(['email' => 'john.doe@example.com']); // -> false
 $validator->validate(['email' => 'john.doe@example.com', 'password' => 'j4n3:)']); // -> true
 ```
 
-### type
+## <a name="validation-rules_type"></a>type
 
 The ```type``` rule is mandatory and defines the expected/allowed value type. Supported types are:
 
@@ -457,7 +487,7 @@ $validator->validate(5); // -> false
 $validator->validate('John Doe'); // -> false
 ```
 
-### url
+## <a name="validation-rules_url"></a>url
 
 The ```url``` validation rule checks if a value is a valid URL.
 
@@ -469,7 +499,7 @@ $validator->validate('example'); // -> false
 $validator->validate('https://example.com'); // -> true
 ```
 
-## Custom validation rules
+# <a name="custom-validation-rules"></a>Custom Validation Rules
 
 The following simple example shows how custom validation rules are implemented and integrated:
 
