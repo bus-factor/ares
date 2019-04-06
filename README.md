@@ -469,3 +469,40 @@ $validator->validate('example'); // -> false
 $validator->validate('https://example.com'); // -> true
 ```
 
+## Custom validation rules
+
+The following simple example shows how custom validation rules are implemented and integrated:
+
+```php
+use Ares\RuleFactory;
+use Ares\Rule\RuleInterface;
+use Ares\Validator;
+
+class ZipCodeRule implements RuleInterface
+{
+    const ID = 'zipcode';
+    const ERROR_MESSAGE = 'Invalid ZIP code';
+
+    public function validate($config, $data, Context $context): bool
+    {
+        // implement validation ...
+
+        // add error if the validation fails
+        $context->addError(self::ID, self::ERROR_MESSAGE);
+
+        // skip all following validation rules for the current field
+        return false; 
+    }
+}
+
+$ruleFactory = new RuleFactory();
+$ruleFactory->set(ZipCodeRule::ID, new ZipCodeRule());
+
+$schema = [
+    'type' => 'string',
+    'zipcode' => true,
+];
+
+$validator = new Validator($schema, [], null, $ruleFactory);
+```
+
