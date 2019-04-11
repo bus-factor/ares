@@ -74,6 +74,23 @@ class RuleFactoryTest extends TestCase
     }
 
     /**
+     * @covers ::has
+     *
+     * @testWith ["required", true]
+     *           ["bogus", false]
+     *
+     * @param string  $ruleId         Validation rule ID.
+     * @param boolean $expectedRetVal Expected method return value.
+     * @return void
+     */
+    public function testHas(string $ruleId, bool $expectedRetVal): void
+    {
+        $ruleFactory = new RuleFactory();
+
+        $this->assertSame($expectedRetVal, $ruleFactory->has($ruleId));
+    }
+
+    /**
      * @covers ::isReserved
      *
      * @testWith ["allowed",   false]

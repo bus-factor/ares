@@ -26,9 +26,7 @@ class Sanitizer
      */
     public static function sanitize(array $schema, array $schemaDefaults): array
     {
-        $source = [];
-
-        return self::performSanitization($source, $schema, $schemaDefaults);
+        return self::performSanitization([], $schema, $schemaDefaults);
     }
 
     /**

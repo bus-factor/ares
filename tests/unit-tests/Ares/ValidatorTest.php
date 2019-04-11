@@ -68,25 +68,6 @@ class ValidationTest extends TestCase
 
     /**
      * @covers ::__construct
-     * @covers ::getErrorMessageRenderer
-     *
-     * @return void
-     */
-    public function testConstructorUsesProvidedErrorMessageRenderer(): void
-    {
-        $errorMessageRenderer = new class implements ErrorMessageRendererInterface {
-            public function render(Context $context, string $ruleId, string $message, array $substitutions = []): string {
-                return '';
-            }
-        };
-
-        $validator = new Validator(['type' => 'integer'], [], $errorMessageRenderer);
-
-        $this->assertSame($errorMessageRenderer, $validator->getErrorMessageRenderer());
-    }
-
-    /**
-     * @covers ::__construct
      * @covers ::getRuleFactory
      *
      * @return void
@@ -94,7 +75,7 @@ class ValidationTest extends TestCase
     public function testConstructorUsesProvidedRuleFactory(): void
     {
         $ruleFactory = new RuleFactory();
-        $validator = new Validator(['type' => 'integer'], [], null, $ruleFactory);
+        $validator = new Validator(['type' => 'integer'], [], $ruleFactory);
 
         $this->assertSame($ruleFactory, $validator->getRuleFactory());
     }

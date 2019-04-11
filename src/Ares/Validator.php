@@ -19,6 +19,7 @@ use Ares\Rule\NullableRule;
 use Ares\Rule\RequiredRule;
 use Ares\Rule\TypeRule;
 use Ares\Rule\UnknownRule;
+use Ares\Schema\Keyword;
 use Ares\Schema\Sanitizer as SchemaSanitizer;
 use Ares\Schema\Type;
 
@@ -37,6 +38,8 @@ class Validator
 
     /** @var \Ares\Context $context */
     protected $context;
+    /** @var \Ares\Error\ErrorMessageRendererInterface $errorMessageRenderer */
+    protected $errorMessageRenderer;
     /** @var array $options */
     protected $options;
     /** @var \Ares\RuleFactory */
@@ -45,22 +48,16 @@ class Validator
     protected $schema;
 
     /**
-     * @param array                                          $schema               Validation schema.
-     * @param array                                          $options              Validation options.
-     * @param \Ares\Error\ErrorMessageRendererInterface|null $errorMessageRenderer Error message renderer instance.
-     * @param \Ares\RuleFactory|null                         $ruleFactory          Validation rule factory.
+     * @param array                  $schema      Validation schema.
+     * @param array                  $options     Validation options.
+     * @param \Ares\RuleFactory|null $ruleFactory Validation rule factory.
      * @throws \Ares\Exception\InvalidValidationSchemaException
      */
     public function __construct(
         array $schema,
         array $options = [],
-        ?ErrorMessageRendererInterface $errorMessageRenderer = null,
         ?RuleFactory $ruleFactory = null
     ) {
-        $this->errorMessageRenderer = ($errorMessageRenderer === null)
-            ? new ErrorMessageRenderer()
-            : $errorMessageRenderer;
-
         $this->ruleFactory = ($ruleFactory === null)
             ? new RuleFactory()
             : $ruleFactory;
@@ -82,6 +79,10 @@ class Validator
      */
     public function getErrorMessageRenderer(): ErrorMessageRendererInterface
     {
+        if (!isset($this->errorMessageRenderer)) {
+            $this->errorMessageRenderer = new ErrorMessageRenderer();
+        }
+
         return $this->errorMessageRenderer;
     }
 
@@ -107,16 +108,16 @@ class Validator
 
         if ($this->runBuiltinValidationRules($schema, $data)) {
             if ($schema[TypeRule::ID] == Type::MAP) {
-                foreach ($schema['schema'] as $childField => $childSchema) {
+                foreach ($schema[Keyword::SCHEMA] as $childField => $childSchema) {
                     $this->performValidation($childSchema, $data[$childField] ?? null, $childField);
                 }
             } elseif ($schema[TypeRule::ID] == Type::LIST) {
                 foreach ($data as $listItemKey => $listItemValue) {
-                    $this->performValidation($schema['schema'], $listItemValue, $listItemKey);
+                    $this->performValidation($schema[Keyword::SCHEMA], $listItemValue, $listItemKey);
                 }
             } else {
                 foreach ($schema as $ruleId => $ruleArgs) {
-                    if ($this->ruleFactory->isReserved($ruleId) || $ruleId === 'schema') {
+                    if ($this->ruleFactory->isReserved($ruleId) || $ruleId === Keyword::SCHEMA) {
                         continue;
                     }
 
@@ -150,9 +151,9 @@ class Validator
     }
 
     /**
-        * @param array $schema Validation schema.
-        * @param mixed $data   Input data.
-        * @return bool
+     * @param array $schema Validation schema.
+     * @param mixed $data   Input data.
+     * @return bool
      */
     protected function runBuiltinValidationRules(array $schema, $data): bool
     {
@@ -182,7 +183,7 @@ class Validator
      */
     public function validate($data): bool
     {
-        $this->context = new Context($data, $this->errorMessageRenderer);
+        $this->context = new Context($data, $this->getErrorMessageRenderer());
 
         $this->performValidation($this->schema, $data, '');
 
