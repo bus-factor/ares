@@ -45,55 +45,67 @@ class Parser
     }
 
     /**
-     * @param array $schema Validation schema.
-     * @param array $source Current parsing position in the validation schema.
+     * @param \Ares\Schema\ParserContext $context Parser context.
+     * @return void
+     * @throws \Ares\Exception\InvalidValidationSchemaException
+     */
+    protected function ascertainInputHoldsArrayOrFail(ParserContext $context): void
+    {
+        $type = gettype($context->getInput());
+
+        if ($type !== 'array') {
+            $this->fail(ParserError::VALUE_TYPE_MISMATCH, $context, $type);
+        }
+    }
+
+    /**
+     * @param \Ares\Schema\ParserContext $context Parser context.
      * @return string
      * @throws \Ares\Exception\InvalidValidationSchemaException
      */
-    protected function extractTypeOrFail(array $schema, array $source): string
+    protected function extractTypeOrFail(ParserContext $context): string
     {
         $types = [];
 
-        foreach ($schema as $key => $value) {
+        foreach ($context->getInput() as $key => $value) {
             if (is_string($key)) {
                 if ($key == TypeRule::ID) {
                     $types[] = $value;
                 }
-            } elseif (is_int($key)) {
-                if (is_array($value) && array_key_exists(TypeRule::ID, $value)) {
-                    $types[] = $value[TypeRule::ID];
-                }
+            } elseif (isset($value[TypeRule::ID])) {
+                $types[] = $value[TypeRule::ID];
             }
         }
 
         $n = count($types);
 
         if ($n < 1) {
-            $this->fail(ParserError::TYPE_MISSING, $source);
+            $this->fail(ParserError::TYPE_MISSING, $context);
         } elseif ($n > 1) {
-            $this->fail(ParserError::TYPE_REPEATED, $source);
+            $this->fail(ParserError::TYPE_REPEATED, $context);
         }
 
-        $type = reset($types);
+        $type = $types[0];
 
         if (!in_array($type, Type::getValues(), true)) {
-            $this->fail(ParserError::TYPE_UNKNOWN, $source, json_encode($type));
+            $this->fail(ParserError::TYPE_UNKNOWN, $context, json_encode($type));
         }
 
         return $type;
     }
 
     /**
-     * @param int   $parserError Parser error ID.
-     * @param array $source      Current parsing position in the validation schema.
-     * @param array $messageVars Variables to substiture in the message.
+     * @param int                        $parserError Parser error ID.
+     * @param \Ares\Schema\ParserContext $context     Parser context.
+     * @param array                      $messageVars Variables to substiture in the message.
      * @throws \Ares\Exception\InvalidValidationSchemaException
+     * @see \Ares\Schema\ParserError
      */
-    protected function fail(int $parserError, array $source, ...$messageVars)
+    protected function fail(int $parserError, ParserContext $context, ...$messageVars)
     {
         $sprintfArgs = array_merge(
             [self::ERROR_MESSAGES[$parserError]],
-            [JsonPointer::encode($source)],
+            [JsonPointer::encode($context->getInputPosition())],
             $messageVars
         );
 
@@ -102,100 +114,120 @@ class Parser
 
     /**
      * @param mixed $schema Validation schema.
-     * @param array $source Current parsing position in the validation schema.
      * @return array
      * @throws \Ares\Exception\InvalidValidationSchemaException
      */
-    public function parse($schema, array $source = ['']): array
+    public function parse($schema): array
     {
-        $schemaType = gettype($schema);
+        $context = new ParserContext($schema, '');
 
-        if ($schemaType !== 'array') {
-            $this->fail(ParserError::VALUE_TYPE_MISMATCH, $source, $schemaType);
-        }
-
-        $type = $this->extractTypeOrFail($schema, $source);
-
-        foreach ($schema as $key => $value) {
-            if (is_string($key)) {
-                $schema[$key] = $this->parseRule($type, array_merge($source, [$key]), $key, $value);
-            } else {
-                $schema[$key] = $this->parseRuleWithAdditions($type, array_merge($source, [$key]), $value);
-            }
-        }
-
-        if (in_array($type, [Type::LIST, Type::MAP], true)) {
-            if (!array_key_exists(Keyword::SCHEMA, $schema)) {
-                $this->fail(ParserError::SCHEMA_MISSING, $source, $type);
-            }
-
-            if ($type === Type::LIST) {
-                $schema[Keyword::SCHEMA] = $this->parse($schema[Keyword::SCHEMA], array_merge($source, [Keyword::SCHEMA]));
-            } elseif ($type === Type::MAP) {
-                $schemaType = gettype($schema[Keyword::SCHEMA]);
-
-                if ($schemaType !== 'array') {
-                    $this->fail(ParserError::VALUE_TYPE_MISMATCH, array_merge($source, [Keyword::SCHEMA]), $schemaType);
-                }
-
-                foreach ($schema[Keyword::SCHEMA] as $key => $value) {
-                    $schema[Keyword::SCHEMA][$key] = $this->parse($value, array_merge($source, [Keyword::SCHEMA, $key]));
-                }
-            }
-        }
-
-        return $schema;
+        return $this->parseSchema($context);
     }
 
     /**
-     * @param string $type     Type according to validation schema.
-     * @param array  $source   Current parsing position in the validation schema.
-     * @param string $ruleId   Validation rule ID.
-     * @param mixed  $ruleArgs Validation rule arguments.
-     * @return mixed
+     * @param \Ares\Schema\ParserContext $context Parser context.
+     * @param string                     $type    Type according to validation schema.
+     * @param string                     $ruleId  Validation rule ID.
+     * @return void
+     * @throws \Ares\Exception\InvalidValidationSchemaException
      */
-    protected function parseRule(string $type, array $source, string $ruleId, $ruleArgs)
+    protected function parseRule(ParserContext $context, string $type, string $ruleId): void
     {
-        if ($ruleId === Keyword::SCHEMA) {
-            return $ruleArgs;
+        $context->enter($ruleId);
+
+        if ($ruleId !== Keyword::SCHEMA) {
+            if (!$this->ruleFactory->has($ruleId)) {
+                $this->fail(ParserError::RULE_ID_UNKNOWN, $context);
+            }
         }
 
-        if (!$this->ruleFactory->has($ruleId)) {
-            $this->fail(ParserError::RULE_ID_UNKNOWN, $source);
-        }
-
-        return $ruleArgs;
+        $context->leave();
     }
 
     /**
-     * @param string $type      Type according to validation schema.
-     * @param array  $source    Current parsing position in the validation schema.
-     * @param mixed  $additions Rule with additional information.
+     * @param \Ares\Schema\ParserContext $context Parser context.
+     * @param string                     $type    Type according to validation schema.
+     * @param mixed                      $index   Parser context related index.
      * @return array
      * @throws \Ares\Exception\InvalidValidationSchemaException
      */
-    protected function parseRuleWithAdditions(string $type, array $source, $additions): array
+    protected function parseRuleWithAdditions(ParserContext $context, string $type, $index): void
     {
-        if (!is_array($additions)) {
-            $this->fail(ParserError::VALUE_TYPE_MISMATCH, $source, gettype($additions));
-        }
+        $context->enter($index);
+
+        $this->ascertainInputHoldsArrayOrFail($context);
 
         $allowedAdditionalKeys = ['message'];
-        $ruleIds = array_diff(array_keys($additions), $allowedAdditionalKeys);
+        $ruleIds = array_diff(array_keys($context->getInput()), $allowedAdditionalKeys);
 
         $n = count($ruleIds);
 
         if ($n < 1) {
-            $this->fail(ParserError::RULE_MISSING, $source);
+            $this->fail(ParserError::RULE_MISSING, $context);
         } elseif ($n > 1) {
-            $this->fail(ParserError::RULE_AMBIGUOUS, $source, json_encode($ruleIds));
+            $this->fail(ParserError::RULE_AMBIGUOUS, $context, json_encode($ruleIds));
         }
 
         $ruleId = reset($ruleIds);
 
-        $additions[$ruleId] = $this->parseRule($type, array_merge($source, [$ruleId]), $ruleId, $additions[$ruleId]);
+        $this->parseRule($context, $type, $ruleId);
 
-        return $additions;
+        $context->leave();
+    }
+
+    /**
+     * @param \Ares\Schema\ParserContext $context Parser context.
+     * @return array
+     * @throws \Ares\Exception\InvalidValidationSchemaException
+     */
+    protected function parseSchema(ParserContext $context): array
+    {
+        $this->ascertainInputHoldsArrayOrFail($context);
+
+        $type = $this->extractTypeOrFail($context);
+
+        foreach ($context->getInput() as $key => $value) {
+            if (is_string($key)) {
+                $this->parseRule($context, $type, $key);
+            } else {
+                $this->parseRuleWithAdditions($context, $type, $key);
+            }
+        }
+
+        if (in_array($type, [Type::LIST, Type::MAP], true)) {
+            if (!array_key_exists(Keyword::SCHEMA, $context->getInput())) {
+                $this->fail(ParserError::SCHEMA_MISSING, $context, $type);
+            }
+
+            $context->enter(Keyword::SCHEMA);
+
+            if ($type === Type::LIST) {
+                $this->parseSchema($context);
+            } else { // $type === Type::MAP
+                $this->ascertainInputHoldsArrayOrFail($context);
+
+                foreach ($context->getInput() as $key => $value) {
+                    $this->parseSchemaMap($context, $key);
+                }
+            }
+
+            $context->leave();
+        }
+
+        return $context->getInput();
+    }
+
+    /**
+     * @param \Ares\Schema\ParserContext $context               Parser context.
+     * @param mixed                      $relativeInputPosition Relative parser context input position.
+     * @return void
+     * @throws \Ares\Exception\InvalidValidationSchemaException
+     */
+    public function parseSchemaMap(ParserContext $context, $relativeInputPosition): void
+    {
+        $context->enter($relativeInputPosition);
+        $this->parseSchema($context);
+        $context->leave();
     }
 }
 

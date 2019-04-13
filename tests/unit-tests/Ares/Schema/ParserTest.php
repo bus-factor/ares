@@ -25,11 +25,14 @@ class ParserTest extends TestCase
 {
     /**
      * @covers ::__construct
+     * @covers ::ascertainInputHoldsArrayOrFail
      * @covers ::extractTypeOrFail
      * @covers ::fail
      * @covers ::parse
      * @covers ::parseRule
      * @covers ::parseRuleWithAdditions
+     * @covers ::parseSchema
+     * @covers ::parseSchemaMap
      *
      * @dataProvider getParseSamples
      *
