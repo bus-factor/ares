@@ -14,6 +14,7 @@ namespace Ares\Rule;
 use Ares\Context;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Schema\Type;
+use Ares\Utility\PhpType;
 
 /**
  * Class TypeRule
@@ -25,11 +26,11 @@ class TypeRule implements RuleInterface
 
     /* @const array TYPE_MAPPING maps PHP types to validator specific types */
     const TYPE_MAPPING = [
-        'array'   => [Type::LIST, Type::MAP],
-        'boolean' => [Type::BOOLEAN],
-        'double'  => [Type::FLOAT],
-        'integer' => [Type::INTEGER],
-        'string'  => [Type::STRING],
+        PhpType::ARRAY   => [Type::LIST, Type::MAP],
+        PhpType::BOOLEAN => [Type::BOOLEAN],
+        PhpType::DOUBLE  => [Type::FLOAT],
+        PhpType::INTEGER => [Type::INTEGER],
+        PhpType::STRING  => [Type::STRING],
     ];
 
     /**

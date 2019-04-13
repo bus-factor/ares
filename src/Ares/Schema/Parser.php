@@ -15,6 +15,7 @@ use Ares\Exception\InvalidValidationSchemaException;
 use Ares\RuleFactory;
 use Ares\Rule\TypeRule;
 use Ares\Utility\JsonPointer;
+use Ares\Utility\PhpType;
 
 /**
  * Class Parser
@@ -53,7 +54,7 @@ class Parser
     {
         $type = gettype($context->getInput());
 
-        if ($type !== 'array') {
+        if ($type !== PhpType::ARRAY) {
             $this->fail(ParserError::VALUE_TYPE_MISMATCH, $context, $type);
         }
     }
@@ -157,7 +158,7 @@ class Parser
 
         $this->ascertainInputHoldsArrayOrFail($context);
 
-        $allowedAdditionalKeys = ['message'];
+        $allowedAdditionalKeys = [Keyword::MESSAGE, Keyword::META];
         $ruleIds = array_diff(array_keys($context->getInput()), $allowedAdditionalKeys);
 
         $n = count($ruleIds);
