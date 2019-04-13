@@ -84,9 +84,9 @@ class Parser
     }
 
     /**
-     * @param int    $parserError Parser error ID.
-     * @param array  $source      Current parsing position in the validation schema.
-     * @param array  $messageVars Variables to substiture in the message.
+     * @param int   $parserError Parser error ID.
+     * @param array $source      Current parsing position in the validation schema.
+     * @param array $messageVars Variables to substiture in the message.
      * @throws \Ares\Exception\InvalidValidationSchemaException
      */
     protected function fail(int $parserError, array $source, ...$messageVars)
@@ -168,8 +168,8 @@ class Parser
     }
 
     /**
-     * @param string $type              Type according to validation schema.
-     * @param array  $source            Current parsing position in the validation schema.
+     * @param string $type      Type according to validation schema.
+     * @param array  $source    Current parsing position in the validation schema.
      * @param mixed  $additions Rule with additional information.
      * @return array
      * @throws \Ares\Exception\InvalidValidationSchemaException
