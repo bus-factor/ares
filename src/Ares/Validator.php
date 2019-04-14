@@ -22,7 +22,6 @@ use Ares\Rule\TypeRule;
 use Ares\Rule\UnknownRule;
 use Ares\Schema\Keyword;
 use Ares\Schema\Parser;
-use Ares\Schema\Sanitizer as SchemaSanitizer;
 use Ares\Schema\Schema;
 use Ares\Schema\SchemaList;
 use Ares\Schema\SchemaMap;
