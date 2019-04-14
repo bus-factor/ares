@@ -20,7 +20,7 @@ $schema = [
 $data = '23.03.2019 00:12';
 
 $expectedErrors = [
-    new Error([''], 'datetime', 'Wrong date/time format'),
+    new Error([''], 'datetime', 'Invalid date/time value'),
 ];
 
 $validator = new Validator($schema);

@@ -13,6 +13,7 @@ namespace Ares;
 
 use Ares\Error\Error;
 use Ares\Error\ErrorMessageRendererInterface;
+use Ares\Schema\Schema;
 
 /**
  * Class Context
@@ -78,9 +79,9 @@ class Context
     }
 
     /**
-     * @return array
+     * @return \Ares\Schema\Schema
      */
-    public function getSchema(): array
+    public function getSchema(): Schema
     {
         return end($this->schemas);
     }
@@ -102,11 +103,11 @@ class Context
     }
 
     /**
-     * @param mixed $reference Source reference.
-     * @param array $schema    Source specific validation schema.
+     * @param mixed               $reference Source reference.
+     * @param \Ares\Schema\Schema $schema    Source specific validation schema.
      * @return self
      */
-    public function enter($reference, array $schema): self
+    public function enter($reference, Schema $schema): self
     {
         $this->source[] = $reference;
         $this->schemas[] = $schema;

@@ -15,6 +15,8 @@ use Ares\Context;
 use Ares\Error\ErrorMessageRenderer;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\TypeRule;
+use Ares\Schema\Rule;
+use Ares\Schema\Schema;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -68,6 +70,8 @@ class TypeRuleTest extends TestCase
             ->setMethods(['addError'])
             ->getMock();
 
+        $context->enter('', (new Schema())->setRule(new Rule(TypeRule::ID, $args)));
+
         if ($expectedRetVal === false) {
             $context->expects($this->once())
                 ->method('addError')
@@ -88,26 +92,129 @@ class TypeRuleTest extends TestCase
     public function getValidateSamples(): array
     {
         return [
-            'array + map'              => ['map',     [],              true],
-            'boolean + boolean(true)'  => ['boolean', true,            true],
-            'boolean + boolean(false)' => ['boolean', false,           true],
-            'double + float'           => ['float',   13.37,           true],
-            'integer + integer'        => ['integer', 1337,            true],
-            'string + string'          => ['string',  'John Doe',      true],
-            'null + map'               => ['map',     null,            true],
-            'null + boolean(true)'     => ['boolean', null,            true],
-            'null + float'             => ['float',   null,            true],
-            'null + integer'           => ['integer', null,            true],
-            'null + string'            => ['string',  null,            true],
-            'float + map'              => ['map',     1.337,           false],
-            'integer + boolean'        => ['boolean', 42,              false],
-            'array + float'            => ['float',   [],              false],
-            'string + integer'         => ['integer', 'John Doe',      false],
-            'boolean + string'         => ['string',  true,            false],
-            'object + string'          => ['string',  new \stdClass(), false],
-            'array + list'             => ['list',    [],              true],
-            'integer + list'           => ['list',    1337,            false],
+            'array + map' => [
+                'map',
+                [],
+                true,
+            ],
+            'boolean + boolean(true)' => [
+                'boolean',
+                true,
+                true,
+            ],
+            'boolean + boolean(false)' => [
+                'boolean',
+                false,
+                true,
+            ],
+            'double + float' => [
+                'float',
+                13.37,
+                true,
+            ],
+            'integer + integer' => [
+                'integer',
+                1337,
+                true,
+            ],
+            'string + string' => [
+                'string',
+                'John Doe',
+                true,
+            ],
+            'null + map' => [
+                'map',
+                null,
+                true,
+            ],
+            'null + boolean(true)' => [
+                'boolean',
+                null,
+                true,
+            ],
+            'null + float' => [
+                'float',
+                null,
+                true,
+            ],
+            'null + integer' => [
+                'integer',
+                null,
+                true,
+            ],
+            'null + string' => [
+                'string',
+                null,
+                true,
+            ],
+            'float + map' => [
+                'map',
+                1.337,
+                false,
+            ],
+            'integer + boolean' => [
+                'boolean',
+                42,
+                false,
+            ],
+            'array + float' => [
+                'float',
+                [],
+                false,
+            ],
+            'string + integer' => [
+                'integer',
+                'John Doe',
+                false,
+            ],
+            'boolean + string' => [
+                'string',
+                true,
+                false,
+            ],
+            'object + string' => [
+                'string',
+                new \stdClass(),
+                false,
+            ],
+            'array + list' => [
+                'list',
+                [],
+                true,
+            ],
+            'integer + list' => [
+                'list',
+                1337,
+                false,
+            ],
         ];
+    }
+
+    /**
+     * @covers ::validate
+     *
+     * @return void
+     */
+    public function testValidateHandlesCustomMessage(): void
+    {
+        $args = 'integer';
+        $data = 'foobar';
+        $customMessage = 'This type is not valid';
+
+        $context = $this->getMockBuilder(Context::class)
+            ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
+            ->setMethods(['addError'])
+            ->getMock();
+
+        $context->enter('', (new Schema())->setRule(new Rule(TypeRule::ID, $args, $customMessage)));
+
+        $context->expects($this->once())
+            ->method('addError')
+            ->with(TypeRule::ID, $customMessage);
+
+        $typeRule = new TypeRule();
+
+        $this->assertFalse($typeRule->validate($args, $data, $context));
     }
 }
 

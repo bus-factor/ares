@@ -40,9 +40,11 @@ class EmailRule implements RuleInterface
         }
 
         if (!is_string($data)) {
+            $message = $context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE;
+
             $context->addError(
                 self::ID,
-                $context->getErrorMessageRenderer()->render($context, self::ID, self::ERROR_MESSAGE)
+                $context->getErrorMessageRenderer()->render($context, self::ID, $message)
             );
 
             return false;
@@ -51,9 +53,11 @@ class EmailRule implements RuleInterface
         $email = filter_var($data, FILTER_VALIDATE_EMAIL);
 
         if ($email === false) {
+            $message = $context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE;
+
             $context->addError(
                 self::ID,
-                $context->getErrorMessageRenderer()->render($context, self::ID, self::ERROR_MESSAGE)
+                $context->getErrorMessageRenderer()->render($context, self::ID, $message)
             );
 
             return false;

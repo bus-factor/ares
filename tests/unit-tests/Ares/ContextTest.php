@@ -14,6 +14,7 @@ namespace UnitTest\Ares;
 use Ares\Context;
 use Ares\Error\Error;
 use Ares\Error\ErrorMessageRenderer;
+use Ares\Schema\Schema;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -65,16 +66,17 @@ class ContextTest extends TestCase
         $data = ['foo' => 'bar'];
         $errorMessageRenderer = new ErrorMessageRenderer();
         $context = new Context($data, $errorMessageRenderer);
+        $schema = new Schema();
 
         $this->assertFalse($context->hasErrors());
 
-        $context->enter('foo', []);
+        $context->enter('foo', $schema);
 
         $this->assertSame($context, $context->addError('rule_id', 'message'));
         $this->assertTrue($context->hasErrors());
         $this->assertEquals([new Error(['foo'], 'rule_id', 'message')], $context->getErrors());
 
-        $context->enter('bar', []);
+        $context->enter('bar', $schema);
 
         $this->assertSame($context, $context->addError('other_rule_id', 'other_message'));
         $this->assertTrue($context->hasErrors());
@@ -95,16 +97,19 @@ class ContextTest extends TestCase
         $errorMessageRenderer = new ErrorMessageRenderer();
         $context = new Context($data, $errorMessageRenderer);
 
+        $schema1 = new Schema();
+        $schema2 = new Schema();
+
         $this->assertEquals([], $context->getSource());
-        $this->assertSame($context, $context->enter('foo', ['a' => 1]));
+        $this->assertSame($context, $context->enter('foo', $schema1));
         $this->assertEquals(['foo'], $context->getSource());
-        $this->assertEquals(['a' => 1], $context->getSchema());
-        $this->assertSame($context, $context->enter('bar', ['b' => 2]));
+        $this->assertEquals($schema1, $context->getSchema());
+        $this->assertSame($context, $context->enter('bar', $schema2));
         $this->assertEquals(['foo', 'bar'], $context->getSource());
-        $this->assertEquals(['b' => 2], $context->getSchema());
+        $this->assertEquals($schema2, $context->getSchema());
         $this->assertSame($context, $context->leave());
         $this->assertEquals(['foo'], $context->getSource());
-        $this->assertEquals(['a' => 1], $context->getSchema());
+        $this->assertEquals($schema1, $context->getSchema());
         $this->assertSame($context, $context->leave());
         $this->assertEquals([], $context->getSource());
     }

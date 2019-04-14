@@ -15,6 +15,10 @@ use Ares\Context;
 use Ares\Error\ErrorMessageRenderer;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\BlankableRule;
+use Ares\Rule\TypeRule;
+use Ares\Schema\Rule;
+use Ares\Schema\Schema;
+use Ares\Schema\Type;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -75,6 +79,14 @@ class BlankableRuleTest extends TestCase
             ->setMethods(['addError'])
             ->getMock();
 
+        $context->enter(
+            '',
+            (new Schema())
+                ->setRule(new Rule(TypeRule::ID, Type::STRING))
+                ->setRule(new Rule(BlankableRule::ID, $args)
+            )
+        );
+
         if ($expectedRetVal === false) {
             $context->expects($this->once())
                 ->method('addError')
@@ -87,6 +99,39 @@ class BlankableRuleTest extends TestCase
         $blankableRule = new BlankableRule();
 
         $this->assertSame($expectedRetVal, $blankableRule->validate($args, $data, $context));
+    }
+
+    /**
+     * @covers ::validate
+     *
+     * @return void
+     */
+    public function testValidateHandlesCustomMessage(): void
+    {
+        $args = false;
+        $data = '';
+        $customMessage = 'Please provide a non-blank value';
+
+        $context = $this->getMockBuilder(Context::class)
+            ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
+            ->setMethods(['addError'])
+            ->getMock();
+
+        $context->enter(
+            '',
+            (new Schema())
+                ->setRule(new Rule(TypeRule::ID, Type::STRING))
+                ->setRule(new Rule(BlankableRule::ID, $args, $customMessage)
+            )
+        );
+
+        $context->expects($this->once())
+            ->method('addError')
+            ->with(BlankableRule::ID, $customMessage);
+
+        $blankableRule = new BlankableRule();
+
+        $this->assertFalse($blankableRule->validate($args, $data, $context));
     }
 }
 

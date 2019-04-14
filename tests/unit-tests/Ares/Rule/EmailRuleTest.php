@@ -15,6 +15,10 @@ use Ares\Context;
 use Ares\Error\ErrorMessageRenderer;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\EmailRule;
+use Ares\Rule\TypeRule;
+use Ares\Schema\Rule;
+use Ares\Schema\Schema;
+use Ares\Schema\Type;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -71,6 +75,13 @@ class EmailRuleTest extends TestCase
             ->setMethods(['addError'])
             ->getMock();
 
+        $context->enter(
+            '',
+            (new Schema())
+                ->setRule(new Rule(TypeRule::ID, Type::STRING))
+                ->setRule(new Rule(EmailRule::ID, $args))
+        );
+
         if ($expectedRetVal === false) {
             $context->expects($this->once())
                 ->method('addError')
@@ -83,6 +94,38 @@ class EmailRuleTest extends TestCase
         $emailRule = new EmailRule();
 
         $this->assertSame($expectedRetVal, $emailRule->validate($args, $data, $context));
+    }
+
+    /**
+     * @covers ::validate
+     *
+     * @return void
+     */
+    public function testValidateHandlesCustomMessage(): void
+    {
+        $args = true;
+        $data = 'foo';
+        $customMessage = 'The provided value must be a valid email address';
+
+        $context = $this->getMockBuilder(Context::class)
+            ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
+            ->setMethods(['addError'])
+            ->getMock();
+
+        $context->enter(
+            '',
+            (new Schema())
+                ->setRule(new Rule(TypeRule::ID, Type::STRING))
+                ->setRule(new Rule(EmailRule::ID, $args, $customMessage))
+        );
+
+        $context->expects($this->once())
+            ->method('addError')
+            ->with(EmailRule::ID, $customMessage);
+
+        $emailRule = new EmailRule();
+
+        $this->assertFalse($emailRule->validate($args, $data, $context));
     }
 }
 

@@ -15,6 +15,10 @@ use Ares\Context;
 use Ares\Error\ErrorMessageRenderer;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\NullableRule;
+use Ares\Rule\TypeRule;
+use Ares\Schema\Rule;
+use Ares\Schema\Schema;
+use Ares\Schema\Type;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -79,6 +83,13 @@ class NullableRuleTest extends TestCase
             ->setMethods(['addError'])
             ->getMock();
 
+        $context->enter(
+            '',
+            (new Schema())
+                ->setRule(new Rule(TypeRule::ID, Type::INTEGER))
+                ->setRule(new Rule(NullableRule::ID, $args))
+        );
+
         if ($expectedRetVal === false) {
             $context->expects($this->once())
                 ->method('addError')
@@ -91,6 +102,38 @@ class NullableRuleTest extends TestCase
         $nullableRule = new NullableRule();
 
         $this->assertSame($expectedRetVal, $nullableRule->validate($args, $data, $context));
+    }
+
+    /**
+     * @covers ::validate
+     *
+     * @return void
+     */
+    public function testValidateHandlesCustomMessage(): void
+    {
+        $args = false;
+        $data = null;
+        $customMessage = 'Everything is allowed but NULL';
+
+        $context = $this->getMockBuilder(Context::class)
+            ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
+            ->setMethods(['addError'])
+            ->getMock();
+
+        $context->enter(
+            '',
+            (new Schema())
+                ->setRule(new Rule(TypeRule::ID, Type::INTEGER))
+                ->setRule(new Rule(NullableRule::ID, $args, $customMessage))
+        );
+
+        $context->expects($this->once())
+            ->method('addError')
+            ->with(NullableRule::ID, $customMessage);
+
+        $nullableRule = new NullableRule();
+
+        $this->assertFalse($nullableRule->validate($args, $data, $context));
     }
 }
 

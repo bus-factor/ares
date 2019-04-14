@@ -15,6 +15,10 @@ use Ares\Context;
 use Ares\Error\ErrorMessageRenderer;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\MaxLengthRule;
+use Ares\Rule\TypeRule;
+use Ares\Schema\Rule;
+use Ares\Schema\Schema;
+use Ares\Schema\Type;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -66,6 +70,13 @@ class MaxLengthRuleTest extends TestCase
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
             ->setMethods(['addError'])
             ->getMock();
+
+        $context->enter(
+            '',
+            (new Schema())
+                ->setRule(new Rule(TypeRule::ID, Type::STRING))
+                ->setRule(new Rule(MaxLengthRule::ID, $args))
+        );
 
         if ($expectedRetVal === false) {
             $context->expects($this->once())
@@ -128,6 +139,38 @@ class MaxLengthRuleTest extends TestCase
                 false,
             ],
         ];
+    }
+
+    /**
+     * @covers ::validate
+     *
+     * @return void
+     */
+    public function testValidateHandlesCustomMessage(): void
+    {
+        $args = 2;
+        $data = 'foo';
+        $customMessage = 'The provided value must not be longer than 2 chars';
+
+        $context = $this->getMockBuilder(Context::class)
+            ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
+            ->setMethods(['addError'])
+            ->getMock();
+
+        $context->enter(
+            '',
+            (new Schema())
+                ->setRule(new Rule(TypeRule::ID, Type::STRING))
+                ->setRule(new Rule(MaxLengthRule::ID, $args, $customMessage))
+        );
+
+        $context->expects($this->once())
+            ->method('addError')
+            ->with(MaxLengthRule::ID, $customMessage);
+
+        $maxLengthRule = new MaxLengthRule();
+
+        $this->assertFalse($maxLengthRule->validate($args, $data, $context));
     }
 }
 

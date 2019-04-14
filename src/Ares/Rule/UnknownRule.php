@@ -13,6 +13,7 @@ namespace Ares\Rule;
 
 use Ares\Context;
 use Ares\Exception\InvalidValidationRuleArgsException;
+use Ares\Schema\Schema;
 use Ares\Schema\Type;
 
 /**
@@ -37,14 +38,14 @@ class UnknownRule implements RuleInterface
 
         $schema = $context->getSchema();
 
-        if ($schema[TypeRule::ID] !== Type::MAP || !is_array($data)) {
+        if ($schema->getRule(TypeRule::ID)->getArgs() !== Type::MAP || !is_array($data)) {
             return true;
         }
 
-        $unknownFields = array_diff_key($data, $schema['schema']);
+        $unknownFields = array_diff_key($data, $schema->getSchemas());
 
         foreach ($unknownFields as $field => $value) {
-            $context->enter($field, []);
+            $context->enter($field, new Schema());
 
             $context->addError(
                 self::ID,

@@ -75,6 +75,15 @@ class RuleFactory
     }
 
     /**
+     * @param string $ruleId Rule ID.
+     * @return bool
+     */
+    public function has(string $ruleId): bool
+    {
+        return isset($this->rules[$ruleId]) || isset($this->ruleFqcns[$ruleId]);
+    }
+
+    /**
      * @param string $ruleId Validation rule ID.
      * @return bool
      */

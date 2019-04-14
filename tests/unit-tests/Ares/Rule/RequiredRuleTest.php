@@ -15,6 +15,10 @@ use Ares\Context;
 use Ares\Error\ErrorMessageRenderer;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\RequiredRule;
+use Ares\Rule\TypeRule;
+use Ares\Schema\Rule;
+use Ares\Schema\Schema;
+use Ares\Schema\SchemaMap;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -74,7 +78,7 @@ class RequiredRuleTest extends TestCase
             ->getMock();
 
         foreach ($source as $reference) {
-            $context->enter($reference, []);
+            $context->enter($reference, (new Schema())->setRule(new Rule(RequiredRule::ID, $args)));
         }
 
         if ($expectError) {
@@ -161,6 +165,38 @@ class RequiredRuleTest extends TestCase
                 false,
             ],
         ];
+    }
+
+    /**
+     * @covers ::validate
+     *
+     * @return void
+     */
+    public function testValidateHandlesCustomMessage(): void
+    {
+        $args = true;
+        $data = [];
+        $customMessage = 'Please do not forget to provide this field';
+
+        $context = $this->getMockBuilder(Context::class)
+            ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
+            ->setMethods(['addError', 'getMessage'])
+            ->getMock();
+
+        $innerSchema = (new Schema())
+            ->setRule(new Rule(TypeRule::ID, 'string'))
+            ->setRule(new Rule(RequiredRule::ID, true, $customMessage));
+
+        $context->enter('', (new SchemaMap())->setSchemas(['foo' => $innerSchema]));
+        $context->enter('foo', $innerSchema);
+
+        $context->expects($this->once())
+            ->method('addError')
+            ->with(RequiredRule::ID, $customMessage);
+
+        $requiredRule = new RequiredRule();
+
+        $this->assertFalse($requiredRule->validate($args, $data, $context));
     }
 }
 
