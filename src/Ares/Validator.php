@@ -58,10 +58,7 @@ class Validator
         array $options = [],
         ?RuleFactory $ruleFactory = null
     ) {
-        $this->ruleFactory = ($ruleFactory === null)
-            ? new RuleFactory()
-            : $ruleFactory;
-
+        $this->ruleFactory = $ruleFactory ?? new RuleFactory();
         $this->options = $options + self::OPTIONS_DEFAULTS;
         $this->schema = $this->prepareSchema($schema, $this->options);
     }

@@ -12,6 +12,8 @@ declare(strict_types=1);
 use Ares\Error\Error;
 use Ares\Validator;
 
+$this->markTestSkipped();
+
 $schema = [
     'type' => 'map',
     'schema' => [
