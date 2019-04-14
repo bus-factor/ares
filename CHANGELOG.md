@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - extends ```Ares\Validator::__construct()``` with ```$ruleFactory``` parameter
 - adds documentation for custom validation rules to ```README.md```
 - adds table of contents to ```README.md```
+- adds support for custom validation messages
 ### Changed
 - Refactors internal schema processing from arrays to use interal model clases
 ### Removed

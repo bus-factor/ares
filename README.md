@@ -37,6 +37,7 @@ Ares is a lightweight standalone validation library.
     * [schema (map)](#validation-rules_schema_schema-map)
   * [type](#validation-rules_type)
   * [url](#validation-rules_url)
+* [Custom Validation Messages](#custom-validation-messages)
 * [Custom Validation Rules](#custom-validation-rules)
 
 # <a name="installation"></a>Installation
@@ -498,6 +499,24 @@ $validator = new Validator(['type' => 'string', 'url' => true]);
 $validator->validate('example'); // -> false
 $validator->validate('https://example.com'); // -> true
 ```
+
+# <a name="custom-validation-messages"></a>Custom Validation Messages
+
+The following example shows how validation error messages can be customized:
+
+```php
+// validation rule without custom message (default)
+$validator = new Validator([
+    'type' => 'integer',
+]);
+
+// validation rule with custom message
+$validator = new Validator([
+    ['type' => 'integer', 'message' => 'Pleaser provide an integer value']
+]);
+```
+
+Just wrap your rule (key-value) into an array and add a ```'message'``` key.
 
 # <a name="custom-validation-rules"></a>Custom Validation Rules
 
