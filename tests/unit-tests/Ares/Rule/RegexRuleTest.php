@@ -17,6 +17,8 @@ use Ares\Exception\InapplicableValidationRuleException;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\RegexRule;
 use Ares\Rule\TypeRule;
+use Ares\Schema\Rule;
+use Ares\Schema\Schema;
 use Ares\Schema\Type;
 use PHPUnit\Framework\TestCase;
 
@@ -44,7 +46,7 @@ class RegexRuleTest extends TestCase
         $data = 'foo';
 
         $context = new Context($data, new ErrorMessageRenderer());
-        $context->enter('', [TypeRule::ID => Type::STRING]);
+        $context->enter('', (new Schema())->setRule(new Rule(TypeRule::ID, Type::STRING)));
 
         $regexRule = new RegexRule();
 
@@ -68,7 +70,7 @@ class RegexRuleTest extends TestCase
     public function testValidateToHandleInapplicableValidationRule(string $type): void
     {
         $context = new Context($data, new ErrorMessageRenderer());
-        $context->enter('', [TypeRule::ID => $type]);
+        $context->enter('', (new Schema())->setRule(new Rule(TypeRule::ID, $type)));
 
         $regexRule = new RegexRule();
 
@@ -96,7 +98,12 @@ class RegexRuleTest extends TestCase
             ->setMethods(['addError'])
             ->getMock();
 
-        $context->enter('', [TypeRule::ID => Type::STRING]);
+        $context->enter(
+            '',
+            (new Schema())
+                ->setRule(new Rule(TypeRule::ID, Type::STRING))
+                ->setRule(new Rule(RegexRule::ID, $args))
+        );
 
         if ($expectedRetVal === false) {
             $context->expects($this->once())
@@ -110,6 +117,38 @@ class RegexRuleTest extends TestCase
         $regexRule = new RegexRule();
 
         $this->assertSame($expectedRetVal, $regexRule->validate($args, $data, $context));
+    }
+
+    /**
+     * @covers ::validate
+     *
+     * @return void
+     */
+    public function testValidateHandlesCustomMessage(): void
+    {
+        $args = '/^foo/';
+        $data = 'bar';
+        $customMessage = 'The value must start with "foo"';
+
+        $context = $this->getMockBuilder(Context::class)
+            ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
+            ->setMethods(['addError'])
+            ->getMock();
+
+        $context->enter(
+            '',
+            (new Schema())
+                ->setRule(new Rule(TypeRule::ID, Type::STRING))
+                ->setRule(new Rule(RegexRule::ID, $args, $customMessage))
+        );
+
+        $context->expects($this->once())
+            ->method('addError')
+            ->with(RegexRule::ID, $customMessage);
+
+        $regexRule = new RegexRule();
+
+        $this->assertFalse($regexRule->validate($args, $data, $context));
     }
 }
 

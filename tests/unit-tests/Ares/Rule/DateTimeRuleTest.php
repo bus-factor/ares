@@ -15,6 +15,10 @@ use Ares\Context;
 use Ares\Error\ErrorMessageRenderer;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\DateTimeRule;
+use Ares\Rule\TypeRule;
+use Ares\Schema\Rule;
+use Ares\Schema\Schema;
+use Ares\Schema\Type;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -67,6 +71,12 @@ class DateTimeRuleTest extends TestCase
             ->setMethods(['addError'])
             ->getMock();
 
+        $context->enter(
+            '',
+            (new Schema())
+                ->setRule(new Rule(TypeRule::ID, Type::STRING))
+                ->setRule(new Rule(DateTimeRule::ID, $args))
+        );
         if ($expectedRetVal === false) {
             $context->expects($this->once())
                 ->method('addError')
@@ -96,31 +106,31 @@ class DateTimeRuleTest extends TestCase
                 true,
                 '',
                 false,
-                DateTimeRule::ERROR_MESSAGES['default'],
+                DateTimeRule::ERROR_MESSAGE,
             ],
             'args = true | invalid data #2'  => [
                 true,
                 1337,
                 false,
-                DateTimeRule::ERROR_MESSAGES['default'],
+                DateTimeRule::ERROR_MESSAGE,
             ],
             'args = true | invalid data #3'  => [
                 true,
                 13.37,
                 false,
-                DateTimeRule::ERROR_MESSAGES['default'],
+                DateTimeRule::ERROR_MESSAGE,
             ],
             'args = true | invalid data #4'  => [
                 true,
                 true,
                 false,
-                DateTimeRule::ERROR_MESSAGES['default'],
+                DateTimeRule::ERROR_MESSAGE,
             ],
             'args = true | invalid data #5'  => [
                 true,
                 'no date',
                 false,
-                DateTimeRule::ERROR_MESSAGES['default'],
+                DateTimeRule::ERROR_MESSAGE,
             ],
             'args = true | valid data #1'  => [
                 true,
@@ -136,13 +146,13 @@ class DateTimeRuleTest extends TestCase
                 'd.m.Y',
                 '2019-0883-22',
                 false,
-                DateTimeRule::ERROR_MESSAGES['default'],
+                DateTimeRule::ERROR_MESSAGE,
             ],
             'args = "d.m.Y" | invalid data #2' => [
                 'd.m.Y',
                 '2019-03-22',
                 false,
-                DateTimeRule::ERROR_MESSAGES['format'],
+                DateTimeRule::ERROR_MESSAGE,
             ],
             'args = "d.m.Y" | valid data' => [
                 'd.m.Y',

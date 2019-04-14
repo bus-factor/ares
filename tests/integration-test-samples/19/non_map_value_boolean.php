@@ -12,7 +12,7 @@ declare(strict_types=1);
 use Ares\Error\Error;
 use Ares\Validator;
 
-$schema = ['type' => 'map'];
+$schema = ['type' => 'map', 'schema' => []];
 $data = true;
 
 $expectedErrors = [

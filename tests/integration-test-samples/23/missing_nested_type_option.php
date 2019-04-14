@@ -20,7 +20,7 @@ $schema = [
 ];
 
 $this->expectException(InvalidValidationSchemaException::class);
-$this->expectExceptionMessage('Missing schema option: $schema[\'schema\'][\'name\'][\'type\']');
+$this->expectExceptionMessage('Insufficient validation schema: /schema/name contains no `type` validation rule');
 
 $validator = new Validator($schema);
 

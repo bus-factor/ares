@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Ares\Schema;
 
+use InvalidArgumentException;
+
 /**
  * Class Schema
  */
@@ -20,11 +22,33 @@ class Schema
     protected $rules = [];
 
     /**
+     * @param string $ruleId Validation rule ID.
+     * @return \Ares\Schema\Rule
+     */
+    public function getRule(string $ruleId): Rule
+    {
+        if (!$this->hasRule($ruleId)) {
+            throw new InvalidArgumentException(sprintf('Rule not found in schema: %s', $ruleId));
+        }
+
+        return $this->rules[$ruleId];
+    }
+
+    /**
      * @return array
      */
     public function getRules(): array
     {
         return $this->rules;
+    }
+
+    /**
+     * @param string $ruleId Validation rule ID.
+     * @return boolean
+     */
+    public function hasRule(string $ruleId): bool
+    {
+        return isset($this->rules[$ruleId]);
     }
 
     /**

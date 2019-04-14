@@ -37,7 +37,7 @@ class RegexRule implements RuleInterface
     {
         $schema = $context->getSchema();
 
-        if ($schema[TypeRule::ID] !== Type::STRING) {
+        if ($schema->getRule(TypeRule::ID)->getArgs() !== Type::STRING) {
             throw new InapplicableValidationRuleException('This rule applies to <string> types only');
         }
 
@@ -49,9 +49,11 @@ class RegexRule implements RuleInterface
             return true;
         }
 
+        $message = $context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE;
+
         $context->addError(
             self::ID,
-            $context->getErrorMessageRenderer()->render($context, self::ID, self::ERROR_MESSAGE)
+            $context->getErrorMessageRenderer()->render($context, self::ID, $message)
         );
 
         return false;

@@ -14,8 +14,8 @@ namespace UnitTest\Ares;
 use Ares\Context;
 use Ares\Error\ErrorMessageRenderer;
 use Ares\Error\ErrorMessageRendererInterface;
+use Ares\Exception\InvalidValidationSchemaException;
 use Ares\Exception\InvalidValidationOptionException;
-use Ares\Exception\UnknownValidationRuleIdException;
 use Ares\RuleFactory;
 use Ares\Validator;
 use PHPUnit\Framework\TestCase;
@@ -35,13 +35,11 @@ class ValidationTest extends TestCase
      */
     public function testValidateHandlesUnknownValidationRuleIds(): void
     {
+        $this->expectException(InvalidValidationSchemaException::class);
+        $this->expectExceptionMessage('Unknown validation rule ID: /uargh specifies an unknown validation rule ID');
+
         $schema = ['type' => 'string', 'uargh' => true];
         $validator = new Validator($schema);
-
-        $this->expectException(UnknownValidationRuleIdException::class);
-        $this->expectExceptionMessage('Unknown validation rule ID: uargh');
-
-        $validator->validate('foobar');
     }
 
     /**

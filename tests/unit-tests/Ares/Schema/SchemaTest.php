@@ -13,6 +13,7 @@ namespace UnitTest\Ares\Schema;
 
 use Ares\Schema\Rule;
 use Ares\Schema\Schema;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -30,6 +31,36 @@ class SchemaTest extends TestCase
         $schema = new Schema();
 
         $this->assertEquals([], $schema->getRules());
+    }
+
+    /**
+     * @covers ::getRule
+     * @covers ::hasRule
+     *
+     * @return void
+     */
+    public function testGetRule(): void
+    {
+        $rule = new Rule('foo', true);
+        $schema = (new Schema())->setRule($rule);
+
+        $this->assertSame($rule, $schema->getRule('foo'));
+    }
+
+    /**
+     * @covers ::getRule
+     * @covers ::hasRule
+     *
+     * @return void
+     */
+    public function testGetRuleHandlesInvalidRuleIds(): void
+    {
+        $schema = new Schema();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Rule not found in schema: foo');
+
+        $schema->getRule('foo');
     }
 
     /**

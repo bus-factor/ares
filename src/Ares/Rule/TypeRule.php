@@ -52,9 +52,11 @@ class TypeRule implements RuleInterface
             return true;
         }
 
+        $message = $context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE;
+
         $context->addError(
             self::ID,
-            $context->getErrorMessageRenderer()->render($context, self::ID, self::ERROR_MESSAGE)
+            $context->getErrorMessageRenderer()->render($context, self::ID, $message)
         );
 
         return false;
