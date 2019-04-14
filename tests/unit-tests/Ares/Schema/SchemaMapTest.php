@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace UnitTest\Ares\Schema;
 
+use Ares\Schema\Rule;
 use Ares\Schema\Schema;
 use Ares\Schema\SchemaMap;
 use PHPUnit\Framework\TestCase;
@@ -58,6 +59,33 @@ class SchemaMapTest extends TestCase
         $schemaMap->setSchema('foo', $schema);
 
         $this->assertEquals(['foo' => $schema], $schemaMap->getSchemas());
+    }
+
+    /**
+     * @covers ::getSchemas
+     * @covers ::setSchema
+     * @covers ::setSchemas
+     *
+     * @return void
+     */
+    public function testSetSchemas(): void
+    {
+        $schemaMap = new SchemaMap();
+
+        $schemas = [
+            'foo' => (new Schema())->setRule(new Rule('a', true)),
+            'bar' => (new Schema())->setRule(new Rule('b', false)),
+        ];
+
+        $schemaMap->setSchemas($schemas);
+
+        $this->assertEquals(
+            [
+                'foo' => $schemas['foo'],
+                'bar' => $schemas['bar'],
+            ],
+            $schemaMap->getSchemas()
+        );
     }
 }
 

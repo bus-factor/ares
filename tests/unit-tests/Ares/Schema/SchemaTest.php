@@ -78,5 +78,32 @@ class SchemaTest extends TestCase
             ],
         ];
     }
+
+    /**
+     * @covers ::getRules
+     * @covers ::setRule
+     * @covers ::setRules
+     *
+     * @return void
+     */
+    public function testSetRules(): void
+    {
+        $schema = new Schema();
+
+        $rules = [
+            new Rule('foo', true),
+            new Rule('bar', false),
+        ];
+
+        $schema->setRules($rules);
+
+        $this->assertEquals(
+            [
+                'foo' => $rules[0],
+                'bar' => $rules[1],
+            ],
+            $schema->getRules()
+        );
+    }
 }
 
