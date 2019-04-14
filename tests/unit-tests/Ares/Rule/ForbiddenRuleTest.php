@@ -15,6 +15,10 @@ use Ares\Context;
 use Ares\Error\ErrorMessageRenderer;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\ForbiddenRule;
+use Ares\Rule\TypeRule;
+use Ares\Schema\Rule;
+use Ares\Schema\Schema;
+use Ares\Schema\Type;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -66,6 +70,13 @@ class ForbiddenRuleTest extends TestCase
             ->setMethods(['addError'])
             ->getMock();
 
+        $context->enter(
+            '',
+            (new Schema())
+                ->setRule(new Rule(TypeRule::ID, Type::STRING))
+                ->setRule(new Rule(ForbiddenRule::ID, $args))
+        );
+
         if ($expectedRetVal === false) {
             $context->expects($this->once())
                 ->method('addError')
@@ -97,6 +108,38 @@ class ForbiddenRuleTest extends TestCase
             'allowed value #4'          => [['1.0', 'bar'],   1.0,      true],
             'allowed value #5'          => [[['foo'], 'bar'], ['fizz'], true],
         ];
+    }
+
+    /**
+     * @covers ::validate
+     *
+     * @return void
+     */
+    public function testValidateHandlesCustomMessage(): void
+    {
+        $args = ['foo', 'bar'];
+        $data = 'foo';
+        $customMessage = 'Only "foo" or "bar" are forbidden';
+
+        $context = $this->getMockBuilder(Context::class)
+            ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
+            ->setMethods(['addError'])
+            ->getMock();
+
+        $context->enter(
+            '',
+            (new Schema())
+                ->setRule(new Rule(TypeRule::ID, Type::STRING))
+                ->setRule(new Rule(ForbiddenRule::ID, $args, $customMessage))
+        );
+
+        $context->expects($this->once())
+            ->method('addError')
+            ->with(ForbiddenRule::ID, $customMessage);
+
+        $forbiddenRule = new ForbiddenRule();
+
+        $this->assertFalse($forbiddenRule->validate($args, $data, $context));
     }
 }
 

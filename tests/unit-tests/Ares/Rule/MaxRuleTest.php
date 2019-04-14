@@ -17,6 +17,8 @@ use Ares\Exception\InapplicableValidationRuleException;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\MaxRule;
 use Ares\Rule\TypeRule;
+use Ares\Schema\Rule;
+use Ares\Schema\Schema;
 use Ares\Schema\Type;
 use PHPUnit\Framework\TestCase;
 
@@ -42,7 +44,7 @@ class MaxRuleTest extends TestCase
     public function testValidateToHandleInapplicabeValidationRule($type): void
     {
         $context = new Context($data, new ErrorMessageRenderer());
-        $context->enter('', [TypeRule::ID => $type]);
+        $context->enter('', (new Schema())->setRule(new Rule(TypeRule::ID, $type)));
 
         $maxRule = new MaxRule();
 
@@ -69,7 +71,7 @@ class MaxRuleTest extends TestCase
         $data = 'foo';
 
         $context = new Context($data, new ErrorMessageRenderer());
-        $context->enter('', [TypeRule::ID => Type::INTEGER]);
+        $context->enter('', (new Schema())->setRule(new Rule(TypeRule::ID, Type::INTEGER)));
 
         $maxRule = new MaxRule();
 
@@ -99,7 +101,12 @@ class MaxRuleTest extends TestCase
             ->setMethods(['addError'])
             ->getMock();
 
-        $context->enter('', [TypeRule::ID => $type]);
+        $context->enter(
+            '',
+            (new Schema())
+                ->setRule(new Rule(TypeRule::ID, $type))
+                ->setRule(new Rule(MaxRule::ID, $args))
+        );
 
         if ($expectedRetVal === false) {
             $context->expects($this->once())
@@ -128,6 +135,41 @@ class MaxRuleTest extends TestCase
             'float value is max value' => [Type::FLOAT, 12.2, 12.2, true],
             'float value is smaller max value' => [Type::FLOAT, 12.2, 11.1, true],
         ];
+    }
+
+    /**
+     * @covers ::validate
+     *
+     * @return void
+     */
+    public function testValidateHandlesCustomMessage(): void
+    {
+        $type = Type::INTEGER;
+        $args = 23;
+        $data = 25;
+        $customMessage = 'The value of this field must not be greater than {value}';
+
+        $errorMessageRenderer = new ErrorMessageRenderer();
+
+        $context = $this->getMockBuilder(Context::class)
+            ->setConstructorArgs([&$data, $errorMessageRenderer])
+            ->setMethods(['addError'])
+            ->getMock();
+
+        $context->enter(
+            '',
+            (new Schema())
+                ->setRule(new Rule(TypeRule::ID, $type))
+                ->setRule(new Rule(MaxRule::ID, $args, $customMessage))
+        );
+
+        $context->expects($this->once())
+            ->method('addError')
+            ->with(MaxRule::ID, $errorMessageRenderer->render($context, MaxRule::ID, $customMessage, ['value' => $args]));
+
+        $maxRule = new MaxRule();
+
+        $this->assertFalse($maxRule->validate($args, $data, $context));
     }
 }
 

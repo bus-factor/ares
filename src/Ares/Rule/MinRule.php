@@ -37,7 +37,7 @@ class MinRule implements RuleInterface
     {
         $schema = $context->getSchema();
 
-        if (!in_array($schema[TypeRule::ID], [Type::FLOAT, Type::INTEGER], true)) {
+        if (!in_array($schema->getRule(TypeRule::ID)->getArgs(), [Type::FLOAT, Type::INTEGER], true)) {
             throw new InapplicableValidationRuleException('This rule applies to <float> and <integer> types only');
         }
 
@@ -49,10 +49,12 @@ class MinRule implements RuleInterface
             return true;
         }
 
+        $message = $context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE;
+
         $context->addError(
             self::ID,
             $context->getErrorMessageRenderer()
-                ->render($context, self::ID, self::ERROR_MESSAGE, ['value' => $args])
+                ->render($context, self::ID, $message, ['value' => $args])
         );
 
         return false;

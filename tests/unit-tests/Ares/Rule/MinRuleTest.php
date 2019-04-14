@@ -17,6 +17,8 @@ use Ares\Exception\InapplicableValidationRuleException;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\MinRule;
 use Ares\Rule\TypeRule;
+use Ares\Schema\Rule;
+use Ares\Schema\Schema;
 use Ares\Schema\Type;
 use PHPUnit\Framework\TestCase;
 
@@ -42,7 +44,7 @@ class MinRuleTest extends TestCase
     public function testValidateToHandleInapplicabeValidationRule($type): void
     {
         $context = new Context($data, new ErrorMessageRenderer());
-        $context->enter('', [TypeRule::ID => $type]);
+        $context->enter('', (new Schema())->setRule(new Rule(TypeRule::ID, $type)));
 
         $minRule = new MinRule();
 
@@ -69,7 +71,7 @@ class MinRuleTest extends TestCase
         $data = 'foo';
 
         $context = new Context($data, new ErrorMessageRenderer());
-        $context->enter('', [TypeRule::ID => Type::INTEGER]);
+        $context->enter('', (new Schema())->setRule(new Rule(TypeRule::ID, Type::INTEGER)));
 
         $minRule = new MinRule();
 
@@ -99,7 +101,12 @@ class MinRuleTest extends TestCase
             ->setMethods(['addError'])
             ->getMock();
 
-        $context->enter('', [TypeRule::ID => $type]);
+        $context->enter(
+            '',
+            (new Schema())
+                ->setRule(new Rule(TypeRule::ID, $type))
+                ->setRule(new Rule(MinRule::ID, $args))
+        );
 
         if ($expectedRetVal === false) {
             $context->expects($this->once())
@@ -128,6 +135,40 @@ class MinRuleTest extends TestCase
             'float value is min value' => [Type::FLOAT, 12.2, 12.2, true],
             'float value is greater min value' => [Type::FLOAT, 12.2, 13.3, true],
         ];
+    }
+
+    /**
+     * @covers ::validate
+     *
+     * @return void
+     */
+    public function testValidateHandlesCustomMessage(): void
+    {
+        $args = 23;
+        $data = 20;
+        $customMessage = 'The provided value must not be smaller than {value}';
+
+        $errorMessageRenderer = new ErrorMessageRenderer();
+
+        $context = $this->getMockBuilder(Context::class)
+            ->setConstructorArgs([&$data, $errorMessageRenderer])
+            ->setMethods(['addError'])
+            ->getMock();
+
+        $context->enter(
+            '',
+            (new Schema())
+                ->setRule(new Rule(TypeRule::ID, Type::INTEGER))
+                ->setRule(new Rule(MinRule::ID, $args, $customMessage))
+        );
+
+        $context->expects($this->once())
+            ->method('addError')
+            ->with(MinRule::ID, $errorMessageRenderer->render($context, MinRule::ID, $customMessage, ['value' => $args]));
+
+        $minRule = new MinRule();
+
+        $this->assertFalse($minRule->validate($args, $data, $context));
     }
 }
 

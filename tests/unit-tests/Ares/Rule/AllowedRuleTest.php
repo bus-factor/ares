@@ -15,6 +15,8 @@ use Ares\Context;
 use Ares\Error\ErrorMessageRenderer;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\AllowedRule;
+use Ares\Schema\Rule;
+use Ares\Schema\Schema;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -66,6 +68,8 @@ class AllowedRuleTest extends TestCase
             ->setMethods(['addError'])
             ->getMock();
 
+        $context->enter('', (new Schema())->setRule(new Rule(AllowedRule::ID, $args)));
+
         if ($expectedRetVal === false) {
             $context->expects($this->once())
                 ->method('addError')
@@ -86,17 +90,82 @@ class AllowedRuleTest extends TestCase
     public function getValidateSamples(): array
     {
         return [
-            'allowed value #1'        => [['foo', 'bar'],   'foo',    true],
-            'allowed value #2'        => [['foo', 'bar'],   'bar',    true],
-            'mixed allowed values #1' => [[1, 'foo'],       1,        true],
-            'mixed allowed values #2' => [[1, 'foo'],       'foo',    true],
-            'mixed allowed values #3' => [[['foo'], 'bar'], ['foo'],  true],
-            'forbidden value #1'      => [['foo', 'bar'],   'fizz',   false],
-            'forbidden value #2'      => [['1', 'bar'],     1,        false],
-            'forbidden value #3'      => [['1.0', 'bar'],   1,        false],
-            'forbidden value #4'      => [['1.0', 'bar'],   1.0,      false],
-            'forbidden value #5'      => [[['foo'], 'bar'], ['fizz'], false],
+            'allowed value #1' => [
+                ['foo', 'bar'],
+                'foo',
+                true,
+            ],
+            'allowed value #2' => [
+                ['foo', 'bar'],
+                'bar',
+                true,
+            ],
+            'mixed allowed values #1' => [
+                [1, 'foo'],
+                1,
+                true,
+            ],
+            'mixed allowed values #2' => [
+                [1, 'foo'],
+                'foo',
+                true,
+            ],
+            'mixed allowed values #3' => [
+                [['foo'], 'bar'],
+                ['foo'],
+                true,
+            ],
+            'forbidden value #1' => [
+                ['foo', 'bar'],
+                'fizz',
+                false,
+            ],
+            'forbidden value #2' => [
+                ['1', 'bar'],
+                1,
+                false,
+            ],
+            'forbidden value #3' => [
+                ['1.0', 'bar'],
+                1,
+                false,
+            ],
+            'forbidden value #4' => [
+                ['1.0', 'bar'],
+                1.0,
+                false,
+            ],
+            'forbidden value #5' => [
+                [['foo'], 'bar'],
+                ['fizz'],
+                false,
+            ],
         ];
+    }
+
+    /**
+     * @covers ::validate
+     *
+     * @return void
+     */
+    public function testValidateHandlesCustomMessage(): void
+    {
+        $customMessage = 'This value is not allowed at all';
+
+        $context = $this->getMockBuilder(Context::class)
+            ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
+            ->setMethods(['addError'])
+            ->getMock();
+
+        $context->enter('', (new Schema())->setRule(new Rule(AllowedRule::ID, [], $customMessage)));
+
+        $context->expects($this->once())
+            ->method('addError')
+            ->with(AllowedRule::ID, $customMessage);
+
+        $allowedRule = new AllowedRule();
+
+        $this->assertFalse($allowedRule->validate([], 'some-value', $context));
     }
 }
 

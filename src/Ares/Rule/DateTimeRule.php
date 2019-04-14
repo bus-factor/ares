@@ -21,11 +21,7 @@ use DateTime;
 class DateTimeRule implements RuleInterface
 {
     const ID = 'datetime';
-
-    const ERROR_MESSAGES = [
-        'default' => 'Invalid date/time value',
-        'format' => 'Wrong date/time format',
-    ];
+    const ERROR_MESSAGE = 'Invalid date/time value';
 
     /**
      * @param mixed         $args    Validation rule configuration.
@@ -67,9 +63,11 @@ class DateTimeRule implements RuleInterface
     protected function validateDataProcessability($data, Context $context): bool
     {
         if (!is_string($data)) {
+            $message = $context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE;
+
             $context->addError(
                 self::ID,
-                $context->getErrorMessageRenderer()->render($context, self::ID, self::ERROR_MESSAGES['default'])
+                $context->getErrorMessageRenderer()->render($context, self::ID, $message)
             );
 
             return false;
@@ -78,9 +76,11 @@ class DateTimeRule implements RuleInterface
         $time = strtotime($data);
 
         if ($time === false) {
+            $message = $context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE;
+
             $context->addError(
                 self::ID,
-                $context->getErrorMessageRenderer()->render($context, self::ID, self::ERROR_MESSAGES['default'])
+                $context->getErrorMessageRenderer()->render($context, self::ID, $message)
             );
 
             return false;
@@ -101,9 +101,11 @@ class DateTimeRule implements RuleInterface
         $dateTime = DateTime::createFromFormat($format, $data);
 
         if ($dateTime === false) {
+            $message = $context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE;
+
             $context->addError(
                 self::ID,
-                $context->getErrorMessageRenderer()->render($context, self::ID, self::ERROR_MESSAGES['format'])
+                $context->getErrorMessageRenderer()->render($context, self::ID, $message)
             );
 
             return false;

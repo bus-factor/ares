@@ -16,6 +16,10 @@ use Ares\Error\Error;
 use Ares\Error\ErrorMessageRenderer;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\UnknownRule;
+use Ares\Schema\Rule;
+use Ares\Schema\Schema;
+use Ares\Schema\SchemaMap;
+use Ares\Schema\Type;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -30,13 +34,13 @@ class UnknownRuleTest extends TestCase
      *
      * @dataProvider getValidateSamples
      *
-     * @param bool  $args           Validation rule configuration.
-     * @param mixed $data           Validated data.
-     * @param array $schema         Validation schema.
-     * @param array $expectedErrors Validation errors.
+     * @param bool                $args           Validation rule configuration.
+     * @param mixed               $data           Validated data.
+     * @param \Ares\Schema\Schema $schema         Validation schema.
+     * @param array               $expectedErrors Validation errors.
      * @return void
      */
-    public function testValidate(bool $args, $data, array $schema, array $expectedErrors): void
+    public function testValidate(bool $args, $data, Schema $schema, array $expectedErrors): void
     {
         $context = new Context($data, new ErrorMessageRenderer());
         $context->enter('', $schema);
@@ -56,10 +60,10 @@ class UnknownRuleTest extends TestCase
             'unknown allowed' => [
                 true,
                 ['foo' => 'bar'],
-                [
-                    'type' => 'map',
-                    'schema' => [],
-                ],
+                (new SchemaMap())
+                    ->setRule(new Rule('type', Type::MAP))
+                    ->setSchemas([
+                    ]),
                 [],
             ],
             'unknown not allowed' => [
@@ -69,14 +73,11 @@ class UnknownRuleTest extends TestCase
                     'fizz' => 'buzz',
                     'x' => 'y',
                 ],
-                [
-                    'type' => 'map',
-                    'schema' => [
-                        'fizz' => [
-                            'type' => 'string',
-                        ],
-                    ],
-                ],
+                (new SchemaMap())
+                    ->setRule(new Rule('type', Type::MAP))
+                    ->setSchemas([
+                        'fizz' => (new Schema())->setRule(new Rule('type', Type::STRING)),
+                    ]),
                 [
                     new Error(['', 'foo'], UnknownRule::ID, UnknownRule::ERROR_MESSAGE),
                     new Error(['', 'x'], UnknownRule::ID, UnknownRule::ERROR_MESSAGE),
@@ -85,14 +86,11 @@ class UnknownRuleTest extends TestCase
             'unknown not allowed w/ data type mismatch' => [
                 false,
                 'foobar',
-                [
-                    'type' => 'map',
-                    'schema' => [
-                        'fizz' => [
-                            'type' => 'string',
-                        ],
-                    ],
-                ],
+                (new SchemaMap())
+                    ->setRule(new Rule('type', Type::MAP))
+                    ->setSchemas([
+                        'fizz' => (new Schema())->setRule(new Rule('type', Type::STRING)),
+                    ]),
                 [],
             ],
         ];

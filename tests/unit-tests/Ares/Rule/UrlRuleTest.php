@@ -15,6 +15,8 @@ use Ares\Context;
 use Ares\Error\ErrorMessageRenderer;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\UrlRule;
+use Ares\Schema\Rule;
+use Ares\Schema\Schema;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -71,6 +73,8 @@ class UrlRuleTest extends TestCase
             ->setMethods(['addError'])
             ->getMock();
 
+        $context->enter('', (new Schema())->setRule(new Rule(UrlRule::ID, $args)));
+
         if ($expectedRetVal === false) {
             $context->expects($this->once())
                 ->method('addError')
@@ -83,6 +87,33 @@ class UrlRuleTest extends TestCase
         $urlRule = new UrlRule();
 
         $this->assertSame($expectedRetVal, $urlRule->validate($args, $data, $context));
+    }
+
+    /**
+     * @covers ::validate
+     *
+     * @return void
+     */
+    public function testValidateHandlesCustomMessage(): void
+    {
+        $args = true;
+        $data = 'asdf';
+        $customMessage = 'Please enter a valid URL';
+
+        $context = $this->getMockBuilder(Context::class)
+            ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
+            ->setMethods(['addError'])
+            ->getMock();
+
+        $context->enter('', (new Schema())->setRule(new Rule(UrlRule::ID, $args, $customMessage)));
+
+        $context->expects($this->once())
+            ->method('addError')
+            ->with(UrlRule::ID, $customMessage);
+
+        $urlRule = new UrlRule();
+
+        $this->assertFalse($urlRule->validate($args, $data, $context));
     }
 }
 

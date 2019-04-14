@@ -13,24 +13,19 @@ namespace Ares;
 
 use Ares\Error\ErrorMessageRenderer;
 use Ares\Error\ErrorMessageRendererInterface;
-use Ares\Exception\InvalidValidationSchemaException;
-use Ares\Exception\UnknownValidationRuleIdException;
-use Ares\Rule\AllowedRule;
+use Ares\Exception\InvalidValidationOptionException;
+use Ares\RuleFactory;
 use Ares\Rule\BlankableRule;
-use Ares\Rule\DateTimeRule;
-use Ares\Rule\EmailRule;
-use Ares\Rule\ForbiddenRule;
-use Ares\Rule\MaxLengthRule;
-use Ares\Rule\MaxRule;
-use Ares\Rule\MinLengthRule;
-use Ares\Rule\MinRule;
 use Ares\Rule\NullableRule;
-use Ares\Rule\RegexRule;
 use Ares\Rule\RequiredRule;
 use Ares\Rule\TypeRule;
 use Ares\Rule\UnknownRule;
-use Ares\Rule\UrlRule;
+use Ares\Schema\Keyword;
+use Ares\Schema\Parser;
 use Ares\Schema\Sanitizer as SchemaSanitizer;
+use Ares\Schema\Schema;
+use Ares\Schema\SchemaList;
+use Ares\Schema\SchemaMap;
 use Ares\Schema\Type;
 
 /**
@@ -46,59 +41,32 @@ class Validator
         Option::ALL_REQUIRED  => false,
     ];
 
-    /** @const array RESERVED_RULE_IDS */
-    const RESERVED_RULE_IDS = [
-        'schema'          => 'schema',
-        BlankableRule::ID => BlankableRule::ID,
-        NullableRule::ID  => NullableRule::ID,
-        RequiredRule::ID  => RequiredRule::ID,
-        TypeRule::ID      => TypeRule::ID,
-        UnknownRule::ID   => UnknownRule::ID,
-    ];
-
-    /** @const array RULE_CLASSMAP */
-    const RULE_CLASSMAP = [
-        AllowedRule::ID   => AllowedRule::class,
-        BlankableRule::ID => BlankableRule::class,
-        DateTimeRule::ID  => DateTimeRule::class,
-        EmailRule::ID     => EmailRule::class,
-        ForbiddenRule::ID => ForbiddenRule::class,
-        MaxLengthRule::ID => MaxLengthRule::class,
-        MaxRule::ID       => MaxRule::class,
-        MinLengthRule::ID => MinLengthRule::class,
-        MinRule::ID       => MinRule::class,
-        NullableRule::ID  => NullableRule::class,
-        RegexRule::ID     => RegexRule::class,
-        RequiredRule::ID  => RequiredRule::class,
-        TypeRule::ID      => TypeRule::class,
-        UnknownRule::ID   => UnknownRule::class,
-        UrlRule::ID       => UrlRule::class,
-    ];
-
     /** @var \Ares\Context $context */
     protected $context;
+    /** @var \Ares\Error\ErrorMessageRendererInterface $errorMessageRenderer */
+    protected $errorMessageRenderer;
     /** @var array $options */
     protected $options;
-    /** @var array $schema */
+    /** @var \Ares\RuleFactory */
+    protected $ruleFactory;
+    /** @var \Ares\Schema\Schema $schema */
     protected $schema;
 
     /**
-     * @param array                                          $schema               Validation schema.
-     * @param array                                          $options              Validation options.
-     * @param \Ares\Error\ErrorMessageRendererInterface|null $errorMessageRenderer Error message renderer instance.
+     * @param array                  $schema      Validation schema.
+     * @param array                  $options     Validation options.
+     * @param \Ares\RuleFactory|null $ruleFactory Validation rule factory.
+     * @throws \Ares\Exception\InvalidValidationOptionException
      * @throws \Ares\Exception\InvalidValidationSchemaException
      */
     public function __construct(
         array $schema,
         array $options = [],
-        ?ErrorMessageRendererInterface $errorMessageRenderer = null
+        ?RuleFactory $ruleFactory = null
     ) {
-        $this->options = $options + self::OPTIONS_DEFAULTS;
-        $this->schema = $this->prepareSchema($schema, $this->options);
-
-        $this->errorMessageRenderer = ($errorMessageRenderer === null)
-            ? new ErrorMessageRenderer()
-            : $errorMessageRenderer;
+        $this->ruleFactory = $ruleFactory ?? new RuleFactory();
+        $this->options = $this->prepareOptions($options);
+        $this->schema = $this->prepareSchema($schema, $this->ruleFactory);
     }
 
     /**
@@ -114,55 +82,51 @@ class Validator
      */
     public function getErrorMessageRenderer(): ErrorMessageRendererInterface
     {
+        if (!isset($this->errorMessageRenderer)) {
+            $this->errorMessageRenderer = new ErrorMessageRenderer();
+        }
+
         return $this->errorMessageRenderer;
     }
 
     /**
-     * @param string $ruleId Validation rule ID.
-     * @return mixed
-     * @throws \Ares\Exception\UnknownValidationRuleIdException
+     * @return \Ares\RuleFactory
      */
-    protected function getRule(string $ruleId)
+    public function getRuleFactory(): RuleFactory
     {
-        if (empty(self::RULE_CLASSMAP[$ruleId])) {
-            throw new UnknownValidationRuleIdException("Unknown validation rule ID: {$ruleId}");
-        }
-
-        $className = self::RULE_CLASSMAP[$ruleId];
-
-        return new $className($this->errorMessageRenderer);
+        return $this->ruleFactory;
     }
 
     /**
-     * @param array $schema Validation schema.
-     * @param mixed $data   Input data.
-     * @param mixed $field  Current field name or index (part of source reference).
+     * @param \Ares\Schema\Schema $schema Validation schema.
+     * @param mixed               $data   Input data.
+     * @param mixed               $field  Current field name or index (part of source reference).
      * @return void
      * @throws \Ares\Exception\InvalidValidationRuleArgsException
      * @throws \Ares\Exception\UnknownValidationRuleIdException
      */
-    protected function performValidation(array $schema, $data, $field): void
+    protected function performValidation(Schema $schema, $data, $field): void
     {
         $this->context->enter($field, $schema);
 
-        $valid = $this->getRule(RequiredRule::ID)->validate($schema[RequiredRule::ID], $data, $this->context)
-            && $this->getRule(UnknownRule::ID)->validate($this->options[Option::ALLOW_UNKNOWN], $data, $this->context)
-            && $this->getRule(TypeRule::ID)->validate($schema[TypeRule::ID], $data, $this->context)
-            && $this->getRule(NullableRule::ID)->validate($schema[NullableRule::ID], $data, $this->context)
-            && $this->getRule(BlankableRule::ID)->validate($schema[BlankableRule::ID], $data, $this->context);
+        if ($this->runBuiltinValidationRules($schema, $data)) {
+            $typeAsPerSchema = $schema->getRule(TypeRule::ID)->getArgs();
 
-        if ($valid) {
-            if ($schema[TypeRule::ID] == Type::MAP) {
-                foreach ($schema['schema'] as $childField => $childSchema) {
+            if ($typeAsPerSchema == Type::MAP) {
+                foreach ($schema->getSchemas() as $childField => $childSchema) {
                     $this->performValidation($childSchema, $data[$childField] ?? null, $childField);
                 }
-            } elseif ($schema[TypeRule::ID] == Type::LIST) {
+            } elseif ($typeAsPerSchema == Type::LIST) {
                 foreach ($data as $listItemKey => $listItemValue) {
-                    $this->performValidation($schema['schema'], $listItemValue, $listItemKey);
+                    $this->performValidation($schema->getSchema(), $listItemValue, $listItemKey);
                 }
             } else {
-                foreach ($schema as $ruleId => $ruleArgs) {
-                    if (!isset(self::RESERVED_RULE_IDS[$ruleId]) && !$this->getRule($ruleId)->validate($ruleArgs, $data, $this->context)) {
+                foreach ($schema->getRules() as $ruleId => $rule) {
+                    if ($this->ruleFactory->isReserved($ruleId)) {
+                        continue;
+                    }
+
+                    if (!$this->ruleFactory->get($ruleId)->validate($rule->getArgs(), $data, $this->context)) {
                         break;
                     }
                 }
@@ -173,22 +137,121 @@ class Validator
     }
 
     /**
-     * Sets the schema.
-     *
-     * @param array $schema  Validation schema.
-     * @param array $options Validation options.
+     * @param array $options User provided options.
      * @return array
-     * @throws \Ares\Exception\InvalidValidationSchemaException
+     * @throws \Ares\Exception\InvalidValidationOptionException
      */
-    protected function prepareSchema(array $schema, array $options): array
+    protected function prepareOptions(array $options): array
     {
-        $schemaDefaults = [
-            RequiredRule::ID  => $options[Option::ALL_REQUIRED],
-            BlankableRule::ID => $options[Option::ALL_BLANKABLE],
-            NullableRule::ID  => $options[Option::ALL_NULLABLE],
+        $expectedOptions = [
+            Option::ALLOW_UNKNOWN => 'boolean',
+            Option::ALL_BLANKABLE => 'boolean',
+            Option::ALL_NULLABLE => 'boolean',
+            Option::ALL_REQUIRED => 'boolean',
         ];
 
-        return SchemaSanitizer::sanitize($schema, $schemaDefaults);
+        foreach ($options as $key => $value) {
+            if (!isset($expectedOptions[$key])) {
+                throw new InvalidValidationOptionException(
+                    sprintf(
+                        'Unknown validation option: \'%s\' is not a supported validation option',
+                        $key
+                    )
+                );
+            }
+
+            $type = gettype($value);
+
+            if ($type !== $expectedOptions[$key]) {
+                throw new InvalidValidationOptionException(
+                    sprintf(
+                        'Invalid validation option: \'%s\' must be of type <%s>, got <%s>',
+                        $key,
+                        $expectedOptions[$key],
+                        $type
+                    )
+                );
+            }
+        }
+
+        return $options + self::OPTIONS_DEFAULTS;
+    }
+
+    /**
+     * Sets the schema.
+     *
+     * @param array             $schema      Validation schema.
+     * @param \Ares\RuleFactory $ruleFactory Validation rule factory.
+     * @return \Ares\Schema\Schema
+     * @throws \Ares\Exception\InvalidValidationSchemaException
+     */
+    protected function prepareSchema(array $schema, RuleFactory $ruleFactory): Schema
+    {
+        return (new Parser($ruleFactory))->parse($schema);
+    }
+
+    /**
+     * @param \Ares\Schema\Schema $schema Validation schema.
+     * @param mixed               $data   Input data.
+     * @return bool
+     */
+    protected function runBuiltinValidationRules(Schema $schema, $data): bool
+    {
+        // required rule
+
+        $args = $schema->hasRule(RequiredRule::ID)
+            ? $schema->getRule(RequiredRule::ID)->getArgs()
+            : $this->options[Option::ALL_REQUIRED];
+
+        $rule = $this->ruleFactory->get(RequiredRule::ID);
+
+        if (!$rule->validate($args, $data, $this->context)) {
+            return false;
+        }
+
+        // unknown rule
+
+        $args = $this->options[Option::ALLOW_UNKNOWN];
+        $rule = $this->ruleFactory->get(UnknownRule::ID);
+
+        if (!$rule->validate($args, $data, $this->context)) {
+            return false;
+        }
+
+        // type rule
+
+        $args = $schema->getRule(TypeRule::ID)->getArgs();
+        $rule = $this->ruleFactory->get(TypeRule::ID);
+
+        if (!$rule->validate($args, $data, $this->context)) {
+            return false;
+        }
+
+        // nullable rule
+
+        $args = $schema->hasRule(NullableRule::ID)
+            ? $schema->getRule(NullableRule::ID)->getArgs()
+            : $this->options[Option::ALL_NULLABLE];
+
+        $rule = $this->ruleFactory->get(NullableRule::ID);
+
+        if (!$rule->validate($args, $data, $this->context)) {
+            return false;
+        }
+
+        // blankable rule
+
+        $args = $schema->hasRule(BlankableRule::ID)
+            ? $schema->getRule(BlankableRule::ID)->getArgs()
+            : $this->options[Option::ALL_BLANKABLE];
+
+        $rule = $this->ruleFactory->get(BlankableRule::ID);
+
+        if (!$rule->validate($args, $data, $this->context)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -210,7 +273,7 @@ class Validator
      */
     public function validate($data): bool
     {
-        $this->context = new Context($data, $this->errorMessageRenderer);
+        $this->context = new Context($data, $this->getErrorMessageRenderer());
 
         $this->performValidation($this->schema, $data, '');
 

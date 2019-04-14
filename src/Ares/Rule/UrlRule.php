@@ -40,9 +40,13 @@ class UrlRule implements RuleInterface
         }
 
         if (!is_string($data)) {
+            $message = $context->getSchema()->hasRule(self::ID)
+                ? ($context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE)
+                : self::ERROR_MESSAGE;
+
             $context->addError(
                 self::ID,
-                $context->getErrorMessageRenderer()->render($context, self::ID, self::ERROR_MESSAGE)
+                $context->getErrorMessageRenderer()->render($context, self::ID, $message)
             );
 
             return false;
@@ -51,9 +55,13 @@ class UrlRule implements RuleInterface
         $url = filter_var($data, FILTER_VALIDATE_URL);
 
         if ($url === false) {
+            $message = $context->getSchema()->hasRule(self::ID)
+                ? ($context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE)
+                : self::ERROR_MESSAGE;
+
             $context->addError(
                 self::ID,
-                $context->getErrorMessageRenderer()->render($context, self::ID, self::ERROR_MESSAGE)
+                $context->getErrorMessageRenderer()->render($context, self::ID, $message)
             );
 
             return false;
