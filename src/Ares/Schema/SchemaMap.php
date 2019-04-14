@@ -38,5 +38,18 @@ class SchemaMap extends Schema
 
         return $this;
     }
+
+    /**
+     * @param array $schemas Schema instances.
+     * @return self
+     */
+    public function setSchemas(array $schemas): self
+    {
+        foreach ($schemas as $field => $schema) {
+            $this->setSchema($field, $schema);
+        }
+
+        return $this;
+    }
 }
 

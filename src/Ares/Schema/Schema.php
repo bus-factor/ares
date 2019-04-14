@@ -40,5 +40,19 @@ class Schema
 
         return $this;
     }
+
+    /**
+     * @param array   $rules   Schema rules.
+     * @param boolean $replace Indicate if the rule should be replace if already set.
+     * @return self
+     */
+    public function setRules(array $rules, bool $replace = false): self
+    {
+        foreach ($rules as $rule) {
+            $this->setRule($rule, $replace);
+        }
+
+        return $this;
+    }
 }
 

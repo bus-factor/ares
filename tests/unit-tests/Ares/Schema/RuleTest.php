@@ -103,7 +103,7 @@ class RuleTest extends TestCase
 
         $rule = new Rule($id, $args);
 
-        $this->assertNull($rule->getMeta());
+        $this->assertEquals([], $rule->getMeta());
 
         $rule = new Rule($id, $args, $message, $meta);
 

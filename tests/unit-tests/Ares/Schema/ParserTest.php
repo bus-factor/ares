@@ -14,6 +14,10 @@ namespace UnitTest\Ares\Schema;
 use Ares\Exception\InvalidValidationSchemaException;
 use Ares\RuleFactory;
 use Ares\Schema\Parser;
+use Ares\Schema\Rule;
+use Ares\Schema\Schema;
+use Ares\Schema\SchemaList;
+use Ares\Schema\SchemaMap;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -32,9 +36,9 @@ class ParserTest extends TestCase
      * @covers ::parseRule
      * @covers ::parseRuleWithAdditions
      * @covers ::parseSchema
-     * @covers ::parseSchemaMap
+     * @covers ::parseSchemas
      *
-     * @dataProvider getParseSamples
+     * @dataProvider getParseErrorHandling
      *
      * @param \Ares\RuleFactory $ruleFactory              Validation rule factory.
      * @param mixed             $schemaIn                 Provided validation schema.
@@ -43,7 +47,7 @@ class ParserTest extends TestCase
      * @param string|null       $expectedExceptionMessage Expected exception message.
      * @return void
      */
-    public function testParse(
+    public function testParseErrorHandling(
         RuleFactory $ruleFactory,
         $schemaIn,
         ?array $expectedSchemaOut = null,
@@ -71,27 +75,9 @@ class ParserTest extends TestCase
     /**
      * @return array
      */
-    public function getParseSamples(): array
+    public function getParseErrorHandling(): array
     {
         return [
-            'simple valid schema' => [
-                new RuleFactory(),
-                ['type' => 'integer'],
-                ['type' => 'integer'],
-                null,
-                null,
-            ],
-            'simple valid schema with rule additions' => [
-                new RuleFactory(),
-                [
-                    ['type' => 'boolean', 'message' => '2b|!2b, that is the question']
-                ],
-                [
-                    ['type' => 'boolean', 'message' => '2b|!2b, that is the question']
-                ],
-                null,
-                null,
-            ],
             'invalid schema' => [
                 new RuleFactory(),
                 'foobar',
@@ -334,7 +320,82 @@ class ParserTest extends TestCase
                 InvalidValidationSchemaException::class,
                 'Invalid validation schema: /schema/0 contains multiple rules (["required","blankable"])',
             ],
+            'invalid "message" data type' => [
+                new RuleFactory(),
+                [
+                    'type' => 'boolean',
+                    ['nullable' => true, 'message' => 13.37],
+                ],
+                null,
+                InvalidValidationSchemaException::class,
+                'Invalid validation schema value: /0/message must be of type <string>, got <double>',
+            ],
+            'invalid "meta" data type' => [
+                new RuleFactory(),
+                [
+                    'type' => 'float',
+                    ['required' => true, 'meta' => 'foobar'],
+                ],
+                null,
+                InvalidValidationSchemaException::class,
+                'Invalid validation schema value: /0/meta must be of type <array>, got <string>',
+            ],
         ];
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::ascertainInputHoldsArrayOrFail
+     * @covers ::extractTypeOrFail
+     * @covers ::fail
+     * @covers ::parse
+     * @covers ::parseRule
+     * @covers ::parseRuleWithAdditions
+     * @covers ::parseSchema
+     * @covers ::parseSchemas
+     *
+     * @return void
+     */
+    public function testParse(): void
+    {
+        $ruleFactory = new RuleFactory();
+        $parser = new Parser($ruleFactory);
+
+        $schema = $parser->parse([
+            'type' => 'map',
+            ['nullable' => true, 'message' => 'Not nullable'],
+            'schema' => [
+                'tags' => [
+                    ['type' => 'list', 'message' => 'Must be a list', 'meta' => ['foo' => 'bar']],
+                    'schema' => [
+                        'type' => 'integer',
+                        ['min' => 23, 'message' => 'Must be at least 23'],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertEquals(
+            (new SchemaMap())
+                ->setRules([
+                    'type' => new Rule('type', 'map'),
+                    'nullable' => new Rule('nullable', true, 'Not nullable'),
+                ])
+                ->setSchemas([
+                    'tags' => (new SchemaList())
+                        ->setRules([
+                            'type' => new Rule('type', 'list', 'Must be a list', ['foo' => 'bar']),
+                        ])
+                        ->setSchema(
+                            (new Schema())
+                                ->setRules([
+                                    'type' => new Rule('type', 'integer'),
+                                    'min' => new Rule('min', 23, 'Must be at least 23'),
+                                ])
+                        ),
+                ]),
+            $schema
+        );
     }
 }
 

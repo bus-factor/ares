@@ -20,7 +20,7 @@ class Rule
     protected $id;
     /** @var mixed $args */
     protected $args;
-    /** @var string $message */
+    /** @var string|null $message */
     protected $message;
     /** @var array $meta */
     protected $meta;
@@ -36,7 +36,7 @@ class Rule
         $this->id = $id;
         $this->args = $args;
         $this->message = $message;
-        $this->meta = $meta;
+        $this->meta = $meta ?? [];
     }
 
     /**
@@ -64,9 +64,9 @@ class Rule
     }
 
     /**
-     * @return array|null
+     * @return array
      */
-    public function getMeta(): ?array
+    public function getMeta(): array
     {
         return $this->meta;
     }
@@ -94,10 +94,10 @@ class Rule
     }
 
     /**
-     * @param string $message Custom validation error message.
+     * @param string|null $message Custom validation error message.
      * @return self
      */
-    public function setMessage(string $message): self
+    public function setMessage(?string $message): self
     {
         $this->message = $message;
 
