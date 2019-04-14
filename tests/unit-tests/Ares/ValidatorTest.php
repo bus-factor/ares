@@ -14,6 +14,7 @@ namespace UnitTest\Ares;
 use Ares\Context;
 use Ares\Error\ErrorMessageRenderer;
 use Ares\Error\ErrorMessageRendererInterface;
+use Ares\Exception\InvalidValidationOptionException;
 use Ares\Exception\UnknownValidationRuleIdException;
 use Ares\RuleFactory;
 use Ares\Validator;
@@ -78,6 +79,39 @@ class ValidationTest extends TestCase
         $validator = new Validator(['type' => 'integer'], [], $ruleFactory);
 
         $this->assertSame($ruleFactory, $validator->getRuleFactory());
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::prepareOptions
+     *
+     * @testWith [{}, null]
+     *           [{"allRequired": true}, null]
+     *           [{"allBlankable": true}, null]
+     *           [{"allNullable": true}, null]
+     *           [{"allowUnknown": true}, null]
+     *           [{"allRequired": 13.37}, "Invalid validation option: 'allRequired' must be of type <boolean>, got <double>"]
+     *           [{"allBlankable": 13.37},  "Invalid validation option: 'allBlankable' must be of type <boolean>, got <double>"]
+     *           [{"allNullable": 13.37},  "Invalid validation option: 'allNullable' must be of type <boolean>, got <double>"]
+     *           [{"allowUnknown": 13.37},  "Invalid validation option: 'allowUnknown' must be of type <boolean>, got <double>"]
+     *           [{"foo": "bar"}, "Unknown validation option: 'foo' is not a supported validation option"]
+     *
+     * @param array       $options                  Validation options.
+     * @param string|null $expectedExceptionMessage Expected exception message.
+     * @return void
+     */
+    public function testConstructorHandlesInvalidOptions(
+        array $options,
+        ?string $expectedExceptionMessage = null
+    ): void {
+        if ($expectedExceptionMessage !== null) {
+            $this->expectException(InvalidValidationOptionException::class);
+            $this->expectExceptionMessage($expectedExceptionMessage);
+        }
+
+        $validator = new Validator(['type' => 'integer'], $options);
+
+        $this->assertTrue($expectedExceptionMessage === null);
     }
 }
 
