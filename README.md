@@ -23,6 +23,7 @@ Ares is a lightweight standalone validation library.
   * [allowed](#validation-rules_allowed)
   * [blankable](#validation-rules_blankable)
   * [datetime](#validation-rules_datetime)
+  * [directory](#validation-rules_directory)
   * [email](#validation-rules_email)
   * [file](#validation-rules_file)
   * [forbidden](#validation-rules_forbidden)
@@ -282,6 +283,21 @@ $validator->validate('2018-03-23'); // -> true
 $validator = new Validator(['type' => 'string', 'datetime' => 'd.m.Y H:i']);
 $validator->validate('2018-03-23'); // -> false
 $validator->validate('23.03.2019 00:20'); // -> true
+```
+
+## <a name="validation-rules_directory"></a>directory
+
+The ```directory``` validation rule checks if the given string value contains the path to an existing directory.
+If set ```true```, only paths to existing directories are considered valid.
+If set ```false```, all input is considered valid (no validation).
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'string', 'directory' => true]);
+$validator->validate(''); // -> false
+$validator->validate(__FILE__); // -> false
+$validator->validate(__DIR__); // -> true
 ```
 
 ## <a name="validation-rules_email"></a>email
