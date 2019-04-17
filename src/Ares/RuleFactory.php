@@ -16,6 +16,7 @@ use Ares\Rule\AllowedRule;
 use Ares\Rule\BlankableRule;
 use Ares\Rule\DateTimeRule;
 use Ares\Rule\EmailRule;
+use Ares\Rule\FileRule;
 use Ares\Rule\ForbiddenRule;
 use Ares\Rule\MaxLengthRule;
 use Ares\Rule\MaxRule;
@@ -40,6 +41,7 @@ class RuleFactory
         BlankableRule::ID => ['className' => BlankableRule::class, 'reserved' => true],
         DateTimeRule::ID  => ['className' => DateTimeRule::class,  'reserved' => false],
         EmailRule::ID     => ['className' => EmailRule::class,     'reserved' => false],
+        FileRule::ID      => ['className' => FileRule::class,      'reserved' => false],
         ForbiddenRule::ID => ['className' => ForbiddenRule::class, 'reserved' => false],
         MaxLengthRule::ID => ['className' => MaxLengthRule::class, 'reserved' => false],
         MaxRule::ID       => ['className' => MaxRule::class,       'reserved' => false],

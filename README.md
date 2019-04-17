@@ -24,6 +24,7 @@ Ares is a lightweight standalone validation library.
   * [blankable](#validation-rules_blankable)
   * [datetime](#validation-rules_datetime)
   * [email](#validation-rules_email)
+  * [file](#validation-rules_file)
   * [forbidden](#validation-rules_forbidden)
   * [max](#validation-rules_max)
   * [maxlength](#validation-rules_maxlength)
@@ -286,6 +287,8 @@ $validator->validate('23.03.2019 00:20'); // -> true
 ## <a name="validation-rules_email"></a>email
 
 The ```email``` validation rule checks if a value is a valid email address.
+If set ```true```, only valid email addresses are considered valid.
+If set ```false```, all input is considered valid (no validation).
 
 Examples:
 
@@ -293,6 +296,21 @@ Examples:
 $validator = new Validator(['type' => 'string', 'email' => true]);
 $validator->validate('John Doe'); // -> false
 $validator->validate('john.doe@example.com'); // -> true
+```
+
+## <a name="validation-rules_file"></a>file
+
+The ```file``` validation rule checks if the given string value contains the path to an existing file.
+If set ```true```, only paths to existing files are considered valid.
+If set ```false```, all input is considered valid (no validation).
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'string', 'file' => true]);
+$validator->validate(''); // -> false
+$validator->validate(__DIR__); // -> false
+$validator->validate(__FILE__); // -> true
 ```
 
 ## <a name="validation-rules_forbidden"></a>forbidden
