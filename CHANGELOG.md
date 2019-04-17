@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - adds ```file``` validation rule to check for the existence of a file
+- adds ```directory``` validation rule to check for the existence of a directory
 
 ## [v1.0.0] 2019-04-14
 ### Added

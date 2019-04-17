@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * FileRule.php
+ * DirectoryRule.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
  * @since  2019-04-17
@@ -16,12 +16,12 @@ use Ares\Exception\InapplicableValidationRuleException;
 use Ares\Exception\InvalidValidationRuleArgsException;
 
 /**
- * Class FileRule
+ * Class DirectoryRule
  */
-class FileRule implements RuleInterface
+class DirectoryRule implements RuleInterface
 {
-    const ID            = 'file';
-    const ERROR_MESSAGE = 'File not found';
+    const ID            = 'directory';
+    const ERROR_MESSAGE = 'Directory not found';
 
     /**
      * @param mixed         $args    Validation rule configuration.
@@ -41,7 +41,7 @@ class FileRule implements RuleInterface
             throw new InapplicableValidationRuleException('This rule applies to <string> types only');
         }
 
-        if (!$args || file_exists($data) && is_file($data)) {
+        if (!$args || file_exists($data) && is_dir($data)) {
             return true;
         }
 

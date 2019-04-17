@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * FileRuleTest.php
+ * DirectoryRuleTest.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
  * @since  2019-04-17
@@ -15,7 +15,7 @@ use Ares\Context;
 use Ares\Error\ErrorMessageRenderer;
 use Ares\Exception\InapplicableValidationRuleException;
 use Ares\Exception\InvalidValidationRuleArgsException;
-use Ares\Rule\FileRule;
+use Ares\Rule\DirectoryRule;
 use Ares\Rule\TypeRule;
 use Ares\Schema\Rule;
 use Ares\Schema\Schema;
@@ -23,11 +23,11 @@ use Ares\Schema\Type;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class FileRuleTest
+ * Class DirectoryRuleTest
  *
- * @coversDefaultClass \Ares\Rule\FileRule
+ * @coversDefaultClass \Ares\Rule\DirectoryRule
  */
-class FileRuleTest extends TestCase
+class DirectoryRuleTest extends TestCase
 {
     /**
      * @covers ::validate
@@ -46,12 +46,12 @@ class FileRuleTest extends TestCase
     {
         $data = 'foo';
         $context = new Context($data, new ErrorMessageRenderer());
-        $fileRule = new FileRule();
+        $directoryRule = new DirectoryRule();
 
         $this->expectException(InvalidValidationRuleArgsException::class);
         $this->expectExceptionMessage('Invalid args: ' . json_encode($args));
 
-        $fileRule->validate($args, $data, $context);
+        $directoryRule->validate($args, $data, $context);
     }
 
     /**
@@ -71,12 +71,12 @@ class FileRuleTest extends TestCase
     public function testValidateToHandleInvalidData($data): void
     {
         $context = new Context($data, new ErrorMessageRenderer());
-        $fileRule = new FileRule();
+        $directoryRule = new DirectoryRule();
 
         $this->expectException(InapplicableValidationRuleException::class);
         $this->expectExceptionMessage('This rule applies to <string> types only');
 
-        $fileRule->validate(true, $data, $context);
+        $directoryRule->validate(true, $data, $context);
     }
 
     /**
@@ -100,21 +100,21 @@ class FileRuleTest extends TestCase
             '',
             (new Schema())
                 ->setRule(new Rule(TypeRule::ID, Type::STRING))
-                ->setRule(new Rule(FileRule::ID, $args))
+                ->setRule(new Rule(DirectoryRule::ID, $args))
         );
 
         if ($expectedRetVal === false) {
             $context->expects($this->once())
                 ->method('addError')
-                ->with(FileRule::ID, FileRule::ERROR_MESSAGE);
+                ->with(DirectoryRule::ID, DirectoryRule::ERROR_MESSAGE);
         } else {
             $context->expects($this->never())
                 ->method('addError');
         }
 
-        $fileRule = new FileRule();
+        $directoryRule = new DirectoryRule();
 
-        $this->assertSame($expectedRetVal, $fileRule->validate($args, $data, $context));
+        $this->assertSame($expectedRetVal, $directoryRule->validate($args, $data, $context));
     }
 
     /**
@@ -123,29 +123,29 @@ class FileRuleTest extends TestCase
     public function getValidateSamples(): array
     {
         return [
-            'valid file #1' => [
-                true,
-                __FILE__,
-                true,
-            ],
-            'valid file #2' => [
-                false,
-                __FILE__,
-                true,
-            ],
-            'invalid file #1' => [
-                true,
-                __FILE__ . uniqid(),
-                false,
-            ],
-            'invalid file #2' => [
+            'valid directory #1' => [
                 true,
                 __DIR__,
+                true,
+            ],
+            'valid directory #2' => [
+                false,
+                __DIR__,
+                true,
+            ],
+            'invalid directory #1' => [
+                true,
+                __DIR__ . uniqid(),
                 false,
             ],
-            'invalid file #3' => [
+            'invalid directory #2' => [
+                true,
+                __FILE__,
                 false,
-                __FILE__ . uniqid(),
+            ],
+            'invalid directory #3' => [
+                false,
+                __DIR__ . uniqid(),
                 true,
             ],
         ];
@@ -160,7 +160,7 @@ class FileRuleTest extends TestCase
     {
         $args = true;
         $data = 'foo';
-        $customMessage = 'The provided value must be a valid file';
+        $customMessage = 'The provided value must be a valid directory';
 
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
@@ -171,16 +171,16 @@ class FileRuleTest extends TestCase
             '',
             (new Schema())
                 ->setRule(new Rule(TypeRule::ID, Type::STRING))
-                ->setRule(new Rule(FileRule::ID, $args, $customMessage))
+                ->setRule(new Rule(DirectoryRule::ID, $args, $customMessage))
         );
 
         $context->expects($this->once())
             ->method('addError')
-            ->with(FileRule::ID, $customMessage);
+            ->with(DirectoryRule::ID, $customMessage);
 
-        $fileRule = new FileRule();
+        $directoryRule = new DirectoryRule();
 
-        $this->assertFalse($fileRule->validate($args, $data, $context));
+        $this->assertFalse($directoryRule->validate($args, $data, $context));
     }
 }
 
