@@ -214,7 +214,9 @@ class Validator
         $rule = $this->ruleFactory->get(UnknownRule::ID);
 
         if (!$rule->validate($args, $data, $this->context)) {
+            // @codeCoverageIgnoreStart
             return false;
+            // @codeCoverageIgnoreEnd
         }
 
         // type rule
