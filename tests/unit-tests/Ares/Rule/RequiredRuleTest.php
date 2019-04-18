@@ -29,7 +29,55 @@ use PHPUnit\Framework\TestCase;
 class RequiredRuleTest extends TestCase
 {
     /**
-     * @covers ::validate
+     * @testWith ["Ares\\Rule\\RuleInterface"]
+     *           ["Ares\\Rule\\AbstractRule"]
+     *
+     * @param string $fqcn Fully-qualified class name of the interface or class.
+     * @return void
+     */
+    public function testInstanceOf(string $fqcn): void
+    {
+        $requiredRule = new RequiredRule();
+
+        $this->assertInstanceOf($fqcn, $requiredRule);
+    }
+
+    /**
+     * @covers ::getSupportedTypes
+     *
+     * @testWith ["boolean"]
+     *           ["float"]
+     *           ["integer"]
+     *           ["list"]
+     *           ["map"]
+     *           ["string"]
+     *
+     * @param string $type Supported type.
+     * @return void
+     */
+    public function testGetSupportedTypes(string $type): void
+    {
+        $requiredRule = new RequiredRule();
+
+        $this->assertContains($type, $requiredRule->getSupportedTypes());
+    }
+
+    /**
+     * @covers ::isApplicable
+     *
+     * @return void
+     */
+    public function testIsApplicable(): void
+    {
+        $data = [];
+        $requiredRule = new RequiredRule();
+        $context = new Context($data, new ErrorMessageRenderer());
+
+        $this->assertTrue($requiredRule->isApplicable($context));
+    }
+
+    /**
+     * @covers ::performValidation
      *
      * @testWith [1]
      *           [17.2]
@@ -48,11 +96,11 @@ class RequiredRuleTest extends TestCase
         $this->expectException(InvalidValidationRuleArgsException::class);
         $this->expectExceptionMessage('Invalid args: ' . json_encode($args));
 
-        $requiredRule->validate($args, $data, $context);
+        $requiredRule->performValidation($args, $data, $context);
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @dataProvider getValidateSamples
      *
@@ -92,7 +140,7 @@ class RequiredRuleTest extends TestCase
 
         $requiredRule = new RequiredRule();
 
-        $this->assertSame($expectedRetVal, $requiredRule->validate($args, $data, $context));
+        $this->assertSame($expectedRetVal, $requiredRule->performValidation($args, $data, $context));
     }
 
     /**
@@ -168,7 +216,7 @@ class RequiredRuleTest extends TestCase
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @return void
      */
@@ -196,7 +244,7 @@ class RequiredRuleTest extends TestCase
 
         $requiredRule = new RequiredRule();
 
-        $this->assertFalse($requiredRule->validate($args, $data, $context));
+        $this->assertFalse($requiredRule->performValidation($args, $data, $context));
     }
 }
 

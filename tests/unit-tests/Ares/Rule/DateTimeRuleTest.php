@@ -29,7 +29,36 @@ use PHPUnit\Framework\TestCase;
 class DateTimeRuleTest extends TestCase
 {
     /**
-     * @covers ::validate
+     * @testWith ["Ares\\Rule\\RuleInterface"]
+     *           ["Ares\\Rule\\AbstractRule"]
+     *
+     * @param string $fqcn Fully-qualified class name of the interface or class.
+     * @return void
+     */
+    public function testInstanceOf(string $fqcn): void
+    {
+        $dateTimeRule = new DateTimeRule();
+
+        $this->assertInstanceOf($fqcn, $dateTimeRule);
+    }
+
+    /**
+     * @covers ::getSupportedTypes
+     *
+     * @testWith ["string"]
+     *
+     * @param string $type Supported type.
+     * @return void
+     */
+    public function testGetSupportedTypes(string $type): void
+    {
+        $dateTimeRule = new DateTimeRule();
+
+        $this->assertContains($type, $dateTimeRule->getSupportedTypes());
+    }
+
+    /**
+     * @covers ::performValidation
      *
      * @testWith [1]
      *           [17.2]
@@ -48,11 +77,11 @@ class DateTimeRuleTest extends TestCase
         $this->expectException(InvalidValidationRuleArgsException::class);
         $this->expectExceptionMessage('Invalid args: ' . json_encode($args));
 
-        $dateTimeRule->validate($args, $data, $context);
+        $dateTimeRule->performValidation($args, $data, $context);
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      * @covers ::validateDataProcessability
      * @covers ::validateDateTimeFormat
      *
@@ -88,7 +117,7 @@ class DateTimeRuleTest extends TestCase
 
         $dateTimeRule = new DateTimeRule();
 
-        $this->assertSame($expectedRetVal, $dateTimeRule->validate($args, $data, $context));
+        $this->assertSame($expectedRetVal, $dateTimeRule->performValidation($args, $data, $context));
     }
 
     /**

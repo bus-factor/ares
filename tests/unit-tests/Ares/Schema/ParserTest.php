@@ -38,7 +38,7 @@ class ParserTest extends TestCase
      * @covers ::parseSchema
      * @covers ::parseSchemas
      *
-     * @dataProvider getParseErrorHandling
+     * @dataProvider getParseErrorHandlingSamples
      *
      * @param \Ares\RuleFactory $ruleFactory              Validation rule factory.
      * @param mixed             $schemaIn                 Provided validation schema.
@@ -75,7 +75,7 @@ class ParserTest extends TestCase
     /**
      * @return array
      */
-    public function getParseErrorHandling(): array
+    public function getParseErrorHandlingSamples(): array
     {
         return [
             'invalid schema' => [
@@ -339,6 +339,16 @@ class ParserTest extends TestCase
                 null,
                 InvalidValidationSchemaException::class,
                 'Invalid validation schema value: /0/meta must be of type <array>, got <string>',
+            ],
+            'inapplicable rule' => [
+                new RuleFactory(),
+                [
+                    'type' => 'integer',
+                    'blankable' => true,
+                ],
+                null,
+                InvalidValidationSchemaException::class,
+                'Invalid validation schema: /blankable validation rule is not applicable to type <integer>',
             ],
         ];
     }

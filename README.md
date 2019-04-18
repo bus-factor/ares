@@ -558,15 +558,24 @@ The following simple example shows how custom validation rules are implemented a
 
 ```php
 use Ares\RuleFactory;
-use Ares\Rule\RuleInterface;
+use Ares\Rule\AbstractRule;
+use Ares\Schema\Type;
 use Ares\Validator;
 
-class ZipCodeRule implements RuleInterface
+class ZipCodeRule extends AbstractRule
 {
     const ID = 'zipcode';
     const ERROR_MESSAGE = 'Invalid ZIP code';
 
-    public function validate($config, $data, Context $context): bool
+    // This rule applies to strings only
+    public function getSupportedTypes(): array
+    {
+        return [
+            Type::STRING,
+        ];
+    }
+
+    public function performValidation($config, $data, Context $context): bool
     {
         // implement validation ...
 

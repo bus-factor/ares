@@ -13,14 +13,25 @@ namespace Ares\Rule;
 
 use Ares\Context;
 use Ares\Exception\InvalidValidationRuleArgsException;
+use Ares\Schema\Type;
 
 /**
  * Class UrlRule
  */
-class UrlRule implements RuleInterface
+class UrlRule extends AbstractRule
 {
     const ID            = 'url';
     const ERROR_MESSAGE = 'Invalid URL';
+
+    /**
+     * @return array
+     */
+    public function getSupportedTypes(): array
+    {
+        return [
+            Type::STRING,
+        ];
+    }
 
     /**
      * @param mixed         $args    Validation rule configuration.
@@ -29,7 +40,7 @@ class UrlRule implements RuleInterface
      * @return boolean
      * @throws \Ares\Exception\InvalidValidationRuleArgsException
      */
-    public function validate($args, $data, Context $context): bool
+    public function performValidation($args, $data, Context $context): bool
     {
         if (!is_bool($args)) {
             throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
@@ -52,9 +63,7 @@ class UrlRule implements RuleInterface
             return false;
         }
 
-        $url = filter_var($data, FILTER_VALIDATE_URL);
-
-        if ($url === false) {
+        if (filter_var($data, FILTER_VALIDATE_URL) === false) {
             $message = $context->getSchema()->hasRule(self::ID)
                 ? ($context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE)
                 : self::ERROR_MESSAGE;
@@ -66,7 +75,6 @@ class UrlRule implements RuleInterface
 
             return false;
         }
-
 
         return true;
     }

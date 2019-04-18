@@ -13,14 +13,32 @@ namespace Ares\Rule;
 
 use Ares\Context;
 use Ares\Exception\InvalidValidationRuleArgsException;
+use Ares\Schema\Type;
 
 /**
  * Class NullableRule
  */
-class NullableRule implements RuleInterface
+class NullableRule extends AbstractRule
 {
     const ID            = 'nullable';
     const ERROR_MESSAGE = 'Value must not be null';
+
+    /**
+     * @return array
+     */
+    public function getSupportedTypes(): array
+    {
+        return Type::getValues();
+    }
+
+    /**
+     * @param \Ares\Context $context Validation context.
+     * @return bool
+     */
+    public function isApplicable(Context $context): bool
+    {
+        return true;
+    }
 
     /**
      * @param mixed         $args    Validation rule configuration.
@@ -29,7 +47,7 @@ class NullableRule implements RuleInterface
      * @return boolean
      * @throws \Ares\Exception\InvalidValidationRuleArgsException
      */
-    public function validate($args, $data, Context $context): bool
+    public function performValidation($args, $data, Context $context): bool
     {
         if (!is_bool($args)) {
             throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));

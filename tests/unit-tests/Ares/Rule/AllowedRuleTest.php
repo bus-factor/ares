@@ -27,7 +27,39 @@ use PHPUnit\Framework\TestCase;
 class AllowedRuleTest extends TestCase
 {
     /**
-     * @covers ::validate
+     * @testWith ["Ares\\Rule\\RuleInterface"]
+     *           ["Ares\\Rule\\AbstractRule"]
+     *
+     * @param string $fqcn Fully-qualified class name of the interface or class.
+     * @return void
+     */
+    public function testInstanceOf(string $fqcn): void
+    {
+        $allowedRule = new AllowedRule();
+
+        $this->assertInstanceOf($fqcn, $allowedRule);
+    }
+
+    /**
+     * @covers ::getSupportedTypes
+     *
+     * @testWith ["boolean"]
+     *           ["float"]
+     *           ["integer"]
+     *           ["string"]
+     *
+     * @param string $type Supported type.
+     * @return void
+     */
+    public function testGetSupportedTypes(string $type): void
+    {
+        $allowedRule = new AllowedRule();
+
+        $this->assertContains($type, $allowedRule->getSupportedTypes());
+    }
+
+    /**
+     * @covers ::performValidation
      *
      * @testWith [1]
      *           [17.2]
@@ -48,11 +80,11 @@ class AllowedRuleTest extends TestCase
         $this->expectException(InvalidValidationRuleArgsException::class);
         $this->expectExceptionMessage('Invalid args: ' . json_encode($args));
 
-        $allowedRule->validate($args, $data, $context);
+        $allowedRule->performValidation($args, $data, $context);
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @dataProvider getValidateSamples
      *
@@ -81,7 +113,7 @@ class AllowedRuleTest extends TestCase
 
         $allowedRule = new AllowedRule();
 
-        $this->assertSame($expectedRetVal, $allowedRule->validate($args, $data, $context));
+        $this->assertSame($expectedRetVal, $allowedRule->performValidation($args, $data, $context));
     }
 
     /**
@@ -144,7 +176,7 @@ class AllowedRuleTest extends TestCase
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @return void
      */
@@ -165,7 +197,7 @@ class AllowedRuleTest extends TestCase
 
         $allowedRule = new AllowedRule();
 
-        $this->assertFalse($allowedRule->validate([], 'some-value', $context));
+        $this->assertFalse($allowedRule->performValidation([], 'some-value', $context));
     }
 }
 

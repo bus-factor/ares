@@ -208,17 +208,6 @@ class Validator
             return false;
         }
 
-        // unknown rule
-
-        $args = $this->options[Option::ALLOW_UNKNOWN];
-        $rule = $this->ruleFactory->get(UnknownRule::ID);
-
-        if (!$rule->validate($args, $data, $this->context)) {
-            // @codeCoverageIgnoreStart
-            return false;
-            // @codeCoverageIgnoreEnd
-        }
-
         // type rule
 
         $args = $schema->getRule(TypeRule::ID)->getArgs();
@@ -240,16 +229,32 @@ class Validator
             return false;
         }
 
-        // blankable rule
+        // unknown rule
 
-        $args = $schema->hasRule(BlankableRule::ID)
-            ? $schema->getRule(BlankableRule::ID)->getArgs()
-            : $this->options[Option::ALL_BLANKABLE];
+        $rule = $this->ruleFactory->get(UnknownRule::ID);
+
+        if ($rule->isApplicable($this->context)) {
+            $args = $this->options[Option::ALLOW_UNKNOWN];
+
+            if (!$rule->validate($args, $data, $this->context)) {
+                // @codeCoverageIgnoreStart
+                return false;
+                // @codeCoverageIgnoreEnd
+            }
+        }
+
+        // blankable rule
 
         $rule = $this->ruleFactory->get(BlankableRule::ID);
 
-        if (!$rule->validate($args, $data, $this->context)) {
-            return false;
+        if ($rule->isApplicable($this->context)) {
+            $args = $schema->hasRule(BlankableRule::ID)
+                ? $schema->getRule(BlankableRule::ID)->getArgs()
+                : $this->options[Option::ALL_BLANKABLE];
+
+            if (!$rule->validate($args, $data, $this->context)) {
+                return false;
+            }
         }
 
         return true;

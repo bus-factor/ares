@@ -30,7 +30,36 @@ use PHPUnit\Framework\TestCase;
 class UnknownRuleTest extends TestCase
 {
     /**
-     * @covers ::validate
+     * @testWith ["Ares\\Rule\\RuleInterface"]
+     *           ["Ares\\Rule\\AbstractRule"]
+     *
+     * @param string $fqcn Fully-qualified class name of the interface or class.
+     * @return void
+     */
+    public function testInstanceOf(string $fqcn): void
+    {
+        $unknownRule = new UnknownRule();
+
+        $this->assertInstanceOf($fqcn, $unknownRule);
+    }
+
+    /**
+     * @covers ::getSupportedTypes
+     *
+     * @testWith ["map"]
+     *
+     * @param string $type Supported type.
+     * @return void
+     */
+    public function testGetSupportedTypes(string $type): void
+    {
+        $unknownRule = new UnknownRule();
+
+        $this->assertContains($type, $unknownRule->getSupportedTypes());
+    }
+
+    /**
+     * @covers ::performValidation
      *
      * @dataProvider getValidateSamples
      *
@@ -47,7 +76,7 @@ class UnknownRuleTest extends TestCase
 
         $unknownRule = new UnknownRule();
 
-        $this->assertTrue($unknownRule->validate($args, $data, $context));
+        $this->assertTrue($unknownRule->performValidation($args, $data, $context));
         $this->assertEquals($expectedErrors, $context->getErrors());
     }
 
@@ -82,16 +111,6 @@ class UnknownRuleTest extends TestCase
                     new Error(['', 'foo'], UnknownRule::ID, UnknownRule::ERROR_MESSAGE),
                     new Error(['', 'x'], UnknownRule::ID, UnknownRule::ERROR_MESSAGE),
                 ],
-            ],
-            'unknown not allowed w/ data type mismatch' => [
-                false,
-                'foobar',
-                (new SchemaMap())
-                    ->setRule(new Rule('type', Type::MAP))
-                    ->setSchemas([
-                        'fizz' => (new Schema())->setRule(new Rule('type', Type::STRING)),
-                    ]),
-                [],
             ],
         ];
     }

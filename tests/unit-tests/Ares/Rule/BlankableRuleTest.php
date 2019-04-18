@@ -29,7 +29,36 @@ use PHPUnit\Framework\TestCase;
 class BlankableRuleTest extends TestCase
 {
     /**
-     * @covers ::validate
+     * @testWith ["Ares\\Rule\\RuleInterface"]
+     *           ["Ares\\Rule\\AbstractRule"]
+     *
+     * @param string $fqcn Fully-qualified class name of the interface or class.
+     * @return void
+     */
+    public function testInstanceOf(string $fqcn): void
+    {
+        $blankableRule = new BlankableRule();
+
+        $this->assertInstanceOf($fqcn, $blankableRule);
+    }
+
+    /**
+     * @covers ::getSupportedTypes
+     *
+     * @testWith ["string"]
+     *
+     * @param string $type Supported type.
+     * @return void
+     */
+    public function testGetSupportedTypes(string $type): void
+    {
+        $blankableRule = new BlankableRule();
+
+        $this->assertContains($type, $blankableRule->getSupportedTypes());
+    }
+
+    /**
+     * @covers ::performValidation
      *
      * @testWith [1]
      *           [17.2]
@@ -50,11 +79,11 @@ class BlankableRuleTest extends TestCase
         $this->expectException(InvalidValidationRuleArgsException::class);
         $this->expectExceptionMessage('Invalid args: ' . json_encode($args));
 
-        $blankableRule->validate($args, $data, $context);
+        $blankableRule->performValidation($args, $data, $context);
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @testWith [true,  "",     true]
      *           [false, 42,     true]
@@ -98,11 +127,11 @@ class BlankableRuleTest extends TestCase
 
         $blankableRule = new BlankableRule();
 
-        $this->assertSame($expectedRetVal, $blankableRule->validate($args, $data, $context));
+        $this->assertSame($expectedRetVal, $blankableRule->performValidation($args, $data, $context));
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @return void
      */
@@ -131,7 +160,7 @@ class BlankableRuleTest extends TestCase
 
         $blankableRule = new BlankableRule();
 
-        $this->assertFalse($blankableRule->validate($args, $data, $context));
+        $this->assertFalse($blankableRule->performValidation($args, $data, $context));
     }
 }
 

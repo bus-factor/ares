@@ -30,7 +30,36 @@ use PHPUnit\Framework\TestCase;
 class DirectoryRuleTest extends TestCase
 {
     /**
-     * @covers ::validate
+     * @testWith ["Ares\\Rule\\RuleInterface"]
+     *           ["Ares\\Rule\\AbstractRule"]
+     *
+     * @param string $fqcn Fully-qualified class name of the interface or class.
+     * @return void
+     */
+    public function testInstanceOf(string $fqcn): void
+    {
+        $directoryRule = new DirectoryRule();
+
+        $this->assertInstanceOf($fqcn, $directoryRule);
+    }
+
+    /**
+     * @covers ::getSupportedTypes
+     *
+     * @testWith ["string"]
+     *
+     * @param string $type Supported type.
+     * @return void
+     */
+    public function testGetSupportedTypes(string $type): void
+    {
+        $directoryRule = new DirectoryRule();
+
+        $this->assertContains($type, $directoryRule->getSupportedTypes());
+    }
+
+    /**
+     * @covers ::performValidation
      *
      * @testWith [1]
      *           [17.2]
@@ -51,11 +80,11 @@ class DirectoryRuleTest extends TestCase
         $this->expectException(InvalidValidationRuleArgsException::class);
         $this->expectExceptionMessage('Invalid args: ' . json_encode($args));
 
-        $directoryRule->validate($args, $data, $context);
+        $directoryRule->performValidation($args, $data, $context);
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @testWith [1]
      *           [17.2]
@@ -76,11 +105,11 @@ class DirectoryRuleTest extends TestCase
         $this->expectException(InapplicableValidationRuleException::class);
         $this->expectExceptionMessage('This rule applies to <string> types only');
 
-        $directoryRule->validate(true, $data, $context);
+        $directoryRule->performValidation(true, $data, $context);
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @dataProvider getValidateSamples
      *
@@ -114,7 +143,7 @@ class DirectoryRuleTest extends TestCase
 
         $directoryRule = new DirectoryRule();
 
-        $this->assertSame($expectedRetVal, $directoryRule->validate($args, $data, $context));
+        $this->assertSame($expectedRetVal, $directoryRule->performValidation($args, $data, $context));
     }
 
     /**
@@ -152,7 +181,7 @@ class DirectoryRuleTest extends TestCase
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @return void
      */
@@ -180,7 +209,7 @@ class DirectoryRuleTest extends TestCase
 
         $directoryRule = new DirectoryRule();
 
-        $this->assertFalse($directoryRule->validate($args, $data, $context));
+        $this->assertFalse($directoryRule->performValidation($args, $data, $context));
     }
 }
 
