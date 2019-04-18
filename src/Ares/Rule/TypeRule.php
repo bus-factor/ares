@@ -19,7 +19,7 @@ use Ares\Utility\PhpType;
 /**
  * Class TypeRule
  */
-class TypeRule implements RuleInterface
+class TypeRule extends AbstractRule
 {
     const ID            = 'type';
     const ERROR_MESSAGE = 'Invalid type';
@@ -34,13 +34,30 @@ class TypeRule implements RuleInterface
     ];
 
     /**
+     * @return array
+     */
+    public function getSupportedTypes(): array
+    {
+        return Type::getValues();
+    }
+
+    /**
+     * @param \Ares\Context $context Validation context.
+     * @return bool
+     */
+    public function isApplicable(Context $context): bool
+    {
+        return true;
+    }
+
+    /**
      * @param mixed         $args    Validation rule configuration.
      * @param mixed         $data    Input data.
      * @param \Ares\Context $context Validation context.
      * @return boolean
      * @throws \Ares\Exception\InvalidValidationRuleArgsException
      */
-    public function validate($args, $data, Context $context): bool
+    public function performValidation($args, $data, Context $context): bool
     {
         if (!in_array($args, Type::getValues(), true)) {
             throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));

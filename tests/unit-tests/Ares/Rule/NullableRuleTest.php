@@ -29,7 +29,55 @@ use PHPUnit\Framework\TestCase;
 class NullableRuleTest extends TestCase
 {
     /**
-     * @covers ::validate
+     * @testWith ["Ares\\Rule\\RuleInterface"]
+     *           ["Ares\\Rule\\AbstractRule"]
+     *
+     * @param string $fqcn Fully-qualified class name of the interface or class.
+     * @return void
+     */
+    public function testInstanceOf(string $fqcn): void
+    {
+        $nullableRule = new NullableRule();
+
+        $this->assertInstanceOf($fqcn, $nullableRule);
+    }
+
+    /**
+     * @covers ::getSupportedTypes
+     *
+     * @testWith ["boolean"]
+     *           ["float"]
+     *           ["integer"]
+     *           ["list"]
+     *           ["map"]
+     *           ["string"]
+     *
+     * @param string $type Supported type.
+     * @return void
+     */
+    public function testGetSupportedTypes(string $type): void
+    {
+        $nullableRule = new NullableRule();
+
+        $this->assertContains($type, $nullableRule->getSupportedTypes());
+    }
+
+    /**
+     * @covers ::isApplicable
+     *
+     * @return void
+     */
+    public function testIsApplicable(): void
+    {
+        $data = [];
+        $nullableRule = new NullableRule();
+        $context = new Context($data, new ErrorMessageRenderer());
+
+        $this->assertTrue($nullableRule->isApplicable($context));
+    }
+
+    /**
+     * @covers ::performValidation
      *
      * @testWith [1]
      *           [17.2]
@@ -50,11 +98,11 @@ class NullableRuleTest extends TestCase
         $this->expectException(InvalidValidationRuleArgsException::class);
         $this->expectExceptionMessage('Invalid args: ' . json_encode($args));
 
-        $nullableRule->validate($args, $data, $context);
+        $nullableRule->performValidation($args, $data, $context);
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @testWith [true,  "",   true]
      *           [true,  3,    true]
@@ -101,11 +149,11 @@ class NullableRuleTest extends TestCase
 
         $nullableRule = new NullableRule();
 
-        $this->assertSame($expectedRetVal, $nullableRule->validate($args, $data, $context));
+        $this->assertSame($expectedRetVal, $nullableRule->performValidation($args, $data, $context));
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @return void
      */
@@ -133,7 +181,7 @@ class NullableRuleTest extends TestCase
 
         $nullableRule = new NullableRule();
 
-        $this->assertFalse($nullableRule->validate($args, $data, $context));
+        $this->assertFalse($nullableRule->performValidation($args, $data, $context));
     }
 }
 

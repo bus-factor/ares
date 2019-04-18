@@ -13,7 +13,6 @@ namespace UnitTest\Ares\Rule;
 
 use Ares\Context;
 use Ares\Error\ErrorMessageRenderer;
-use Ares\Exception\InapplicableValidationRuleException;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\MaxRule;
 use Ares\Rule\TypeRule;
@@ -30,32 +29,37 @@ use PHPUnit\Framework\TestCase;
 class MaxRuleTest extends TestCase
 {
     /**
-     * @covers ::validate
+     * @testWith ["Ares\\Rule\\RuleInterface"]
+     *           ["Ares\\Rule\\AbstractRule"]
      *
-     * @testWith [null]
-     *           ["foo"]
-     *           [true]
-     *           [false]
-     *           [[]]
-     *
-     * @param mixed $args Validation rule configuration.
+     * @param string $fqcn Fully-qualified class name of the interface or class.
      * @return void
      */
-    public function testValidateToHandleInapplicabeValidationRule($type): void
+    public function testInstanceOf(string $fqcn): void
     {
-        $context = new Context($data, new ErrorMessageRenderer());
-        $context->enter('', (new Schema())->setRule(new Rule(TypeRule::ID, $type)));
-
         $maxRule = new MaxRule();
 
-        $this->expectException(InapplicableValidationRuleException::class);
-        $this->expectExceptionMessage('This rule applies to <float> and <integer> types only');
-
-        $maxRule->validate(null, null, $context);
+        $this->assertInstanceOf($fqcn, $maxRule);
     }
 
     /**
-     * @covers ::validate
+     * @covers ::getSupportedTypes
+     *
+     * @testWith ["float"]
+     *           ["integer"]
+     *
+     * @param string $type Supported type.
+     * @return void
+     */
+    public function testGetSupportedTypes(string $type): void
+    {
+        $maxRule = new MaxRule();
+
+        $this->assertContains($type, $maxRule->getSupportedTypes());
+    }
+
+    /**
+     * @covers ::performValidation
      *
      * @testWith [null]
      *           ["foo"]
@@ -78,11 +82,11 @@ class MaxRuleTest extends TestCase
         $this->expectException(InvalidValidationRuleArgsException::class);
         $this->expectExceptionMessage('Invalid args: ' . json_encode($args));
 
-        $maxRule->validate($args, $data, $context);
+        $maxRule->performValidation($args, $data, $context);
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @dataProvider getValidateSamples
      *
@@ -119,7 +123,7 @@ class MaxRuleTest extends TestCase
 
         $maxRule = new MaxRule();
 
-        $this->assertSame($expectedRetVal, $maxRule->validate($args, $data, $context));
+        $this->assertSame($expectedRetVal, $maxRule->performValidation($args, $data, $context));
     }
 
     /**
@@ -138,7 +142,7 @@ class MaxRuleTest extends TestCase
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @return void
      */
@@ -169,7 +173,7 @@ class MaxRuleTest extends TestCase
 
         $maxRule = new MaxRule();
 
-        $this->assertFalse($maxRule->validate($args, $data, $context));
+        $this->assertFalse($maxRule->performValidation($args, $data, $context));
     }
 }
 

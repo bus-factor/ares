@@ -13,7 +13,6 @@ namespace UnitTest\Ares\Rule;
 
 use Ares\Context;
 use Ares\Error\ErrorMessageRenderer;
-use Ares\Exception\InapplicableValidationRuleException;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\RegexRule;
 use Ares\Rule\TypeRule;
@@ -30,7 +29,36 @@ use PHPUnit\Framework\TestCase;
 class RegexRuleTest extends TestCase
 {
     /**
-     * @covers ::validate
+     * @testWith ["Ares\\Rule\\RuleInterface"]
+     *           ["Ares\\Rule\\AbstractRule"]
+     *
+     * @param string $fqcn Fully-qualified class name of the interface or class.
+     * @return void
+     */
+    public function testInstanceOf(string $fqcn): void
+    {
+        $regexRule = new RegexRule();
+
+        $this->assertInstanceOf($fqcn, $regexRule);
+    }
+
+    /**
+     * @covers ::getSupportedTypes
+     *
+     * @testWith ["string"]
+     *
+     * @param string $type Supported type.
+     * @return void
+     */
+    public function testGetSupportedTypes(string $type): void
+    {
+        $regexRule = new RegexRule();
+
+        $this->assertContains($type, $regexRule->getSupportedTypes());
+    }
+
+    /**
+     * @covers ::performValidation
      *
      * @testWith [1]
      *           [17.2]
@@ -53,35 +81,11 @@ class RegexRuleTest extends TestCase
         $this->expectException(InvalidValidationRuleArgsException::class);
         $this->expectExceptionMessage('Invalid args: ' . json_encode($args));
 
-        $regexRule->validate($args, $data, $context);
+        $regexRule->performValidation($args, $data, $context);
     }
 
     /**
-     * @covers ::validate
-     *
-     * @testWith ["integer"]
-     *           ["float"]
-     *           ["map"]
-     *           ["boolean"]
-     *
-     * @param mixed $args Validation rule configuration.
-     * @return void
-     */
-    public function testValidateToHandleInapplicableValidationRule(string $type): void
-    {
-        $context = new Context($data, new ErrorMessageRenderer());
-        $context->enter('', (new Schema())->setRule(new Rule(TypeRule::ID, $type)));
-
-        $regexRule = new RegexRule();
-
-        $this->expectException(InapplicableValidationRuleException::class);
-        $this->expectExceptionMessage('This rule applies to <string> types only');
-
-        $regexRule->validate(null, null, $context);
-    }
-
-    /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @testWith ["/^foo$/", "foo", true]
      *           ["/^foo$/", "bar", false]
@@ -116,11 +120,11 @@ class RegexRuleTest extends TestCase
 
         $regexRule = new RegexRule();
 
-        $this->assertSame($expectedRetVal, $regexRule->validate($args, $data, $context));
+        $this->assertSame($expectedRetVal, $regexRule->performValidation($args, $data, $context));
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @return void
      */
@@ -148,7 +152,7 @@ class RegexRuleTest extends TestCase
 
         $regexRule = new RegexRule();
 
-        $this->assertFalse($regexRule->validate($args, $data, $context));
+        $this->assertFalse($regexRule->performValidation($args, $data, $context));
     }
 }
 

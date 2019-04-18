@@ -19,12 +19,12 @@ use Ares\Context;
 interface RuleInterface
 {
     /**
-     * @param mixed         $config  Validation rule configuration.
+     * @param mixed         $args    Validation rule configuration.
      * @param mixed         $data    Input data.
      * @param \Ares\Context $context Validation context.
      * @return boolean
      * @throws \Ares\Exception\InvalidValidationRuleArgsException
      */
-    public function validate($config, $data, Context $context): bool;
+    public function validate($args, $data, Context $context): bool;
 }
 

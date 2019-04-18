@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Ares\Rule;
 
 use Ares\Context;
-use Ares\Exception\InapplicableValidationRuleException;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\TypeRule;
 use Ares\Schema\Type;
@@ -20,27 +19,30 @@ use Ares\Schema\Type;
 /**
  * Class RegexRule
  */
-class RegexRule implements RuleInterface
+class RegexRule extends AbstractRule
 {
     const ID            = 'regex';
     const ERROR_MESSAGE = 'Value invalid';
+
+    /**
+     * @return array
+     */
+    public function getSupportedTypes(): array
+    {
+        return [
+            Type::STRING,
+        ];
+    }
 
     /**
      * @param mixed         $args    Validation rule configuration.
      * @param mixed         $data    Input data.
      * @param \Ares\Context $context Validation context.
      * @return boolean
-     * @throws \Ares\Exception\InapplicableValidationRuleException
      * @throws \Ares\Exception\InvalidValidationRuleArgsException
      */
-    public function validate($args, $data, Context $context): bool
+    public function performValidation($args, $data, Context $context): bool
     {
-        $schema = $context->getSchema();
-
-        if ($schema->getRule(TypeRule::ID)->getArgs() !== Type::STRING) {
-            throw new InapplicableValidationRuleException('This rule applies to <string> types only');
-        }
-
         if (!is_string($args)) {
             throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
         }

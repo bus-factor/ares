@@ -27,7 +27,36 @@ use PHPUnit\Framework\TestCase;
 class UrlRuleTest extends TestCase
 {
     /**
-     * @covers ::validate
+     * @testWith ["Ares\\Rule\\RuleInterface"]
+     *           ["Ares\\Rule\\AbstractRule"]
+     *
+     * @param string $fqcn Fully-qualified class name of the interface or class.
+     * @return void
+     */
+    public function testInstanceOf(string $fqcn): void
+    {
+        $urlRule = new UrlRule();
+
+        $this->assertInstanceOf($fqcn, $urlRule);
+    }
+
+    /**
+     * @covers ::getSupportedTypes
+     *
+     * @testWith ["string"]
+     *
+     * @param string $type Supported type.
+     * @return void
+     */
+    public function testGetSupportedTypes(string $type): void
+    {
+        $urlRule = new UrlRule();
+
+        $this->assertContains($type, $urlRule->getSupportedTypes());
+    }
+
+    /**
+     * @covers ::performValidation
      *
      * @testWith [1]
      *           [17.2]
@@ -48,11 +77,11 @@ class UrlRuleTest extends TestCase
         $this->expectException(InvalidValidationRuleArgsException::class);
         $this->expectExceptionMessage('Invalid args: ' . json_encode($args));
 
-        $urlRule->validate($args, $data, $context);
+        $urlRule->performValidation($args, $data, $context);
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @testWith [true,  "https://example.com", true]
      *           [true,  42,                    false]
@@ -86,11 +115,11 @@ class UrlRuleTest extends TestCase
 
         $urlRule = new UrlRule();
 
-        $this->assertSame($expectedRetVal, $urlRule->validate($args, $data, $context));
+        $this->assertSame($expectedRetVal, $urlRule->performValidation($args, $data, $context));
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @return void
      */
@@ -113,7 +142,7 @@ class UrlRuleTest extends TestCase
 
         $urlRule = new UrlRule();
 
-        $this->assertFalse($urlRule->validate($args, $data, $context));
+        $this->assertFalse($urlRule->performValidation($args, $data, $context));
     }
 }
 

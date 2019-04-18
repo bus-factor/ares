@@ -27,7 +27,55 @@ use PHPUnit\Framework\TestCase;
 class TypeRuleTest extends TestCase
 {
     /**
-     * @covers ::validate
+     * @testWith ["Ares\\Rule\\RuleInterface"]
+     *           ["Ares\\Rule\\AbstractRule"]
+     *
+     * @param string $fqcn Fully-qualified class name of the interface or class.
+     * @return void
+     */
+    public function testInstanceOf(string $fqcn): void
+    {
+        $typeRule = new TypeRule();
+
+        $this->assertInstanceOf($fqcn, $typeRule);
+    }
+
+    /**
+     * @covers ::getSupportedTypes
+     *
+     * @testWith ["boolean"]
+     *           ["float"]
+     *           ["integer"]
+     *           ["list"]
+     *           ["map"]
+     *           ["string"]
+     *
+     * @param string $type Supported type.
+     * @return void
+     */
+    public function testGetSupportedTypes(string $type): void
+    {
+        $typeRule = new TypeRule();
+
+        $this->assertContains($type, $typeRule->getSupportedTypes());
+    }
+
+    /**
+     * @covers ::isApplicable
+     *
+     * @return void
+     */
+    public function testIsApplicable(): void
+    {
+        $data = [];
+        $typeRule = new TypeRule();
+        $context = new Context($data, new ErrorMessageRenderer());
+
+        $this->assertTrue($typeRule->isApplicable($context));
+    }
+
+    /**
+     * @covers ::performValidation
      *
      * @testWith [1]
      *           [17.2]
@@ -50,11 +98,11 @@ class TypeRuleTest extends TestCase
         $this->expectException(InvalidValidationRuleArgsException::class);
         $this->expectExceptionMessage('Invalid args: ' . json_encode($args));
 
-        $typeRule->validate($args, $data, $context);
+        $typeRule->performValidation($args, $data, $context);
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @dataProvider getValidateSamples
      *
@@ -83,7 +131,7 @@ class TypeRuleTest extends TestCase
 
         $typeRule = new TypeRule();
 
-        $this->assertSame($expectedRetVal, $typeRule->validate($args, $data, $context));
+        $this->assertSame($expectedRetVal, $typeRule->performValidation($args, $data, $context));
     }
 
     /**
@@ -191,7 +239,7 @@ class TypeRuleTest extends TestCase
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @return void
      */
@@ -214,7 +262,7 @@ class TypeRuleTest extends TestCase
 
         $typeRule = new TypeRule();
 
-        $this->assertFalse($typeRule->validate($args, $data, $context));
+        $this->assertFalse($typeRule->performValidation($args, $data, $context));
     }
 }
 

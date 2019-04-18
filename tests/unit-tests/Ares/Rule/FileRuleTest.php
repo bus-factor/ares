@@ -30,7 +30,36 @@ use PHPUnit\Framework\TestCase;
 class FileRuleTest extends TestCase
 {
     /**
-     * @covers ::validate
+     * @testWith ["Ares\\Rule\\RuleInterface"]
+     *           ["Ares\\Rule\\AbstractRule"]
+     *
+     * @param string $fqcn Fully-qualified class name of the interface or class.
+     * @return void
+     */
+    public function testInstanceOf(string $fqcn): void
+    {
+        $fileRule = new FileRule();
+
+        $this->assertInstanceOf($fqcn, $fileRule);
+    }
+
+    /**
+     * @covers ::getSupportedTypes
+     *
+     * @testWith ["string"]
+     *
+     * @param string $type Supported type.
+     * @return void
+     */
+    public function testGetSupportedTypes(string $type): void
+    {
+        $fileRule = new FileRule();
+
+        $this->assertContains($type, $fileRule->getSupportedTypes());
+    }
+
+    /**
+     * @covers ::performValidation
      *
      * @testWith [1]
      *           [17.2]
@@ -51,11 +80,11 @@ class FileRuleTest extends TestCase
         $this->expectException(InvalidValidationRuleArgsException::class);
         $this->expectExceptionMessage('Invalid args: ' . json_encode($args));
 
-        $fileRule->validate($args, $data, $context);
+        $fileRule->performValidation($args, $data, $context);
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @testWith [1]
      *           [17.2]
@@ -76,11 +105,11 @@ class FileRuleTest extends TestCase
         $this->expectException(InapplicableValidationRuleException::class);
         $this->expectExceptionMessage('This rule applies to <string> types only');
 
-        $fileRule->validate(true, $data, $context);
+        $fileRule->performValidation(true, $data, $context);
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @dataProvider getValidateSamples
      *
@@ -114,7 +143,7 @@ class FileRuleTest extends TestCase
 
         $fileRule = new FileRule();
 
-        $this->assertSame($expectedRetVal, $fileRule->validate($args, $data, $context));
+        $this->assertSame($expectedRetVal, $fileRule->performValidation($args, $data, $context));
     }
 
     /**
@@ -152,7 +181,7 @@ class FileRuleTest extends TestCase
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @return void
      */
@@ -180,7 +209,7 @@ class FileRuleTest extends TestCase
 
         $fileRule = new FileRule();
 
-        $this->assertFalse($fileRule->validate($args, $data, $context));
+        $this->assertFalse($fileRule->performValidation($args, $data, $context));
     }
 }
 

@@ -26,4 +26,5 @@ class ParserError extends Enum
     const VALUE_TYPE_MISMATCH  = 5;
     const RULE_MISSING         = 6;
     const RULE_AMBIGUOUS       = 7;
+    const RULE_INAPPLICABLE    = 8;
 }

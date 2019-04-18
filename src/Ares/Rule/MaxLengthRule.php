@@ -13,14 +13,25 @@ namespace Ares\Rule;
 
 use Ares\Context;
 use Ares\Exception\InvalidValidationRuleArgsException;
+use Ares\Schema\Type;
 
 /**
  * Class MaxLengthRule
  */
-class MaxLengthRule implements RuleInterface
+class MaxLengthRule extends AbstractRule
 {
     const ID            = 'maxlength';
     const ERROR_MESSAGE = 'Value too long';
+
+    /**
+     * @return array
+     */
+    public function getSupportedTypes(): array
+    {
+        return [
+            Type::STRING,
+        ];
+    }
 
     /**
      * @param mixed         $args    Validation rule configuration.
@@ -29,7 +40,7 @@ class MaxLengthRule implements RuleInterface
      * @return boolean
      * @throws \Ares\Exception\InvalidValidationRuleArgsException
      */
-    public function validate($args, $data, Context $context): bool
+    public function performValidation($args, $data, Context $context): bool
     {
         if (!is_int($args) || $args < 0) {
             throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
