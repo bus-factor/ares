@@ -29,12 +29,6 @@
       "": "src"
     }
   },
-  "autoload-dev": {
-    "psr-4": {
-      "IntegrationTest\\": "tests/integration-tests",
-      "UnitTest\\": "tests/unit-tests"
-    }
-  },
   "require-dev": {
     "phpunit/phpunit": ">=5.7"
   },
