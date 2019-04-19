@@ -7,7 +7,8 @@
 
 Ares is a lightweight standalone validation library.
 
-![](https://travis-ci.com/bus-factor/ares.svg?token=6CVThNyY94qpVvuMgX3F&branch=master)
+[![Build Status](https://travis-ci.com/bus-factor/ares.svg?token=6CVThNyY94qpVvuMgX3F&branch=master)](https://travis-ci.com/bus-factor/ares.svg?token=6CVThNyY94qpVvuMgX3F&branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/bus-factor/ares/badge.svg?branch=master)](https://coveralls.io/github/bus-factor/ares?branch=master)
 
 # Table of Contents
 
