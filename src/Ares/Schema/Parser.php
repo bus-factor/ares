@@ -300,10 +300,12 @@ class Parser
 
         $this->ascertainInputHoldsArrayOrFail($context);
 
-        foreach ($context->getInput() as $key => $value) {
-            $context->enter($key);
+        $indexes = array_keys($context->getInput());
 
-            $schemas[$key] = $this->parseSchema($context);
+        foreach ($indexes as $index) {
+            $context->enter($index);
+
+            $schemas[$index] = $this->parseSchema($context);
 
             $context->leave();
         }
