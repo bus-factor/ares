@@ -24,6 +24,9 @@
     "validation",
     "validator"
   ],
+  "support": {
+    "issues": "https://github.com/bus-factor/ares/issues"
+  },
   "readme": "README.md",
   "license": "MIT",
   "authors": [
@@ -34,7 +37,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "": "src"
+      "Ares\\": "src/Ares"
     }
   },
   "require-dev": {
