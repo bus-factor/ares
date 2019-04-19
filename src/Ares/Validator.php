@@ -109,30 +109,33 @@ class Validator
         $this->context->enter($field, $schema);
 
         if ($this->runBuiltinValidationRules($schema, $data)) {
-            $typeAsPerSchema = $schema->getRule(TypeRule::ID)->getArgs();
-
-            if ($typeAsPerSchema == Type::MAP) {
-                foreach ($schema->getSchemas() as $childField => $childSchema) {
-                    $this->performValidation($childSchema, $data[$childField] ?? null, $childField);
-                }
-            } elseif ($typeAsPerSchema == Type::LIST) {
-                foreach ($data as $listItemKey => $listItemValue) {
-                    $this->performValidation($schema->getSchema(), $listItemValue, $listItemKey);
-                }
-            } elseif ($typeAsPerSchema == Type::TUPLE) {
-                foreach ($schema->getSchemas() as $index => $childSchema) {
-                    $this->performValidation($childSchema, $data[$index] ?? null, $index);
-                }
-            } else {
-                foreach ($schema->getRules() as $ruleId => $rule) {
-                    if ($this->ruleFactory->isReserved($ruleId)) {
-                        continue;
+            switch ($schema->getRule(TypeRule::ID)->getArgs()) {
+                case Type::LIST:
+                    foreach ($data as $listItemKey => $listItemValue) {
+                        $this->performValidation($schema->getSchema(), $listItemValue, $listItemKey);
                     }
 
-                    if (!$this->ruleFactory->get($ruleId)->validate($rule->getArgs(), $data, $this->context)) {
-                        break;
+                    break;
+                case Type::MAP:
+                    // no break
+                case Type::TUPLE:
+                    foreach ($schema->getSchemas() as $childField => $childSchema) {
+                        $this->performValidation($childSchema, $data[$childField] ?? null, $childField);
                     }
-                }
+
+                    break;
+                default:
+                    foreach ($schema->getRules() as $ruleId => $rule) {
+                        if ($this->ruleFactory->isReserved($ruleId)) {
+                            continue;
+                        }
+
+                        if (!$this->ruleFactory->get($ruleId)->validate($rule->getArgs(), $data, $this->context)) {
+                            break;
+                        }
+                    }
+
+                    break;
             }
         }
 
@@ -200,64 +203,25 @@ class Validator
      */
     protected function runBuiltinValidationRules(Schema $schema, $data): bool
     {
-        // required rule
+        $rules = [
+            RequiredRule::ID  => $this->options[Option::ALL_REQUIRED],
+            TypeRule::ID      => null,
+            NullableRule::ID  => $this->options[Option::ALL_NULLABLE],
+            UnknownRule::ID   => $this->options[Option::ALLOW_UNKNOWN],
+            BlankableRule::ID => $this->options[Option::ALL_BLANKABLE],
+        ];
 
-        $args = $schema->hasRule(RequiredRule::ID)
-            ? $schema->getRule(RequiredRule::ID)->getArgs()
-            : $this->options[Option::ALL_REQUIRED];
+        foreach ($rules as $ruleId => $defaultArgs) {
+            $rule = $this->ruleFactory->get($ruleId);
 
-        $rule = $this->ruleFactory->get(RequiredRule::ID);
+            if ($rule->isApplicable($this->context)) {
+                $ruleArgs = $schema->hasRule($ruleId)
+                    ? $schema->getRule($ruleId)->getArgs()
+                    : $defaultArgs;
 
-        if (!$rule->validate($args, $data, $this->context)) {
-            return false;
-        }
-
-        // type rule
-
-        $args = $schema->getRule(TypeRule::ID)->getArgs();
-        $rule = $this->ruleFactory->get(TypeRule::ID);
-
-        if (!$rule->validate($args, $data, $this->context)) {
-            return false;
-        }
-
-        // nullable rule
-
-        $args = $schema->hasRule(NullableRule::ID)
-            ? $schema->getRule(NullableRule::ID)->getArgs()
-            : $this->options[Option::ALL_NULLABLE];
-
-        $rule = $this->ruleFactory->get(NullableRule::ID);
-
-        if (!$rule->validate($args, $data, $this->context)) {
-            return false;
-        }
-
-        // unknown rule
-
-        $rule = $this->ruleFactory->get(UnknownRule::ID);
-
-        if ($rule->isApplicable($this->context)) {
-            $args = $this->options[Option::ALLOW_UNKNOWN];
-
-            if (!$rule->validate($args, $data, $this->context)) {
-                // @codeCoverageIgnoreStart
-                return false;
-                // @codeCoverageIgnoreEnd
-            }
-        }
-
-        // blankable rule
-
-        $rule = $this->ruleFactory->get(BlankableRule::ID);
-
-        if ($rule->isApplicable($this->context)) {
-            $args = $schema->hasRule(BlankableRule::ID)
-                ? $schema->getRule(BlankableRule::ID)->getArgs()
-                : $this->options[Option::ALL_BLANKABLE];
-
-            if (!$rule->validate($args, $data, $this->context)) {
-                return false;
+                if (!$rule->validate($ruleArgs, $data, $this->context)) {
+                    return false;
+                }
             }
         }
 
