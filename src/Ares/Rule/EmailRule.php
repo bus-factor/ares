@@ -13,14 +13,25 @@ namespace Ares\Rule;
 
 use Ares\Context;
 use Ares\Exception\InvalidValidationRuleArgsException;
+use Ares\Schema\Type;
 
 /**
  * Class EmailRule
  */
-class EmailRule implements RuleInterface
+class EmailRule extends AbstractRule
 {
-    const ID            = 'email';
-    const ERROR_MESSAGE = 'Invalid email address';
+    public const ID            = 'email';
+    public const ERROR_MESSAGE = 'Invalid email address';
+
+    /**
+     * @return array
+     */
+    public function getSupportedTypes(): array
+    {
+        return [
+            Type::STRING,
+        ];
+    }
 
     /**
      * @param mixed         $args    Validation rule configuration.
@@ -29,7 +40,7 @@ class EmailRule implements RuleInterface
      * @return boolean
      * @throws \Ares\Exception\InvalidValidationRuleArgsException
      */
-    public function validate($args, $data, Context $context): bool
+    public function performValidation($args, $data, Context $context): bool
     {
         if (!is_bool($args)) {
             throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));

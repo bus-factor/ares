@@ -22,7 +22,6 @@ use Ares\Rule\TypeRule;
 use Ares\Rule\UnknownRule;
 use Ares\Schema\Keyword;
 use Ares\Schema\Parser;
-use Ares\Schema\Sanitizer as SchemaSanitizer;
 use Ares\Schema\Schema;
 use Ares\Schema\SchemaList;
 use Ares\Schema\SchemaMap;
@@ -34,7 +33,7 @@ use Ares\Schema\Type;
 class Validator
 {
     /** @const array OPTIONS_DEFAULTS */
-    const OPTIONS_DEFAULTS = [
+    private const OPTIONS_DEFAULTS = [
         Option::ALLOW_UNKNOWN => false,
         Option::ALL_BLANKABLE => false,
         Option::ALL_NULLABLE  => false,
@@ -119,6 +118,10 @@ class Validator
             } elseif ($typeAsPerSchema == Type::LIST) {
                 foreach ($data as $listItemKey => $listItemValue) {
                     $this->performValidation($schema->getSchema(), $listItemValue, $listItemKey);
+                }
+            } elseif ($typeAsPerSchema == Type::TUPLE) {
+                foreach ($schema->getSchemas() as $index => $childSchema) {
+                    $this->performValidation($childSchema, $data[$index] ?? null, $index);
                 }
             } else {
                 foreach ($schema->getRules() as $ruleId => $rule) {
@@ -209,15 +212,6 @@ class Validator
             return false;
         }
 
-        // unknown rule
-
-        $args = $this->options[Option::ALLOW_UNKNOWN];
-        $rule = $this->ruleFactory->get(UnknownRule::ID);
-
-        if (!$rule->validate($args, $data, $this->context)) {
-            return false;
-        }
-
         // type rule
 
         $args = $schema->getRule(TypeRule::ID)->getArgs();
@@ -239,16 +233,32 @@ class Validator
             return false;
         }
 
-        // blankable rule
+        // unknown rule
 
-        $args = $schema->hasRule(BlankableRule::ID)
-            ? $schema->getRule(BlankableRule::ID)->getArgs()
-            : $this->options[Option::ALL_BLANKABLE];
+        $rule = $this->ruleFactory->get(UnknownRule::ID);
+
+        if ($rule->isApplicable($this->context)) {
+            $args = $this->options[Option::ALLOW_UNKNOWN];
+
+            if (!$rule->validate($args, $data, $this->context)) {
+                // @codeCoverageIgnoreStart
+                return false;
+                // @codeCoverageIgnoreEnd
+            }
+        }
+
+        // blankable rule
 
         $rule = $this->ruleFactory->get(BlankableRule::ID);
 
-        if (!$rule->validate($args, $data, $this->context)) {
-            return false;
+        if ($rule->isApplicable($this->context)) {
+            $args = $schema->hasRule(BlankableRule::ID)
+                ? $schema->getRule(BlankableRule::ID)->getArgs()
+                : $this->options[Option::ALL_BLANKABLE];
+
+            if (!$rule->validate($args, $data, $this->context)) {
+                return false;
+            }
         }
 
         return true;

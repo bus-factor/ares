@@ -13,25 +13,41 @@ namespace Ares\Rule;
 
 use Ares\Context;
 use Ares\Exception\InvalidValidationRuleArgsException;
+use Ares\Schema\Type;
 
 /**
  * Class RequiredRule
  */
-class RequiredRule implements RuleInterface
+class RequiredRule extends AbstractRule
 {
-    const ID = 'required';
-    const ERROR_MESSAGE = 'Value required';
+    public const ID = 'required';
+    public const ERROR_MESSAGE = 'Value required';
 
     /**
-     * Validates the presence of a required data field.
-     *
+     * @return array
+     */
+    public function getSupportedTypes(): array
+    {
+        return Type::getValues();
+    }
+
+    /**
+     * @param \Ares\Context $context Validation context.
+     * @return bool
+     */
+    public function isApplicable(Context $context): bool
+    {
+        return true;
+    }
+
+    /**
      * @param mixed         $args    Validation rule configuration.
      * @param mixed         $data    Input data.
      * @param \Ares\Context $context Validation context.
      * @return boolean
      * @throws \Ares\Exception\InvalidValidationRuleArgsException
      */
-    public function validate($args, $data, Context $context): bool
+    public function performValidation($args, $data, Context $context): bool
     {
         if (!is_bool($args)) {
             throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));

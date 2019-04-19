@@ -13,14 +13,29 @@ namespace Ares\Rule;
 
 use Ares\Context;
 use Ares\Exception\InvalidValidationRuleArgsException;
+use Ares\Schema\Type;
 
 /**
  * Class ForbiddenRule
  */
-class ForbiddenRule implements RuleInterface
+class ForbiddenRule extends AbstractRule
 {
-    const ID            = 'forbidden';
-    const ERROR_MESSAGE = 'Value forbidden';
+    public const ID            = 'forbidden';
+    public const ERROR_MESSAGE = 'Value forbidden';
+
+    /**
+     * @return array
+     */
+    public function getSupportedTypes(): array
+    {
+        return [
+            Type::BOOLEAN,
+            Type::FLOAT,
+            Type::INTEGER,
+            Type::NUMERIC,
+            Type::STRING,
+        ];
+    }
 
     /**
      * @param mixed         $args    Validation rule configuration.
@@ -29,7 +44,7 @@ class ForbiddenRule implements RuleInterface
      * @return boolean
      * @throws \Ares\Exception\InvalidValidationRuleArgsException
      */
-    public function validate($args, $data, Context $context): bool
+    public function performValidation($args, $data, Context $context): bool
     {
         if (!is_array($args)) {
             throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));

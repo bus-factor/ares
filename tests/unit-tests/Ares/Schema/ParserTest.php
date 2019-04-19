@@ -18,6 +18,7 @@ use Ares\Schema\Rule;
 use Ares\Schema\Schema;
 use Ares\Schema\SchemaList;
 use Ares\Schema\SchemaMap;
+use Ares\Schema\SchemaTuple;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -37,8 +38,9 @@ class ParserTest extends TestCase
      * @covers ::parseRuleWithAdditions
      * @covers ::parseSchema
      * @covers ::parseSchemas
+     * @covers ::parseTupleSchemas
      *
-     * @dataProvider getParseErrorHandling
+     * @dataProvider getParseErrorHandlingSamples
      *
      * @param \Ares\RuleFactory $ruleFactory              Validation rule factory.
      * @param mixed             $schemaIn                 Provided validation schema.
@@ -75,7 +77,7 @@ class ParserTest extends TestCase
     /**
      * @return array
      */
-    public function getParseErrorHandling(): array
+    public function getParseErrorHandlingSamples(): array
     {
         return [
             'invalid schema' => [
@@ -340,6 +342,16 @@ class ParserTest extends TestCase
                 InvalidValidationSchemaException::class,
                 'Invalid validation schema value: /0/meta must be of type <array>, got <string>',
             ],
+            'inapplicable rule' => [
+                new RuleFactory(),
+                [
+                    'type' => 'integer',
+                    'blankable' => true,
+                ],
+                null,
+                InvalidValidationSchemaException::class,
+                'Invalid validation schema: /blankable validation rule is not applicable to type <integer>',
+            ],
         ];
     }
 
@@ -353,6 +365,7 @@ class ParserTest extends TestCase
      * @covers ::parseRuleWithAdditions
      * @covers ::parseSchema
      * @covers ::parseSchemas
+     * @covers ::parseTupleSchemas
      *
      * @return void
      */
@@ -370,6 +383,18 @@ class ParserTest extends TestCase
                     'schema' => [
                         'type' => 'integer',
                         ['min' => 23, 'message' => 'Must be at least 23'],
+                    ],
+                ],
+                'tuple' => [
+                    ['type' => 'tuple', 'message' => 'Must be a tuple'],
+                    'schema' => [
+                        [
+                            'type' => 'integer',
+                        ],
+                        [
+                            'type' => 'string',
+                            'required' => false,
+                        ],
                     ],
                 ],
             ],
@@ -393,6 +418,22 @@ class ParserTest extends TestCase
                                     'min' => new Rule('min', 23, 'Must be at least 23'),
                                 ])
                         ),
+                    'tuple' => (new SchemaTuple())
+                        ->setRules([
+                            'type' => new Rule('type', 'tuple', 'Must be a tuple'),
+                        ])
+                        ->setSchemas([
+                            (new Schema())
+                                ->setRules([
+                                    'type' => new Rule('type', 'integer'),
+                                    'required' => new Rule('required', true),
+                                ]),
+                            (new Schema())
+                                ->setRules([
+                                    'type' => new Rule('type', 'string'),
+                                    'required' => new Rule('required', true),
+                                ]),
+                        ]),
                 ]),
             $schema
         );

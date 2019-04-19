@@ -13,6 +13,7 @@ namespace Ares\Schema;
 
 use Ares\Exception\InvalidValidationSchemaException;
 use Ares\RuleFactory;
+use Ares\Rule\RequiredRule;
 use Ares\Rule\TypeRule;
 use Ares\Utility\JsonPointer;
 use Ares\Utility\PhpType;
@@ -32,6 +33,7 @@ class Parser
         ParserError::TYPE_REPEATED       => 'Ambiguous validation schema: %s contains multiple `type` validation rules',
         ParserError::TYPE_UNKNOWN        => 'Invalid validation schema: %s uses unknown type: %s',
         ParserError::VALUE_TYPE_MISMATCH => 'Invalid validation schema value: %s must be of type <%s>, got <%s>',
+        ParserError::RULE_INAPPLICABLE   => 'Invalid validation schema: %s validation rule is not applicable to type <%s>',
     ];
 
     /** @const array VALID_RULE_ADDITION_KEYS */
@@ -47,7 +49,9 @@ class Parser
         Type::INTEGER => Schema::class,
         Type::LIST    => SchemaList::class,
         Type::MAP     => SchemaMap::class,
+        Type::NUMERIC => Schema::class,
         Type::STRING  => Schema::class,
+        Type::TUPLE   => SchemaTuple::class,
     ];
 
     /** @param \Ares\RuleFactory $ruleFactory */
@@ -140,12 +144,13 @@ class Parser
     }
 
     /**
+     * @param string                     $type    Value type.
      * @param \Ares\Schema\ParserContext $context Parser context.
      * @param string                     $ruleId  Validation rule ID.
      * @return \Ares\Schema\Rule|null
      * @throws \Ares\Exception\InvalidValidationSchemaException
      */
-    protected function parseRule(ParserContext $context, string $ruleId): ?Rule
+    protected function parseRule(string $type, ParserContext $context, string $ruleId): ?Rule
     {
         $rule = null;
 
@@ -154,6 +159,16 @@ class Parser
         if ($ruleId !== Keyword::SCHEMA) {
             if (!$this->ruleFactory->has($ruleId)) {
                 $this->fail(ParserError::RULE_ID_UNKNOWN, $context);
+            }
+
+            $validationRule = $this->ruleFactory->get($ruleId);
+
+            if (method_exists($validationRule, 'getSupportedTypes')) {
+                $supportedTypes = $validationRule->getSupportedTypes();
+
+                if (!in_array($type, $supportedTypes, true)) {
+                    $this->fail(ParserError::RULE_INAPPLICABLE, $context, $type);
+                }
             }
 
             $rule = new Rule($ruleId, $context->getInput());
@@ -165,12 +180,13 @@ class Parser
     }
 
     /**
+     * @param string                     $type    Value type.
      * @param \Ares\Schema\ParserContext $context Parser context.
      * @param mixed                      $index   Parser context related index.
      * @return \Ares\Schema\Rule|null
      * @throws \Ares\Exception\InvalidValidationSchemaException
      */
-    protected function parseRuleWithAdditions(ParserContext $context, $index): ?Rule
+    protected function parseRuleWithAdditions(string $type, ParserContext $context, $index): ?Rule
     {
         $context->enter($index);
 
@@ -188,7 +204,7 @@ class Parser
         }
 
         $ruleId = reset($ruleIds);
-        $rule = $this->parseRule($context, $ruleId);
+        $rule = $this->parseRule($type, $context, $ruleId);
 
         if ($rule !== null) {
             if (isset($input[Keyword::MESSAGE])) {
@@ -236,15 +252,15 @@ class Parser
 
         foreach ($context->getInput() as $key => $value) {
             $rule = is_string($key)
-                ? $this->parseRule($context, $key)
-                : $this->parseRuleWithAdditions($context, $key);
+                ? $this->parseRule($type, $context, $key)
+                : $this->parseRuleWithAdditions($type, $context, $key);
 
             if ($rule !== null) {
                 $schema->setRule($rule);
             }
         }
 
-        if (in_array($type, [Type::LIST, Type::MAP], true)) {
+        if (in_array($type, [Type::LIST, Type::MAP, Type::TUPLE], true)) {
             if (!array_key_exists(Keyword::SCHEMA, $context->getInput())) {
                 $this->fail(ParserError::SCHEMA_MISSING, $context, $type);
             }
@@ -253,8 +269,10 @@ class Parser
 
             if ($type === Type::LIST) {
                 $schema->setSchema($this->parseSchema($context));
-            } else { // $type === Type::MAP
+            } elseif ($type === Type::MAP) {
                 $schema->setSchemas($this->parseSchemas($context));
+            } else { // $type === Type::TUPLE
+                $schema->setSchemas($this->parseTupleSchemas($context));
             }
 
             $context->leave();
@@ -268,7 +286,7 @@ class Parser
      * @return array
      * @throws \Ares\Exception\InvalidValidationSchemaException
      */
-    public function parseSchemas(ParserContext $context): array
+    protected function parseSchemas(ParserContext $context): array
     {
         $schemas = [];
 
@@ -280,6 +298,26 @@ class Parser
             $schemas[$key] = $this->parseSchema($context);
 
             $context->leave();
+        }
+
+        return $schemas;
+    }
+
+    /**
+     * @param \Ares\Schema\ParserContext $context Parser context.
+     * @return array
+     * @throws \Ares\Exception\InvalidValidationSchemaException
+     */
+    protected function parseTupleSchemas(ParserContext $context): array
+    {
+        $schemas = $this->parseSchemas($context);
+
+        foreach ($schemas as $schema) {
+            if ($schema->hasRule(RequiredRule::ID)) {
+                $schema->getRule(RequiredRule::ID)->setArgs(true);
+            } else {
+                $schema->setRule(new Rule(RequiredRule::ID, true));
+            }
         }
 
         return $schemas;

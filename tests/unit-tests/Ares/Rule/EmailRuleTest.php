@@ -29,7 +29,36 @@ use PHPUnit\Framework\TestCase;
 class EmailRuleTest extends TestCase
 {
     /**
-     * @covers ::validate
+     * @testWith ["Ares\\Rule\\RuleInterface"]
+     *           ["Ares\\Rule\\AbstractRule"]
+     *
+     * @param string $fqcn Fully-qualified class name of the interface or class.
+     * @return void
+     */
+    public function testInstanceOf(string $fqcn): void
+    {
+        $emailRule = new EmailRule();
+
+        $this->assertInstanceOf($fqcn, $emailRule);
+    }
+
+    /**
+     * @covers ::getSupportedTypes
+     *
+     * @testWith ["string"]
+     *
+     * @param string $type Supported type.
+     * @return void
+     */
+    public function testGetSupportedTypes(string $type): void
+    {
+        $emailRule = new EmailRule();
+
+        $this->assertContains($type, $emailRule->getSupportedTypes());
+    }
+
+    /**
+     * @covers ::performValidation
      *
      * @testWith [1]
      *           [17.2]
@@ -50,11 +79,11 @@ class EmailRuleTest extends TestCase
         $this->expectException(InvalidValidationRuleArgsException::class);
         $this->expectExceptionMessage('Invalid args: ' . json_encode($args));
 
-        $emailRule->validate($args, $data, $context);
+        $emailRule->performValidation($args, $data, $context);
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @testWith [true,  "john.doe@example.com", true]
      *           [true,  42,                     false]
@@ -93,11 +122,11 @@ class EmailRuleTest extends TestCase
 
         $emailRule = new EmailRule();
 
-        $this->assertSame($expectedRetVal, $emailRule->validate($args, $data, $context));
+        $this->assertSame($expectedRetVal, $emailRule->performValidation($args, $data, $context));
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @return void
      */
@@ -125,7 +154,7 @@ class EmailRuleTest extends TestCase
 
         $emailRule = new EmailRule();
 
-        $this->assertFalse($emailRule->validate($args, $data, $context));
+        $this->assertFalse($emailRule->performValidation($args, $data, $context));
     }
 }
 

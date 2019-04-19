@@ -19,28 +19,35 @@ use Ares\Schema\Type;
 /**
  * Class UnknownRule
  */
-class UnknownRule implements RuleInterface
+class UnknownRule extends AbstractRule
 {
-    const ID            = 'unknown';
-    const ERROR_MESSAGE = 'Unknown field';
+    public const ID            = 'unknown';
+    public const ERROR_MESSAGE = 'Unknown field';
+
+    /**
+     * @return array
+     */
+    public function getSupportedTypes(): array
+    {
+        return [
+            Type::MAP,
+        ];
+    }
 
     /**
      * @param mixed         $args    Validation rule configuration.
      * @param mixed         $data    Input data.
      * @param \Ares\Context $context Validation context.
      * @return boolean
+     * @throws \Ares\Exception\InvalidValidationRuleArgsException
      */
-    public function validate($args, $data, Context $context): bool
+    public function performValidation($args, $data, Context $context): bool
     {
         if ($args) {
             return true;
         }
 
         $schema = $context->getSchema();
-
-        if ($schema->getRule(TypeRule::ID)->getArgs() !== Type::MAP || !is_array($data)) {
-            return true;
-        }
 
         $unknownFields = array_diff_key($data, $schema->getSchemas());
 

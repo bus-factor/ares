@@ -13,14 +13,25 @@ namespace Ares\Rule;
 
 use Ares\Context;
 use Ares\Exception\InvalidValidationRuleArgsException;
+use Ares\Schema\Type;
 
 /**
  * Class MinLengthRule
  */
-class MinLengthRule implements RuleInterface
+class MinLengthRule extends AbstractRule
 {
-    const ID            = 'minlength';
-    const ERROR_MESSAGE = 'Value too short';
+    public const ID            = 'minlength';
+    public const ERROR_MESSAGE = 'Value too short';
+
+    /**
+     * @return array
+     */
+    public function getSupportedTypes(): array
+    {
+        return [
+            Type::STRING,
+        ];
+    }
 
     /**
      * @param mixed         $args    Validation rule configuration.
@@ -29,14 +40,10 @@ class MinLengthRule implements RuleInterface
      * @return boolean
      * @throws \Ares\Exception\InvalidValidationRuleArgsException
      */
-    public function validate($args, $data, Context $context): bool
+    public function performValidation($args, $data, Context $context): bool
     {
         if (!is_int($args) || $args < 0) {
             throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
-        }
-
-        if (!is_string($data)) {
-            return true;
         }
 
         if (strlen($data) >= $args) {

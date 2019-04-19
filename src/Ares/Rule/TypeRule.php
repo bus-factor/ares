@@ -19,19 +19,36 @@ use Ares\Utility\PhpType;
 /**
  * Class TypeRule
  */
-class TypeRule implements RuleInterface
+class TypeRule extends AbstractRule
 {
-    const ID            = 'type';
-    const ERROR_MESSAGE = 'Invalid type';
+    public const ID            = 'type';
+    public const ERROR_MESSAGE = 'Invalid type';
 
     /* @const array TYPE_MAPPING maps PHP types to validator specific types */
-    const TYPE_MAPPING = [
-        PhpType::ARRAY   => [Type::LIST, Type::MAP],
+    private const TYPE_MAPPING = [
+        PhpType::ARRAY   => [Type::LIST, Type::MAP, Type::TUPLE],
         PhpType::BOOLEAN => [Type::BOOLEAN],
-        PhpType::DOUBLE  => [Type::FLOAT],
-        PhpType::INTEGER => [Type::INTEGER],
+        PhpType::DOUBLE  => [Type::FLOAT, Type::NUMERIC],
+        PhpType::INTEGER => [Type::INTEGER, Type::NUMERIC],
         PhpType::STRING  => [Type::STRING],
     ];
+
+    /**
+     * @return array
+     */
+    public function getSupportedTypes(): array
+    {
+        return Type::getValues();
+    }
+
+    /**
+     * @param \Ares\Context $context Validation context.
+     * @return bool
+     */
+    public function isApplicable(Context $context): bool
+    {
+        return true;
+    }
 
     /**
      * @param mixed         $args    Validation rule configuration.
@@ -40,7 +57,7 @@ class TypeRule implements RuleInterface
      * @return boolean
      * @throws \Ares\Exception\InvalidValidationRuleArgsException
      */
-    public function validate($args, $data, Context $context): bool
+    public function performValidation($args, $data, Context $context): bool
     {
         if (!in_array($args, Type::getValues(), true)) {
             throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));

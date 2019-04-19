@@ -29,7 +29,36 @@ use PHPUnit\Framework\TestCase;
 class MinLengthRuleTest extends TestCase
 {
     /**
-     * @covers ::validate
+     * @testWith ["Ares\\Rule\\RuleInterface"]
+     *           ["Ares\\Rule\\AbstractRule"]
+     *
+     * @param string $fqcn Fully-qualified class name of the interface or class.
+     * @return void
+     */
+    public function testInstanceOf(string $fqcn): void
+    {
+        $minLengthRule = new MinLengthRule();
+
+        $this->assertInstanceOf($fqcn, $minLengthRule);
+    }
+
+    /**
+     * @covers ::getSupportedTypes
+     *
+     * @testWith ["string"]
+     *
+     * @param string $type Supported type.
+     * @return void
+     */
+    public function testGetSupportedTypes(string $type): void
+    {
+        $minLengthRule = new MinLengthRule();
+
+        $this->assertContains($type, $minLengthRule->getSupportedTypes());
+    }
+
+    /**
+     * @covers ::performValidation
      *
      * @testWith [17.2]
      *           [null]
@@ -51,11 +80,11 @@ class MinLengthRuleTest extends TestCase
         $this->expectException(InvalidValidationRuleArgsException::class);
         $this->expectExceptionMessage('Invalid args: ' . json_encode($args));
 
-        $minLengthRule->validate($args, $data, $context);
+        $minLengthRule->performValidation($args, $data, $context);
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @dataProvider getValidateSamples
      *
@@ -89,7 +118,7 @@ class MinLengthRuleTest extends TestCase
 
         $minLengthRule = new MinLengthRule();
 
-        $this->assertSame($expectedRetVal, $minLengthRule->validate($args, $data, $context));
+        $this->assertSame($expectedRetVal, $minLengthRule->performValidation($args, $data, $context));
     }
 
     /**
@@ -98,31 +127,6 @@ class MinLengthRuleTest extends TestCase
     public function getValidateSamples(): array
     {
         return [
-            'non-string value #1' => [
-                10,
-                42,
-                true,
-            ],
-            'non-string value #2' => [
-                10,
-                true,
-                true,
-            ],
-            'non-string value #3' => [
-                10,
-                false,
-                true,
-            ],
-            'non-string value #4' => [
-                10,
-                13.37,
-                true,
-            ],
-            'non-string value #5' => [
-                10,
-                [],
-                true,
-            ],
             'valid string #1' => [
                 3,
                 'foo',
@@ -142,7 +146,7 @@ class MinLengthRuleTest extends TestCase
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @return void
      */
@@ -170,7 +174,7 @@ class MinLengthRuleTest extends TestCase
 
         $minLengthRule = new MinLengthRule();
 
-        $this->assertFalse($minLengthRule->validate($args, $data, $context));
+        $this->assertFalse($minLengthRule->performValidation($args, $data, $context));
     }
 }
 

@@ -13,14 +13,29 @@ namespace Ares\Rule;
 
 use Ares\Context;
 use Ares\Exception\InvalidValidationRuleArgsException;
+use Ares\Schema\Type;
 
 /**
  * Class AllowedRule
  */
-class AllowedRule implements RuleInterface
+class AllowedRule extends AbstractRule
 {
-    const ID            = 'allowed';
-    const ERROR_MESSAGE = 'Value not allowed';
+    public const ID            = 'allowed';
+    public const ERROR_MESSAGE = 'Value not allowed';
+
+    /**
+     * @return array
+     */
+    public function getSupportedTypes(): array
+    {
+        return [
+            Type::BOOLEAN,
+            Type::FLOAT,
+            Type::INTEGER,
+            Type::NUMERIC,
+            Type::STRING,
+        ];
+    }
 
     /**
      * @param mixed         $args    Validation rule configuration.
@@ -29,7 +44,7 @@ class AllowedRule implements RuleInterface
      * @return boolean
      * @throws \Ares\Exception\InvalidValidationRuleArgsException
      */
-    public function validate($args, $data, Context $context): bool
+    public function performValidation($args, $data, Context $context): bool
     {
         if (!is_array($args)) {
             throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));

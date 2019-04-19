@@ -2,6 +2,14 @@
   "name": "bus-factor/ares",
   "description": "Leightweight standalone validation library",
   "type": "library",
+  "archive": {
+    "exclude": [
+      "/tests",
+      "/.gitignore",
+      "/.travis.yml",
+      "/phpunit.xml"
+    ]
+  },
   "keywords": [
     "form",
     "form-validation",
@@ -16,6 +24,9 @@
     "validation",
     "validator"
   ],
+  "support": {
+    "issues": "https://github.com/bus-factor/ares/issues"
+  },
   "readme": "README.md",
   "license": "MIT",
   "authors": [
@@ -26,13 +37,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "": "src"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "IntegrationTest\\": "tests/integration-tests",
-      "UnitTest\\": "tests/unit-tests"
+      "Ares\\": "src/Ares"
     }
   },
   "require-dev": {

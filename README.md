@@ -23,8 +23,11 @@ Ares is a lightweight standalone validation library.
   * [allowed](#validation-rules_allowed)
   * [blankable](#validation-rules_blankable)
   * [datetime](#validation-rules_datetime)
+  * [directory](#validation-rules_directory)
   * [email](#validation-rules_email)
+  * [file](#validation-rules_file)
   * [forbidden](#validation-rules_forbidden)
+  * [length](#validation-rules_length)
   * [max](#validation-rules_max)
   * [maxlength](#validation-rules_maxlength)
   * [min](#validation-rules_min)
@@ -35,6 +38,7 @@ Ares is a lightweight standalone validation library.
   * [schema](#validation-rules_schema)
     * [schema (list)](#validation-rules_schema_schema-list)
     * [schema (map)](#validation-rules_schema_schema-map)
+    * [schema (tuple)](#validation-rules_schema_schema-tuple)
   * [type](#validation-rules_type)
   * [url](#validation-rules_url)
 * [Custom Validation Messages](#custom-validation-messages)
@@ -283,9 +287,26 @@ $validator->validate('2018-03-23'); // -> false
 $validator->validate('23.03.2019 00:20'); // -> true
 ```
 
+## <a name="validation-rules_directory"></a>directory
+
+The ```directory``` validation rule checks if the given string value contains the path to an existing directory.
+If set ```true```, only paths to existing directories are considered valid.
+If set ```false```, all input is considered valid (no validation).
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'string', 'directory' => true]);
+$validator->validate(''); // -> false
+$validator->validate(__FILE__); // -> false
+$validator->validate(__DIR__); // -> true
+```
+
 ## <a name="validation-rules_email"></a>email
 
 The ```email``` validation rule checks if a value is a valid email address.
+If set ```true```, only valid email addresses are considered valid.
+If set ```false```, all input is considered valid (no validation).
 
 Examples:
 
@@ -293,6 +314,21 @@ Examples:
 $validator = new Validator(['type' => 'string', 'email' => true]);
 $validator->validate('John Doe'); // -> false
 $validator->validate('john.doe@example.com'); // -> true
+```
+
+## <a name="validation-rules_file"></a>file
+
+The ```file``` validation rule checks if the given string value contains the path to an existing file.
+If set ```true```, only paths to existing files are considered valid.
+If set ```false```, all input is considered valid (no validation).
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'string', 'file' => true]);
+$validator->validate(''); // -> false
+$validator->validate(__DIR__); // -> false
+$validator->validate(__FILE__); // -> true
 ```
 
 ## <a name="validation-rules_forbidden"></a>forbidden
@@ -308,6 +344,19 @@ $validator->validate('large'); // -> true
 ```
 
 The ```forbidden``` validation rule is the opposite of the ```allowed``` validation rule.
+
+## <a name="validation-rules_length"></a>length
+
+The ```length``` validation rule applies to ```string``` typed values only.
+The ```length``` validation rule checks if a string has a specified exact length.
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'string', 'length' => 3]);
+$validator->validate('foobar'); // -> false
+$validator->validate('foo'); // -> true
+```
 
 ## <a name="validation-rules_max"></a>max
 
@@ -458,7 +507,6 @@ Examples:
 ```php
 $validator = new Validator([
     'type' => 'map',
-    'required' => true,
     'schema' => [
         'email' => ['type' => 'string', 'required' => true],
         'password' => ['type' => 'string', 'required' => true],
@@ -469,6 +517,29 @@ $validator->validate(['email' => 'john.doe@example.com']); // -> false
 $validator->validate(['email' => 'john.doe@example.com', 'password' => 'j4n3:)']); // -> true
 ```
 
+### <a name="validation-rules_schema_schema-tuple"></a>schema (tuple)
+
+The validator expects the schema to define validation rules per input array element.
+During validation input array elements are expected to be continuous indexed starting from 0 (0, 1, 2, ...).
+
+Examples:
+
+```php
+$validator = new Validator([
+    'type' => 'tuple',
+    'schema' => [
+        ['type' => 'string', 'email' => true],
+        ['type' => 'integer'],
+    ],
+]);
+
+$validator->validate(['john.doe@example.com']); // -> false
+$validator->validate([1 => 'john.doe@example.com', 2 => 23]); // -> false
+$validator->validate(['john.doe@example.com', 23]); // -> true
+```
+
+Internally, all ```schema``` elements of a ```tuple``` are required and cannot be declared optional by schema.
+
 ## <a name="validation-rules_type"></a>type
 
 The ```type``` rule is mandatory and defines the expected/allowed value type. Supported types are:
@@ -476,9 +547,11 @@ The ```type``` rule is mandatory and defines the expected/allowed value type. Su
 * ```boolean```
 * ```float```
 * ```integer```
+* ```numeric``` (```float``` or ```integer```)
 * ```string```
 * ```map```
 * ```list```
+* ```tuple```
 
 Examples:
 
@@ -523,23 +596,46 @@ Just wrap your rule (key-value) into an array and add a ```'message'``` key.
 The following simple example shows how custom validation rules are implemented and integrated:
 
 ```php
+use Ares\Context;
 use Ares\RuleFactory;
-use Ares\Rule\RuleInterface;
+use Ares\Rule\AbstractRule;
+use Ares\Schema\Type;
 use Ares\Validator;
 
-class ZipCodeRule implements RuleInterface
+class ZipCodeRule extends AbstractRule
 {
-    const ID = 'zipcode';
-    const ERROR_MESSAGE = 'Invalid ZIP code';
+    public const ID = 'zipcode';
+    public const ERROR_MESSAGE = 'Invalid ZIP code';
 
-    public function validate($config, $data, Context $context): bool
+    /**
+     * Returns all supported value types.
+     *
+     * @return array
+     */
+    public function getSupportedTypes(): array
+    {
+        return [
+            Type::STRING,
+        ];
+    }
+
+    /**
+     * Perform the value validation.
+     *
+     * @param mixed         $args    Validation rule arguments.
+     * @param mixed         $data    Data being validated.
+     * @param \Ares\Context $context Validation context.
+     * @return bool
+     */
+    public function performValidation($args, $data, Context $context): bool
     {
         // implement validation ...
 
         // add error if the validation fails
         $context->addError(self::ID, self::ERROR_MESSAGE);
 
-        // skip all following validation rules for the current field
+        // TRUE  - skip all following validation rules for the current field
+        // FALSE - run all following validation rules for the current field
         return false; 
     }
 }
@@ -552,6 +648,6 @@ $schema = [
     'zipcode' => true,
 ];
 
-$validator = new Validator($schema, [], null, $ruleFactory);
+$validator = new Validator($schema, [], $ruleFactory);
 ```
 

@@ -13,15 +13,26 @@ namespace Ares\Rule;
 
 use Ares\Context;
 use Ares\Exception\InvalidValidationRuleArgsException;
+use Ares\Schema\Type;
 use DateTime;
 
 /**
  * Class DateTimeRule
  */
-class DateTimeRule implements RuleInterface
+class DateTimeRule extends AbstractRule
 {
-    const ID = 'datetime';
-    const ERROR_MESSAGE = 'Invalid date/time value';
+    public const ID = 'datetime';
+    public const ERROR_MESSAGE = 'Invalid date/time value';
+
+    /**
+     * @return array
+     */
+    public function getSupportedTypes(): array
+    {
+        return [
+            Type::STRING,
+        ];
+    }
 
     /**
      * @param mixed         $args    Validation rule configuration.
@@ -30,7 +41,7 @@ class DateTimeRule implements RuleInterface
      * @return boolean
      * @throws \Ares\Exception\InvalidValidationRuleArgsException
      */
-    public function validate($args, $data, Context $context): bool
+    public function performValidation($args, $data, Context $context): bool
     {
         if (is_bool($args)) {
             if (!$args) {

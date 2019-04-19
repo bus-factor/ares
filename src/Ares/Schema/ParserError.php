@@ -18,12 +18,13 @@ use Ares\Utility\Enum;
  */
 class ParserError extends Enum
 {
-    const TYPE_MISSING         = 0;
-    const TYPE_REPEATED        = 1;
-    const TYPE_UNKNOWN         = 2;
-    const SCHEMA_MISSING       = 3;
-    const RULE_ID_UNKNOWN      = 4;
-    const VALUE_TYPE_MISMATCH  = 5;
-    const RULE_MISSING         = 6;
-    const RULE_AMBIGUOUS       = 7;
+    public const TYPE_MISSING         = 0;
+    public const TYPE_REPEATED        = 1;
+    public const TYPE_UNKNOWN         = 2;
+    public const SCHEMA_MISSING       = 3;
+    public const RULE_ID_UNKNOWN      = 4;
+    public const VALUE_TYPE_MISMATCH  = 5;
+    public const RULE_MISSING         = 6;
+    public const RULE_AMBIGUOUS       = 7;
+    public const RULE_INAPPLICABLE    = 8;
 }

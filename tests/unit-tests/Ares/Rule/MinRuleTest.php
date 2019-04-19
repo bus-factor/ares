@@ -13,7 +13,6 @@ namespace UnitTest\Ares\Rule;
 
 use Ares\Context;
 use Ares\Error\ErrorMessageRenderer;
-use Ares\Exception\InapplicableValidationRuleException;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Rule\MinRule;
 use Ares\Rule\TypeRule;
@@ -30,32 +29,38 @@ use PHPUnit\Framework\TestCase;
 class MinRuleTest extends TestCase
 {
     /**
-     * @covers ::validate
+     * @testWith ["Ares\\Rule\\RuleInterface"]
+     *           ["Ares\\Rule\\AbstractRule"]
      *
-     * @testWith [null]
-     *           ["foo"]
-     *           [true]
-     *           [false]
-     *           [[]]
-     *
-     * @param mixed $args Validation rule configuration.
+     * @param string $fqcn Fully-qualified class name of the interface or class.
      * @return void
      */
-    public function testValidateToHandleInapplicabeValidationRule($type): void
+    public function testInstanceOf(string $fqcn): void
     {
-        $context = new Context($data, new ErrorMessageRenderer());
-        $context->enter('', (new Schema())->setRule(new Rule(TypeRule::ID, $type)));
-
         $minRule = new MinRule();
 
-        $this->expectException(InapplicableValidationRuleException::class);
-        $this->expectExceptionMessage('This rule applies to <float> and <integer> types only');
-
-        $minRule->validate(null, null, $context);
+        $this->assertInstanceOf($fqcn, $minRule);
     }
 
     /**
-     * @covers ::validate
+     * @covers ::getSupportedTypes
+     *
+     * @testWith ["float"]
+     *           ["integer"]
+     *           ["numeric"]
+     *
+     * @param string $type Supported type.
+     * @return void
+     */
+    public function testGetSupportedTypes(string $type): void
+    {
+        $minRule = new MinRule();
+
+        $this->assertContains($type, $minRule->getSupportedTypes());
+    }
+
+    /**
+     * @covers ::performValidation
      *
      * @testWith [null]
      *           ["foo"]
@@ -78,11 +83,11 @@ class MinRuleTest extends TestCase
         $this->expectException(InvalidValidationRuleArgsException::class);
         $this->expectExceptionMessage('Invalid args: ' . json_encode($args));
 
-        $minRule->validate($args, $data, $context);
+        $minRule->performValidation($args, $data, $context);
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @dataProvider getValidateSamples
      *
@@ -119,7 +124,7 @@ class MinRuleTest extends TestCase
 
         $minRule = new MinRule();
 
-        $this->assertSame($expectedRetVal, $minRule->validate($args, $data, $context));
+        $this->assertSame($expectedRetVal, $minRule->performValidation($args, $data, $context));
     }
 
     /**
@@ -138,7 +143,7 @@ class MinRuleTest extends TestCase
     }
 
     /**
-     * @covers ::validate
+     * @covers ::performValidation
      *
      * @return void
      */
@@ -168,7 +173,7 @@ class MinRuleTest extends TestCase
 
         $minRule = new MinRule();
 
-        $this->assertFalse($minRule->validate($args, $data, $context));
+        $this->assertFalse($minRule->performValidation($args, $data, $context));
     }
 }
 
