@@ -87,8 +87,9 @@ class Parser
     protected function extractTypeOrFail(ParserContext $context): string
     {
         $types = [];
+        $keys = $context->getInput();
 
-        foreach ($context->getInput() as $key => $value) {
+        foreach ($keys as $key) {
             if (is_string($key)) {
                 if ($key == TypeRule::ID) {
                     $types[] = $value;
