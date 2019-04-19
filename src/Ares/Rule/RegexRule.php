@@ -21,8 +21,8 @@ use Ares\Schema\Type;
  */
 class RegexRule extends AbstractRule
 {
-    const ID            = 'regex';
-    const ERROR_MESSAGE = 'Value invalid';
+    public const ID            = 'regex';
+    public const ERROR_MESSAGE = 'Value invalid';
 
     /**
      * @return array

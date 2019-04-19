@@ -49,6 +49,7 @@ class Parser
         Type::INTEGER => Schema::class,
         Type::LIST    => SchemaList::class,
         Type::MAP     => SchemaMap::class,
+        Type::NUMERIC => Schema::class,
         Type::STRING  => Schema::class,
         Type::TUPLE   => SchemaTuple::class,
     ];

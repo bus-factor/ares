@@ -16,11 +16,11 @@ namespace Ares\Utility;
  */
 class PhpType extends Enum
 {
-    const ARRAY   = 'array';
-    const BOOLEAN = 'boolean';
-    const DOUBLE  = 'double';
-    const INTEGER = 'integer';
-    const NULL    = 'NULL';
-    const STRING  = 'string';
+    public const ARRAY   = 'array';
+    public const BOOLEAN = 'boolean';
+    public const DOUBLE  = 'double';
+    public const INTEGER = 'integer';
+    public const NULL    = 'NULL';
+    public const STRING  = 'string';
 }
 

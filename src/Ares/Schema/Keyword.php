@@ -18,8 +18,8 @@ use Ares\Utility\Enum;
  */
 class Keyword extends Enum
 {
-    const MESSAGE = 'message';
-    const META    = 'meta';
-    const SCHEMA  = 'schema';
+    public const MESSAGE = 'message';
+    public const META    = 'meta';
+    public const SCHEMA  = 'schema';
 }
 

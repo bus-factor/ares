@@ -47,6 +47,7 @@ class MinRuleTest extends TestCase
      *
      * @testWith ["float"]
      *           ["integer"]
+     *           ["numeric"]
      *
      * @param string $type Supported type.
      * @return void

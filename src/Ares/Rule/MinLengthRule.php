@@ -20,8 +20,8 @@ use Ares\Schema\Type;
  */
 class MinLengthRule extends AbstractRule
 {
-    const ID            = 'minlength';
-    const ERROR_MESSAGE = 'Value too short';
+    public const ID            = 'minlength';
+    public const ERROR_MESSAGE = 'Value too short';
 
     /**
      * @return array

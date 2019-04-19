@@ -20,8 +20,8 @@ use Ares\Schema\Type;
  */
 class ForbiddenRule extends AbstractRule
 {
-    const ID            = 'forbidden';
-    const ERROR_MESSAGE = 'Value forbidden';
+    public const ID            = 'forbidden';
+    public const ERROR_MESSAGE = 'Value forbidden';
 
     /**
      * @return array
@@ -32,6 +32,7 @@ class ForbiddenRule extends AbstractRule
             Type::BOOLEAN,
             Type::FLOAT,
             Type::INTEGER,
+            Type::NUMERIC,
             Type::STRING,
         ];
     }

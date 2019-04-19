@@ -20,8 +20,8 @@ use Ares\Schema\Type;
  */
 class NullableRule extends AbstractRule
 {
-    const ID            = 'nullable';
-    const ERROR_MESSAGE = 'Value must not be null';
+    public const ID            = 'nullable';
+    public const ERROR_MESSAGE = 'Value must not be null';
 
     /**
      * @return array

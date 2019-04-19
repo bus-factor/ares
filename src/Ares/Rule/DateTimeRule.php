@@ -21,8 +21,8 @@ use DateTime;
  */
 class DateTimeRule extends AbstractRule
 {
-    const ID = 'datetime';
-    const ERROR_MESSAGE = 'Invalid date/time value';
+    public const ID = 'datetime';
+    public const ERROR_MESSAGE = 'Invalid date/time value';
 
     /**
      * @return array

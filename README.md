@@ -533,6 +533,7 @@ The ```type``` rule is mandatory and defines the expected/allowed value type. Su
 * ```boolean```
 * ```float```
 * ```integer```
+* ```numeric``` (```float``` or ```integer```)
 * ```string```
 * ```map```
 * ```list```

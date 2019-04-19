@@ -21,8 +21,8 @@ use Ares\Schema\Type;
  */
 class FileRule extends AbstractRule
 {
-    const ID            = 'file';
-    const ERROR_MESSAGE = 'File not found';
+    public const ID            = 'file';
+    public const ERROR_MESSAGE = 'File not found';
 
     /**
      * @return array

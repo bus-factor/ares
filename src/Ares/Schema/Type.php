@@ -18,12 +18,13 @@ use Ares\Utility\Enum;
  */
 class Type extends Enum
 {
-    const BOOLEAN = 'boolean';
-    const FLOAT   = 'float';
-    const INTEGER = 'integer';
-    const LIST    = 'list';
-    const MAP     = 'map';
-    const STRING  = 'string';
-    const TUPLE   = 'tuple';
+    public const BOOLEAN = 'boolean';
+    public const FLOAT   = 'float';
+    public const INTEGER = 'integer';
+    public const LIST    = 'list';
+    public const MAP     = 'map';
+    public const NUMERIC = 'numeric';
+    public const STRING  = 'string';
+    public const TUPLE   = 'tuple';
 }
 
