@@ -21,8 +21,8 @@ use Ares\Schema\Type;
  */
 class MinRule extends AbstractRule
 {
-    const ID            = 'min';
-    const ERROR_MESSAGE = 'Value must not be smaller than {value}';
+    public const ID            = 'min';
+    public const ERROR_MESSAGE = 'Value must not be smaller than {value}';
 
     /**
      * @return array
@@ -32,6 +32,7 @@ class MinRule extends AbstractRule
         return [
             Type::FLOAT,
             Type::INTEGER,
+            Type::NUMERIC,
         ];
     }
 

@@ -21,8 +21,8 @@ use Ares\Schema\Type;
  */
 class UnknownRule extends AbstractRule
 {
-    const ID            = 'unknown';
-    const ERROR_MESSAGE = 'Unknown field';
+    public const ID            = 'unknown';
+    public const ERROR_MESSAGE = 'Unknown field';
 
     /**
      * @return array

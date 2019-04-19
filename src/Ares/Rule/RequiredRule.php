@@ -20,8 +20,8 @@ use Ares\Schema\Type;
  */
 class RequiredRule extends AbstractRule
 {
-    const ID = 'required';
-    const ERROR_MESSAGE = 'Value required';
+    public const ID = 'required';
+    public const ERROR_MESSAGE = 'Value required';
 
     /**
      * @return array

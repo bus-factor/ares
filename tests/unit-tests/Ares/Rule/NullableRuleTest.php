@@ -50,6 +50,7 @@ class NullableRuleTest extends TestCase
      *           ["integer"]
      *           ["list"]
      *           ["map"]
+     *           ["numeric"]
      *           ["string"]
      *           ["tuple"]
      *

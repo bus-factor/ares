@@ -20,8 +20,8 @@ use Ares\Schema\Type;
  */
 class UrlRule extends AbstractRule
 {
-    const ID            = 'url';
-    const ERROR_MESSAGE = 'Invalid URL';
+    public const ID            = 'url';
+    public const ERROR_MESSAGE = 'Invalid URL';
 
     /**
      * @return array

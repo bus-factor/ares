@@ -20,8 +20,8 @@ use Ares\Schema\Type;
  */
 class BlankableRule extends AbstractRule
 {
-    const ID            = 'blankable';
-    const ERROR_MESSAGE = 'Value must not be blank';
+    public const ID            = 'blankable';
+    public const ERROR_MESSAGE = 'Value must not be blank';
 
     /**
      * @return array

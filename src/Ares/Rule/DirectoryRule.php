@@ -21,8 +21,8 @@ use Ares\Schema\Type;
  */
 class DirectoryRule extends AbstractRule
 {
-    const ID            = 'directory';
-    const ERROR_MESSAGE = 'Directory not found';
+    public const ID            = 'directory';
+    public const ERROR_MESSAGE = 'Directory not found';
 
     /**
      * @return array

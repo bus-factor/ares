@@ -33,7 +33,7 @@ use Ares\Schema\Type;
 class Validator
 {
     /** @const array OPTIONS_DEFAULTS */
-    const OPTIONS_DEFAULTS = [
+    private const OPTIONS_DEFAULTS = [
         Option::ALLOW_UNKNOWN => false,
         Option::ALL_BLANKABLE => false,
         Option::ALL_NULLABLE  => false,

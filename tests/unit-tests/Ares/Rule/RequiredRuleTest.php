@@ -50,6 +50,7 @@ class RequiredRuleTest extends TestCase
      *           ["integer"]
      *           ["list"]
      *           ["map"]
+     *           ["numeric"]
      *           ["string"]
      *           ["tuple"]
      *

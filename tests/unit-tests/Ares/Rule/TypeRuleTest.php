@@ -48,6 +48,7 @@ class TypeRuleTest extends TestCase
      *           ["integer"]
      *           ["list"]
      *           ["map"]
+     *           ["numeric"]
      *           ["string"]
      *           ["tuple"]
      *
@@ -244,6 +245,36 @@ class TypeRuleTest extends TestCase
             'integer + tuple' => [
                 'tuple',
                 1337,
+                false,
+            ],
+            'array + numeric' => [
+                'numeric',
+                [],
+                false,
+            ],
+            'string + numeric' => [
+                'numeric',
+                'foo',
+                false,
+            ],
+            'numerical string + numeric' => [
+                'numeric',
+                '2',
+                false,
+            ],
+            'double + numeric' => [
+                'numeric',
+                13.37,
+                true,
+            ],
+            'integer + numeric' => [
+                'numeric',
+                1337,
+                true,
+            ],
+            'boolean + numeric' => [
+                'numeric',
+                true,
                 false,
             ],
         ];

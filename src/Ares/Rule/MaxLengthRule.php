@@ -20,8 +20,8 @@ use Ares\Schema\Type;
  */
 class MaxLengthRule extends AbstractRule
 {
-    const ID            = 'maxlength';
-    const ERROR_MESSAGE = 'Value too long';
+    public const ID            = 'maxlength';
+    public const ERROR_MESSAGE = 'Value too long';
 
     /**
      * @return array

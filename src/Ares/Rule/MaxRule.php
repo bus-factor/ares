@@ -21,8 +21,8 @@ use Ares\Schema\Type;
  */
 class MaxRule extends AbstractRule
 {
-    const ID            = 'max';
-    const ERROR_MESSAGE = 'Value must not be greater than {value}';
+    public const ID            = 'max';
+    public const ERROR_MESSAGE = 'Value must not be greater than {value}';
 
     /**
      * @return array
@@ -32,6 +32,7 @@ class MaxRule extends AbstractRule
         return [
             Type::FLOAT,
             Type::INTEGER,
+            Type::NUMERIC,
         ];
     }
 

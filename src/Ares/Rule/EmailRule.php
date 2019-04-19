@@ -20,8 +20,8 @@ use Ares\Schema\Type;
  */
 class EmailRule extends AbstractRule
 {
-    const ID            = 'email';
-    const ERROR_MESSAGE = 'Invalid email address';
+    public const ID            = 'email';
+    public const ERROR_MESSAGE = 'Invalid email address';
 
     /**
      * @return array

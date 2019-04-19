@@ -46,6 +46,7 @@ class AllowedRuleTest extends TestCase
      * @testWith ["boolean"]
      *           ["float"]
      *           ["integer"]
+     *           ["numeric"]
      *           ["string"]
      *
      * @param string $type Supported type.

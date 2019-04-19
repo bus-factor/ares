@@ -21,15 +21,15 @@ use Ares\Utility\PhpType;
  */
 class TypeRule extends AbstractRule
 {
-    const ID            = 'type';
-    const ERROR_MESSAGE = 'Invalid type';
+    public const ID            = 'type';
+    public const ERROR_MESSAGE = 'Invalid type';
 
     /* @const array TYPE_MAPPING maps PHP types to validator specific types */
-    const TYPE_MAPPING = [
+    private const TYPE_MAPPING = [
         PhpType::ARRAY   => [Type::LIST, Type::MAP, Type::TUPLE],
         PhpType::BOOLEAN => [Type::BOOLEAN],
-        PhpType::DOUBLE  => [Type::FLOAT],
-        PhpType::INTEGER => [Type::INTEGER],
+        PhpType::DOUBLE  => [Type::FLOAT, Type::NUMERIC],
+        PhpType::INTEGER => [Type::INTEGER, Type::NUMERIC],
         PhpType::STRING  => [Type::STRING],
     ];
 
