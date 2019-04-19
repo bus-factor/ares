@@ -249,8 +249,9 @@ class Parser
         $type = $this->extractTypeOrFail($context);
         $schemaFqcn = self::SCHEMA_FQCNS_BY_TYPE[$type];
         $schema = new $schemaFqcn();
+        $keys = array_keys($context->getInput());
 
-        foreach ($context->getInput() as $key => $value) {
+        foreach ($keys as $key) {
             $rule = is_string($key)
                 ? $this->parseRule($type, $context, $key)
                 : $this->parseRuleWithAdditions($type, $context, $key);
@@ -301,12 +302,12 @@ class Parser
 
         $this->ascertainInputHoldsArrayOrFail($context);
 
-        $indexes = array_keys($context->getInput());
+        $keys = array_keys($context->getInput());
 
-        foreach ($indexes as $index) {
-            $context->enter($index);
+        foreach ($keys as $key) {
+            $context->enter($key);
 
-            $schemas[$index] = $this->parseSchema($context);
+            $schemas[$key] = $this->parseSchema($context);
 
             $context->leave();
         }
