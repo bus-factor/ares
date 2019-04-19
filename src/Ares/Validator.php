@@ -20,11 +20,8 @@ use Ares\Rule\NullableRule;
 use Ares\Rule\RequiredRule;
 use Ares\Rule\TypeRule;
 use Ares\Rule\UnknownRule;
-use Ares\Schema\Keyword;
 use Ares\Schema\Parser;
 use Ares\Schema\Schema;
-use Ares\Schema\SchemaList;
-use Ares\Schema\SchemaMap;
 use Ares\Schema\Type;
 
 /**
@@ -58,11 +55,8 @@ class Validator
      * @throws \Ares\Exception\InvalidValidationOptionException
      * @throws \Ares\Exception\InvalidValidationSchemaException
      */
-    public function __construct(
-        array $schema,
-        array $options = [],
-        ?RuleFactory $ruleFactory = null
-    ) {
+    public function __construct(array $schema, array $options = [], ?RuleFactory $ruleFactory = null)
+    {
         $this->ruleFactory = $ruleFactory ?? new RuleFactory();
         $this->options = $this->prepareOptions($options);
         $this->schema = $this->prepareSchema($schema, $this->ruleFactory);
@@ -111,35 +105,65 @@ class Validator
         if ($this->runBuiltinValidationRules($schema, $data)) {
             switch ($schema->getRule(TypeRule::ID)->getArgs()) {
                 case Type::LIST:
-                    foreach ($data as $listItemKey => $listItemValue) {
-                        $this->performValidation($schema->getSchema(), $listItemValue, $listItemKey);
-                    }
+                    $this->performListValidation($schema->getSchema(), $data);
 
                     break;
                 case Type::MAP:
                     // no break
                 case Type::TUPLE:
-                    foreach ($schema->getSchemas() as $childField => $childSchema) {
-                        $this->performValidation($childSchema, $data[$childField] ?? null, $childField);
-                    }
+                    $this->performMapValidation($schema->getSchemas(), $data);
 
                     break;
                 default:
-                    foreach ($schema->getRules() as $ruleId => $rule) {
-                        if ($this->ruleFactory->isReserved($ruleId)) {
-                            continue;
-                        }
-
-                        if (!$this->ruleFactory->get($ruleId)->validate($rule->getArgs(), $data, $this->context)) {
-                            break;
-                        }
-                    }
+                    $this->performFieldValidation($schema->getRules(), $data);
 
                     break;
             }
         }
 
         $this->context->leave();
+    }
+
+    /**
+     * @param array $rules Schema rules.
+     * @param mixed $data  Input data.
+     * @return void
+     */
+    protected function performFieldValidation(array $rules, $data): void
+    {
+        foreach ($rules as $ruleId => $rule) {
+            if ($this->ruleFactory->isReserved($ruleId)) {
+                continue;
+            }
+
+            if (!$this->ruleFactory->get($ruleId)->validate($rule->getArgs(), $data, $this->context)) {
+                break;
+            }
+        }
+    }
+
+    /**
+     * @param \Ares\Schema\Schema $schema Validation schema.
+     * @param mixed               $data   Input data.
+     * @return void
+     */
+    protected function performListValidation(Schema $schema, $data): void
+    {
+        foreach ($data as $key => $value) {
+            $this->performValidation($schema, $value, $key);
+        }
+    }
+
+    /**
+     * @param array $schemas Validation schemas.
+     * @param mixed $data    Input data.
+     * @return void
+     */
+    protected function performMapValidation(array $schemas, $data): void
+    {
+        foreach ($schemas as $field => $schema) {
+            $this->performValidation($schema, $data[$field] ?? null, $field);
+        }
     }
 
     /**
