@@ -27,6 +27,7 @@ Ares is a lightweight standalone validation library.
   * [email](#validation-rules_email)
   * [file](#validation-rules_file)
   * [forbidden](#validation-rules_forbidden)
+  * [length](#validation-rules_length)
   * [max](#validation-rules_max)
   * [maxlength](#validation-rules_maxlength)
   * [min](#validation-rules_min)
@@ -343,6 +344,19 @@ $validator->validate('large'); // -> true
 ```
 
 The ```forbidden``` validation rule is the opposite of the ```allowed``` validation rule.
+
+## <a name="validation-rules_length"></a>length
+
+The ```length``` validation rule applies to ```string``` typed values only.
+The ```length``` validation rule checks if a string has a specified exact length.
+
+Examples:
+
+```php
+$validator = new Validator(['type' => 'string', 'length' => 3]);
+$validator->validate('foobar'); // -> false
+$validator->validate('foo'); // -> true
+```
 
 ## <a name="validation-rules_max"></a>max
 
