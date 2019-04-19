@@ -119,6 +119,10 @@ class Validator
                 foreach ($data as $listItemKey => $listItemValue) {
                     $this->performValidation($schema->getSchema(), $listItemValue, $listItemKey);
                 }
+            } elseif ($typeAsPerSchema == Type::TUPLE) {
+                foreach ($schema->getSchemas() as $index => $childSchema) {
+                    $this->performValidation($childSchema, $data[$index] ?? null, $index);
+                }
             } else {
                 foreach ($schema->getRules() as $ruleId => $rule) {
                     if ($this->ruleFactory->isReserved($ruleId)) {

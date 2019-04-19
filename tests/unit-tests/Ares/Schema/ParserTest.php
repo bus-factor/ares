@@ -18,6 +18,7 @@ use Ares\Schema\Rule;
 use Ares\Schema\Schema;
 use Ares\Schema\SchemaList;
 use Ares\Schema\SchemaMap;
+use Ares\Schema\SchemaTuple;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -37,6 +38,7 @@ class ParserTest extends TestCase
      * @covers ::parseRuleWithAdditions
      * @covers ::parseSchema
      * @covers ::parseSchemas
+     * @covers ::parseTupleSchemas
      *
      * @dataProvider getParseErrorHandlingSamples
      *
@@ -363,6 +365,7 @@ class ParserTest extends TestCase
      * @covers ::parseRuleWithAdditions
      * @covers ::parseSchema
      * @covers ::parseSchemas
+     * @covers ::parseTupleSchemas
      *
      * @return void
      */
@@ -380,6 +383,18 @@ class ParserTest extends TestCase
                     'schema' => [
                         'type' => 'integer',
                         ['min' => 23, 'message' => 'Must be at least 23'],
+                    ],
+                ],
+                'tuple' => [
+                    ['type' => 'tuple', 'message' => 'Must be a tuple'],
+                    'schema' => [
+                        [
+                            'type' => 'integer',
+                        ],
+                        [
+                            'type' => 'string',
+                            'required' => false,
+                        ],
                     ],
                 ],
             ],
@@ -403,6 +418,22 @@ class ParserTest extends TestCase
                                     'min' => new Rule('min', 23, 'Must be at least 23'),
                                 ])
                         ),
+                    'tuple' => (new SchemaTuple())
+                        ->setRules([
+                            'type' => new Rule('type', 'tuple', 'Must be a tuple'),
+                        ])
+                        ->setSchemas([
+                            (new Schema())
+                                ->setRules([
+                                    'type' => new Rule('type', 'integer'),
+                                    'required' => new Rule('required', true),
+                                ]),
+                            (new Schema())
+                                ->setRules([
+                                    'type' => new Rule('type', 'string'),
+                                    'required' => new Rule('required', true),
+                                ]),
+                        ]),
                 ]),
             $schema
         );

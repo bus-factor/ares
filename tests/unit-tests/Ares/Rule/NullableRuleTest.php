@@ -51,6 +51,7 @@ class NullableRuleTest extends TestCase
      *           ["list"]
      *           ["map"]
      *           ["string"]
+     *           ["tuple"]
      *
      * @param string $type Supported type.
      * @return void

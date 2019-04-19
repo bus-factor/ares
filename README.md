@@ -37,6 +37,7 @@ Ares is a lightweight standalone validation library.
   * [schema](#validation-rules_schema)
     * [schema (list)](#validation-rules_schema_schema-list)
     * [schema (map)](#validation-rules_schema_schema-map)
+    * [schema (tuple)](#validation-rules_schema_schema-tuple)
   * [type](#validation-rules_type)
   * [url](#validation-rules_url)
 * [Custom Validation Messages](#custom-validation-messages)
@@ -492,7 +493,6 @@ Examples:
 ```php
 $validator = new Validator([
     'type' => 'map',
-    'required' => true,
     'schema' => [
         'email' => ['type' => 'string', 'required' => true],
         'password' => ['type' => 'string', 'required' => true],
@@ -502,6 +502,29 @@ $validator = new Validator([
 $validator->validate(['email' => 'john.doe@example.com']); // -> false
 $validator->validate(['email' => 'john.doe@example.com', 'password' => 'j4n3:)']); // -> true
 ```
+
+### <a name="validation-rules_schema_schema-tuple"></a>schema (tuple)
+
+The validator expects the schema to define validation rules per input array element.
+During validation input array elements are expected to be continuous indexed starting from 0 (0, 1, 2, ...).
+
+Examples:
+
+```php
+$validator = new Validator([
+    'type' => 'tuple',
+    'schema' => [
+        ['type' => 'string', 'email' => true],
+        ['type' => 'integer'],
+    ],
+]);
+
+$validator->validate(['john.doe@example.com']); // -> false
+$validator->validate([1 => 'john.doe@example.com', 2 => 23]); // -> false
+$validator->validate(['john.doe@example.com', 23]); // -> true
+```
+
+Internally, all ```schema``` elements of a ```tuple``` are required and cannot be declared optional by schema.
 
 ## <a name="validation-rules_type"></a>type
 
@@ -513,6 +536,7 @@ The ```type``` rule is mandatory and defines the expected/allowed value type. Su
 * ```string```
 * ```map```
 * ```list```
+* ```tuple```
 
 Examples:
 

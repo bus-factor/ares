@@ -13,6 +13,7 @@ namespace Ares\Schema;
 
 use Ares\Exception\InvalidValidationSchemaException;
 use Ares\RuleFactory;
+use Ares\Rule\RequiredRule;
 use Ares\Rule\TypeRule;
 use Ares\Utility\JsonPointer;
 use Ares\Utility\PhpType;
@@ -49,6 +50,7 @@ class Parser
         Type::LIST    => SchemaList::class,
         Type::MAP     => SchemaMap::class,
         Type::STRING  => Schema::class,
+        Type::TUPLE   => SchemaTuple::class,
     ];
 
     /** @param \Ares\RuleFactory $ruleFactory */
@@ -257,7 +259,7 @@ class Parser
             }
         }
 
-        if (in_array($type, [Type::LIST, Type::MAP], true)) {
+        if (in_array($type, [Type::LIST, Type::MAP, Type::TUPLE], true)) {
             if (!array_key_exists(Keyword::SCHEMA, $context->getInput())) {
                 $this->fail(ParserError::SCHEMA_MISSING, $context, $type);
             }
@@ -266,8 +268,10 @@ class Parser
 
             if ($type === Type::LIST) {
                 $schema->setSchema($this->parseSchema($context));
-            } else { // $type === Type::MAP
+            } elseif ($type === Type::MAP) {
                 $schema->setSchemas($this->parseSchemas($context));
+            } else { // $type === Type::TUPLE
+                $schema->setSchemas($this->parseTupleSchemas($context));
             }
 
             $context->leave();
@@ -281,7 +285,7 @@ class Parser
      * @return array
      * @throws \Ares\Exception\InvalidValidationSchemaException
      */
-    public function parseSchemas(ParserContext $context): array
+    protected function parseSchemas(ParserContext $context): array
     {
         $schemas = [];
 
@@ -293,6 +297,26 @@ class Parser
             $schemas[$key] = $this->parseSchema($context);
 
             $context->leave();
+        }
+
+        return $schemas;
+    }
+
+    /**
+     * @param \Ares\Schema\ParserContext $context Parser context.
+     * @return array
+     * @throws \Ares\Exception\InvalidValidationSchemaException
+     */
+    protected function parseTupleSchemas(ParserContext $context): array
+    {
+        $schemas = $this->parseSchemas($context);
+
+        foreach ($schemas as $schema) {
+            if ($schema->hasRule(RequiredRule::ID)) {
+                $schema->getRule(RequiredRule::ID)->setArgs(true);
+            } else {
+                $schema->setRule(new Rule(RequiredRule::ID, true));
+            }
         }
 
         return $schemas;
