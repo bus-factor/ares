@@ -49,6 +49,7 @@ class TypeRuleTest extends TestCase
      *           ["list"]
      *           ["map"]
      *           ["string"]
+     *           ["tuple"]
      *
      * @param string $type Supported type.
      * @return void
@@ -232,6 +233,16 @@ class TypeRuleTest extends TestCase
             ],
             'integer + list' => [
                 'list',
+                1337,
+                false,
+            ],
+            'array + tuple' => [
+                'tuple',
+                [],
+                true,
+            ],
+            'integer + tuple' => [
+                'tuple',
                 1337,
                 false,
             ],

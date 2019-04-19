@@ -26,7 +26,7 @@ class TypeRule extends AbstractRule
 
     /* @const array TYPE_MAPPING maps PHP types to validator specific types */
     const TYPE_MAPPING = [
-        PhpType::ARRAY   => [Type::LIST, Type::MAP],
+        PhpType::ARRAY   => [Type::LIST, Type::MAP, Type::TUPLE],
         PhpType::BOOLEAN => [Type::BOOLEAN],
         PhpType::DOUBLE  => [Type::FLOAT],
         PhpType::INTEGER => [Type::INTEGER],

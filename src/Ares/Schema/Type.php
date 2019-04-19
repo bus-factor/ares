@@ -24,5 +24,6 @@ class Type extends Enum
     const LIST    = 'list';
     const MAP     = 'map';
     const STRING  = 'string';
+    const TUPLE   = 'tuple';
 }
 

@@ -28,6 +28,7 @@ class TypeTest extends TestCase
      *           ["LIST", "list"]
      *           ["MAP", "map"]
      *           ["STRING", "string"]
+     *           ["TUPLE", "tuple"]
      *
      * @param string $constantName  Constant name.
      * @param string $constantValue Constant value.

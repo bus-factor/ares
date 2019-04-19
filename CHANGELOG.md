@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - adds ```directory``` validation rule to check for the existence of a directory
 - adds ```Ares\Rule\AbstractRule``` as validation rule base class
 - improves validation schema parsing to detect inapplicable validation rule usage
+- adds ```tuple``` type to enable validation of fixed length heterogeneous array structures
 
 ## [v1.0.0] 2019-04-14
 ### Added
