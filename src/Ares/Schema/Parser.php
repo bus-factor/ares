@@ -98,11 +98,11 @@ class Parser
             }
         }
 
-        $n = count($types);
+        $typesCount = count($types);
 
-        if ($n < 1) {
+        if ($typesCount < 1) {
             $this->fail(ParserError::TYPE_MISSING, $context);
-        } elseif ($n > 1) {
+        } elseif ($typesCount > 1) {
             $this->fail(ParserError::TYPE_REPEATED, $context);
         }
 
@@ -194,12 +194,11 @@ class Parser
 
         $input = $context->getInput();
         $ruleIds = array_diff(array_keys($input), self::VALID_RULE_ADDITION_KEYS);
+        $ruleIdsCount = count($ruleIds);
 
-        $n = count($ruleIds);
-
-        if ($n < 1) {
+        if ($ruleIdsCount < 1) {
             $this->fail(ParserError::RULE_MISSING, $context);
-        } elseif ($n > 1) {
+        } elseif ($ruleIdsCount > 1) {
             $this->fail(ParserError::RULE_AMBIGUOUS, $context, json_encode($ruleIds));
         }
 
@@ -267,12 +266,21 @@ class Parser
 
             $context->enter(Keyword::SCHEMA);
 
-            if ($type === Type::LIST) {
-                $schema->setSchema($this->parseSchema($context));
-            } elseif ($type === Type::MAP) {
-                $schema->setSchemas($this->parseSchemas($context));
-            } else { // $type === Type::TUPLE
-                $schema->setSchemas($this->parseTupleSchemas($context));
+            switch ($type) {
+                case Type::LIST:
+                    $schema->setSchema($this->parseSchema($context));
+
+                    break;
+                case Type::MAP:
+                    $schema->setSchemas($this->parseSchemas($context));
+
+                    break;
+                case Type::TUPLE:
+                    // no break
+                default:
+                    $schema->setSchemas($this->parseTupleSchemas($context));
+
+                    break;
             }
 
             $context->leave();
@@ -313,11 +321,11 @@ class Parser
         $schemas = $this->parseSchemas($context);
 
         foreach ($schemas as $schema) {
-            if ($schema->hasRule(RequiredRule::ID)) {
-                $schema->getRule(RequiredRule::ID)->setArgs(true);
-            } else {
+            if (!$schema->hasRule(RequiredRule::ID)) {
                 $schema->setRule(new Rule(RequiredRule::ID, true));
             }
+
+            $schema->getRule(RequiredRule::ID)->setArgs(true);
         }
 
         return $schemas;
