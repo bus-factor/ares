@@ -48,10 +48,9 @@ class UnknownRule extends AbstractRule
         }
 
         $schema = $context->getSchema();
+        $unknownFields = array_keys(array_diff_key($data, $schema->getSchemas()));
 
-        $unknownFields = array_diff_key($data, $schema->getSchemas());
-
-        foreach ($unknownFields as $field => $value) {
+        foreach ($unknownFields as $field) {
             $context->enter($field, new Schema());
 
             $context->addError(

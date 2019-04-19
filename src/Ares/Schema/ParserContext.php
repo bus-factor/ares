@@ -22,23 +22,23 @@ class ParserContext
     protected $inputPosition = [];
 
     /**
-     * @param mixed $input                 Input.
-     * @param mixed $relativeInputPosition Current input position.
+     * @param mixed $input            Input.
+     * @param mixed $relInputPosition Current input position.
      */
-    public function __construct($input, $relativeInputPosition)
+    public function __construct($input, $relInputPosition)
     {
         $this->inputs[] = $input;
-        $this->inputPosition[] = $relativeInputPosition;
+        $this->inputPosition[] = $relInputPosition;
     }
 
     /**
-     * @param mixed $relativeInputPosition Relative input position.
+     * @param mixed $relInputPosition Relative input position.
      * @return self
      */
-    public function enter($relativeInputPosition): self
+    public function enter($relInputPosition): self
     {
-        $this->inputPosition[] = $relativeInputPosition;
-        $this->inputs[] = $this->getInput()[$relativeInputPosition];
+        $this->inputPosition[] = $relInputPosition;
+        $this->inputs[] = $this->getInput()[$relInputPosition];
 
         return $this;
     }
