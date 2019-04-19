@@ -582,6 +582,7 @@ Just wrap your rule (key-value) into an array and add a ```'message'``` key.
 The following simple example shows how custom validation rules are implemented and integrated:
 
 ```php
+use Ares\Context;
 use Ares\RuleFactory;
 use Ares\Rule\AbstractRule;
 use Ares\Schema\Type;
@@ -589,10 +590,14 @@ use Ares\Validator;
 
 class ZipCodeRule extends AbstractRule
 {
-    const ID = 'zipcode';
-    const ERROR_MESSAGE = 'Invalid ZIP code';
+    public const ID = 'zipcode';
+    public const ERROR_MESSAGE = 'Invalid ZIP code';
 
-    // This rule applies to strings only
+    /**
+     * Returns all supported value types.
+     *
+     * @return array
+     */
     public function getSupportedTypes(): array
     {
         return [
@@ -600,14 +605,23 @@ class ZipCodeRule extends AbstractRule
         ];
     }
 
-    public function performValidation($config, $data, Context $context): bool
+    /**
+     * Perform the value validation.
+     *
+     * @param mixed         $args    Validation rule arguments.
+     * @param mixed         $data    Data being validated.
+     * @param \Ares\Context $context Validation context.
+     * @return bool
+     */
+    public function performValidation($args, $data, Context $context): bool
     {
         // implement validation ...
 
         // add error if the validation fails
         $context->addError(self::ID, self::ERROR_MESSAGE);
 
-        // skip all following validation rules for the current field
+        // TRUE  - skip all following validation rules for the current field
+        // FALSE - run all following validation rules for the current field
         return false; 
     }
 }
@@ -620,6 +634,6 @@ $schema = [
     'zipcode' => true,
 ];
 
-$validator = new Validator($schema, [], null, $ruleFactory);
+$validator = new Validator($schema, [], $ruleFactory);
 ```
 
