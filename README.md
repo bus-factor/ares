@@ -478,7 +478,7 @@ The ```required``` validation rule may be used in combination with the ```allReq
 
 ## <a name="validation-rules_schema"></a>schema
 
-The ```schema``` rule is mandatory when using type ```list```, or ```map```.
+The ```schema``` rule is mandatory when using type ```list```, ```map```, or ```tuple```.
 
 ### <a name="validation-rules_schema_schema-list"></a>schema (list)
 
