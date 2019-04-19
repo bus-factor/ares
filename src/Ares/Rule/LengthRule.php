@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 /**
- * MinLengthRule.php
+ * LengthRule.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
- * @since  2019-03-23
+ * @since  2019-04-19
  */
 
 namespace Ares\Rule;
@@ -16,12 +16,12 @@ use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Schema\Type;
 
 /**
- * Class MinLengthRule
+ * Class LengthRule
  */
-class MinLengthRule extends AbstractRule
+class LengthRule extends AbstractRule
 {
-    public const ID            = 'minlength';
-    public const ERROR_MESSAGE = 'Value too short';
+    public const ID            = 'length';
+    public const ERROR_MESSAGE = 'Invalid value length';
 
     /**
      * @return array
@@ -46,7 +46,7 @@ class MinLengthRule extends AbstractRule
             throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
         }
 
-        if (strlen($data) >= $args) {
+        if (strlen($data) == $args) {
             return true;
         }
 

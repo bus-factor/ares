@@ -34,6 +34,7 @@ class RuleFactoryTest extends TestCase
      *           ["email",     "Ares\\Rule\\EmailRule"]
      *           ["file",      "Ares\\Rule\\FileRule"]
      *           ["forbidden", "Ares\\Rule\\ForbiddenRule"]
+     *           ["length",    "Ares\\Rule\\LengthRule"]
      *           ["maxlength", "Ares\\Rule\\MaxLengthRule"]
      *           ["max",       "Ares\\Rule\\MaxRule"]
      *           ["minlength", "Ares\\Rule\\MinLengthRule"]

@@ -46,10 +46,6 @@ class MaxLengthRule extends AbstractRule
             throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
         }
 
-        if (!is_string($data)) {
-            return true;
-        }
-
         if (strlen($data) <= $args) {
             return true;
         }

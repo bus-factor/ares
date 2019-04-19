@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 /**
- * MinLengthRuleTest.php
+ * LengthRuleTest.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
- * @since  2019-03-23
+ * @since  2019-04-19
  */
 
 namespace UnitTest\Ares\Rule;
@@ -14,7 +14,7 @@ namespace UnitTest\Ares\Rule;
 use Ares\Context;
 use Ares\Error\ErrorMessageRenderer;
 use Ares\Exception\InvalidValidationRuleArgsException;
-use Ares\Rule\MinLengthRule;
+use Ares\Rule\LengthRule;
 use Ares\Rule\TypeRule;
 use Ares\Schema\Rule;
 use Ares\Schema\Schema;
@@ -22,11 +22,11 @@ use Ares\Schema\Type;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class MinLengthRuleTest
+ * Class LengthRuleTest
  *
- * @coversDefaultClass \Ares\Rule\MinLengthRule
+ * @coversDefaultClass \Ares\Rule\LengthRule
  */
-class MinLengthRuleTest extends TestCase
+class LengthRuleTest extends TestCase
 {
     /**
      * @testWith ["Ares\\Rule\\RuleInterface"]
@@ -37,9 +37,9 @@ class MinLengthRuleTest extends TestCase
      */
     public function testInstanceOf(string $fqcn): void
     {
-        $minLengthRule = new MinLengthRule();
+        $lengthRule = new LengthRule();
 
-        $this->assertInstanceOf($fqcn, $minLengthRule);
+        $this->assertInstanceOf($fqcn, $lengthRule);
     }
 
     /**
@@ -52,9 +52,9 @@ class MinLengthRuleTest extends TestCase
      */
     public function testGetSupportedTypes(string $type): void
     {
-        $minLengthRule = new MinLengthRule();
+        $lengthRule = new LengthRule();
 
-        $this->assertContains($type, $minLengthRule->getSupportedTypes());
+        $this->assertContains($type, $lengthRule->getSupportedTypes());
     }
 
     /**
@@ -75,12 +75,12 @@ class MinLengthRuleTest extends TestCase
     {
         $data = 'foo';
         $context = new Context($data, new ErrorMessageRenderer());
-        $minLengthRule = new MinLengthRule();
+        $lengthRule = new LengthRule();
 
         $this->expectException(InvalidValidationRuleArgsException::class);
         $this->expectExceptionMessage('Invalid args: ' . json_encode($args));
 
-        $minLengthRule->performValidation($args, $data, $context);
+        $lengthRule->performValidation($args, $data, $context);
     }
 
     /**
@@ -104,21 +104,21 @@ class MinLengthRuleTest extends TestCase
             '',
             (new Schema())
                 ->setRule(new Rule(TypeRule::ID, Type::STRING))
-                ->setRule(new Rule(MinLengthRule::ID, $args))
+                ->setRule(new Rule(LengthRule::ID, $args))
         );
 
         if ($expectedRetVal === false) {
             $context->expects($this->once())
                 ->method('addError')
-                ->with(MinLengthRule::ID, MinLengthRule::ERROR_MESSAGE);
+                ->with(LengthRule::ID, LengthRule::ERROR_MESSAGE);
         } else {
             $context->expects($this->never())
                 ->method('addError');
         }
 
-        $minLengthRule = new MinLengthRule();
+        $lengthRule = new LengthRule();
 
-        $this->assertSame($expectedRetVal, $minLengthRule->performValidation($args, $data, $context));
+        $this->assertSame($expectedRetVal, $lengthRule->performValidation($args, $data, $context));
     }
 
     /**
@@ -132,14 +132,14 @@ class MinLengthRuleTest extends TestCase
                 'foo',
                 true,
             ],
-            'valid string #2' => [
-                3,
-                'foobar',
-                true,
-            ],
             'invalid string #1' => [
-                5,
-                'foo',
+                3,
+                'fo',
+                false,
+            ],
+            'invalid string #2' => [
+                3,
+                'fooo',
                 false,
             ],
         ];
@@ -152,9 +152,9 @@ class MinLengthRuleTest extends TestCase
      */
     public function testValidateHandlesCustomMessage(): void
     {
-        $args = 3;
-        $data = 'fo';
-        $customMessage = 'Must be at least {value} chars long';
+        $args = 2;
+        $data = 'foo';
+        $customMessage = 'The provided value must be exactly 2 chars long';
 
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
@@ -165,16 +165,16 @@ class MinLengthRuleTest extends TestCase
             '',
             (new Schema())
                 ->setRule(new Rule(TypeRule::ID, Type::STRING))
-                ->setRule(new Rule(MinLengthRule::ID, $args, $customMessage))
+                ->setRule(new Rule(LengthRule::ID, $args, $customMessage))
         );
 
         $context->expects($this->once())
             ->method('addError')
-            ->with(MinLengthRule::ID, $customMessage);
+            ->with(LengthRule::ID, $customMessage);
 
-        $minLengthRule = new MinLengthRule();
+        $lengthRule = new LengthRule();
 
-        $this->assertFalse($minLengthRule->performValidation($args, $data, $context));
+        $this->assertFalse($lengthRule->performValidation($args, $data, $context));
     }
 }
 

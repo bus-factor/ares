@@ -127,31 +127,6 @@ class MaxLengthRuleTest extends TestCase
     public function getValidateSamples(): array
     {
         return [
-            'non-string value #1' => [
-                10,
-                42,
-                true,
-            ],
-            'non-string value #2' => [
-                10,
-                true,
-                true,
-            ],
-            'non-string value #3' => [
-                10,
-                false,
-                true,
-            ],
-            'non-string value #4' => [
-                10,
-                13.37,
-                true,
-            ],
-            'non-string value #5' => [
-                10,
-                [],
-                true,
-            ],
             'valid string #1' => [
                 3,
                 'foo',
