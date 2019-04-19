@@ -8,6 +8,7 @@
 Ares is a lightweight standalone validation library.
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/bus-factor/ares.svg?style=flat-square)](https://packagist.org/packages/bus-factor/ares)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.2-8892BF.svg?style=flat-square)](https://php.net/)
 [![Build Status](https://travis-ci.com/bus-factor/ares.svg?token=6CVThNyY94qpVvuMgX3F&branch=master)](https://travis-ci.com/bus-factor/ares.svg?token=6CVThNyY94qpVvuMgX3F&branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/bus-factor/ares/badge.svg?branch=master)](https://coveralls.io/github/bus-factor/ares?branch=master)
 
