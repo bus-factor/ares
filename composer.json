@@ -2,6 +2,14 @@
   "name": "bus-factor/ares",
   "description": "Leightweight standalone validation library",
   "type": "library",
+  "archive": {
+    "exclude": [
+      "/tests",
+      "/.gitignore",
+      "/.travis.yml",
+      "/phpunit.xml"
+    ]
+  },
   "keywords": [
     "form",
     "form-validation",
