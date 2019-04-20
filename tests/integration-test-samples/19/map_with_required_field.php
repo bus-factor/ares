@@ -16,7 +16,7 @@ $schema = [
     'type' => 'map',
     'schema' => [
         'name' => ['type' => 'string', 'required' => true],
-        'email' => ['type' => 'string'],
+        'email' => ['type' => 'string', 'required' => false],
         'phone' => ['type' => 'string', 'required' => true],
         'meta' => [
             'type' => 'map',

@@ -34,7 +34,7 @@ class Validator
         Option::ALLOW_UNKNOWN => false,
         Option::ALL_BLANKABLE => false,
         Option::ALL_NULLABLE  => false,
-        Option::ALL_REQUIRED  => false,
+        Option::ALL_REQUIRED  => true,
     ];
 
     /** @var \Ares\Context $context */

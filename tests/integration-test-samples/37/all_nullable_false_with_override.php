@@ -29,7 +29,7 @@ $options = [
     'allNullable' => false,
 ];
 
-$data = ['name' => null];
+$data = ['name' => null, 'email' => null];
 
 $expectedErrors = [
     new Error(['', 'name'], 'nullable', 'Value must not be null'),

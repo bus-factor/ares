@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - ```length```, ```maxlength```, ```minlength``` are now applicable to ```list``` types
+- ```'required' => true``` is now validation default behavior 
 
 ## [v1.1.1] 2019-04-20
 ### Added

@@ -29,7 +29,7 @@ $options = [
     'allBlankable' => false,
 ];
 
-$data = ['name' => ''];
+$data = ['name' => '', 'email' => ''];
 
 $expectedErrors = [
     new Error(['', 'name'], 'blankable', 'Value must not be blank'),
