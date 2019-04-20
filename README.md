@@ -47,6 +47,8 @@ Ares is a lightweight standalone validation library.
   * [type](#validation-rules_type)
   * [url](#validation-rules_url)
 * [Custom Validation Error Messages](#custom-validation-error-messages)
+  * [Change the Validation Error Message of a single Rule](#custom-validation-error-messages-per-field)
+  * [Localization of Validation Error Messages](#custom-validation-error-messages-localization)
 * [Custom Validation Rules](#custom-validation-rules)
 
 # <a name="installation"></a>Installation
@@ -580,7 +582,7 @@ $validator->validate('https://example.com'); // -> true
 
 # <a name="custom-validation-error-messages"></a>Custom Validation Error Messages
 
-## Change the Validation Error Message of a single Rule
+## <a name="custom-validation-error-messages-per-field"></a>Change the Validation Error Message of a single Rule
 
 The following example shows how validation error messages can be customized:
 
@@ -598,7 +600,7 @@ $validator = new Validator([
 
 Just wrap your rule (key-value) into an array and add a ```'message'``` key.
 
-## Localization of Validation Error Messages
+## <a name="custom-validation-error-messages-localization"></a>Localization of Validation Error Messages
 
 All built-in validation rules use the ```Ares\Error\ErrorMessageRendererInterface``` to render the messages.
 If not specified, an instance of ```Ares\Error\ErrorMessageRenderer``` is created and passed to the validation process.
