@@ -45,7 +45,8 @@ class LengthRuleTest extends TestCase
     /**
      * @covers ::getSupportedTypes
      *
-     * @testWith ["string"]
+     * @testWith ["list"]
+     *           ["string"]
      *
      * @param string $type Supported type.
      * @return void
@@ -140,6 +141,21 @@ class LengthRuleTest extends TestCase
             'invalid string #2' => [
                 3,
                 'fooo',
+                false,
+            ],
+            'valid list #1' => [
+                3,
+                [1, 2, 3],
+                true,
+            ],
+            'invalid list #1' => [
+                3,
+                [1, 2],
+                false,
+            ],
+            'invalid list #2' => [
+                3,
+                [1, 2, 3, 4],
                 false,
             ],
         ];

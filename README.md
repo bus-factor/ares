@@ -354,8 +354,8 @@ The ```forbidden``` validation rule is the opposite of the ```allowed``` validat
 
 ## <a name="validation-rules_length"></a>length
 
-The ```length``` validation rule applies to ```string``` typed values only.
-The ```length``` validation rule checks if a string has a specified exact length.
+The ```length``` validation rule applies to ```string``` and ```list``` typed values.
+The ```length``` validation rule checks if a string, or list has a specified exact length.
 
 Examples:
 
@@ -363,6 +363,17 @@ Examples:
 $validator = new Validator(['type' => 'string', 'length' => 3]);
 $validator->validate('foobar'); // -> false
 $validator->validate('foo'); // -> true
+
+$validator = new Validator([
+    'type' => 'list',
+    'length' => 3,
+    'schema' => [
+        'type' => 'integer'
+    ],
+])
+$validator->validate([1, 2]); // -> false
+$validator->validate([1, 2, 3]); // -> true
+
 ```
 
 ## <a name="validation-rules_max"></a>max
@@ -382,8 +393,8 @@ $validator->validate(2); // -> true
 
 ## <a name="validation-rules_maxlength"></a>maxlength
 
-The ```maxlength``` validation rule applies to ```string``` typed values only.
-The ```maxlength``` validation rule checks if a string does not exceed the given maximum length.
+The ```maxlength``` validation rule applies to ```string``` and ```list``` typed values.
+The ```maxlength``` validation rule checks if a string, or list does not exceed a specified maximum length.
 
 Examples:
 
@@ -391,6 +402,16 @@ Examples:
 $validator = new Validator(['type' => 'string', 'maxlength' => 5]);
 $validator->validate('foobar'); // -> false
 $validator->validate('foo'); // -> true
+
+$validator = new Validator([
+    'type' => 'list',
+    'maxlength' => 3,
+    'schema' => [
+        'type' => 'integer'
+    ],
+])
+$validator->validate([1, 2, 3, 4]); // -> false
+$validator->validate([1, 2, 3]); // -> true
 ```
 
 ## <a name="validation-rules_min"></a>min
@@ -410,8 +431,8 @@ $validator->validate(8); // -> true
 
 ## <a name="validation-rules_minlength"></a>minlength
 
-The ```minlength``` validation rule applies to ```string``` typed values only.
-The ```minlength``` validation rule checks if a string is not shorter than the given minimum length.
+The ```minlength``` validation rule applies to ```string``` and ```list``` typed values.
+The ```minlength``` validation rule checks if a string, or list is not shorter than a specified minimum length.
 
 Examples:
 
@@ -419,6 +440,16 @@ Examples:
 $validator = new Validator(['type' => 'string', 'minlength' => 5]);
 $validator->validate('foo'); // -> false
 $validator->validate('foobar'); // -> true
+
+$validator = new Validator([
+    'type' => 'list',
+    'minlength' => 3,
+    'schema' => [
+        'type' => 'integer'
+    ],
+])
+$validator->validate([1, 2]); // -> false
+$validator->validate([1, 2, 3]); // -> true
 ```
 
 ## <a name="validation-rules_nullable"></a>nullable

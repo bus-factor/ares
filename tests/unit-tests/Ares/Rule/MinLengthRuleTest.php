@@ -45,7 +45,8 @@ class MinLengthRuleTest extends TestCase
     /**
      * @covers ::getSupportedTypes
      *
-     * @testWith ["string"]
+     * @testWith ["list"]
+     *           ["string"]
      *
      * @param string $type Supported type.
      * @return void
@@ -140,6 +141,16 @@ class MinLengthRuleTest extends TestCase
             'invalid string #1' => [
                 5,
                 'foo',
+                false,
+            ],
+            'valid list #1' => [
+                3,
+                [1, 2, 3],
+                true,
+            ],
+            'invalid list #1' => [
+                4,
+                [1, 2, 3],
                 false,
             ],
         ];
