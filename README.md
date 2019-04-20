@@ -46,7 +46,9 @@ Ares is a lightweight standalone validation library.
     * [schema (tuple)](#validation-rules_schema_schema-tuple)
   * [type](#validation-rules_type)
   * [url](#validation-rules_url)
-* [Custom Validation Messages](#custom-validation-messages)
+* [Custom Validation Error Messages](#custom-validation-error-messages)
+  * [Change the Validation Error Message of a single Rule](#custom-validation-error-messages-per-field)
+  * [Localization of Validation Error Messages](#custom-validation-error-messages-localization)
 * [Custom Validation Rules](#custom-validation-rules)
 
 # <a name="installation"></a>Installation
@@ -89,7 +91,7 @@ The ```validate()``` method returns ```true``` if the provided data is valid, ot
 The ```getErrors()``` method returns a list of validation errors that occurred during the last data validation.
 The list of validation errors is reset each time ```validate()``` is called.
 
-Each ```Ares\Error``` object implements the ```JsonSerializable``` interface and contains details about the error.
+Each ```Ares\Error\Error``` object implements the ```JsonSerializable``` interface and contains details about the error.
 
 # <a name="validation-options"></a>Validation Options
 
@@ -578,7 +580,9 @@ $validator->validate('example'); // -> false
 $validator->validate('https://example.com'); // -> true
 ```
 
-# <a name="custom-validation-messages"></a>Custom Validation Messages
+# <a name="custom-validation-error-messages"></a>Custom Validation Error Messages
+
+## <a name="custom-validation-error-messages-per-field"></a>Change the Validation Error Message of a single Rule
 
 The following example shows how validation error messages can be customized:
 
@@ -595,6 +599,30 @@ $validator = new Validator([
 ```
 
 Just wrap your rule (key-value) into an array and add a ```'message'``` key.
+
+## <a name="custom-validation-error-messages-localization"></a>Localization of Validation Error Messages
+
+All built-in validation rules use the ```Ares\Error\ErrorMessageRendererInterface``` to render the messages.
+If not specified, an instance of ```Ares\Error\ErrorMessageRenderer``` is created and passed to the validation process.
+If necessary, a custom error message renderer can be passed to the validator:
+
+```php
+use Ares\Error\ErrorMessageRendererInterface;
+use Ares\Validator;
+
+class MyErrorMessageRenderer implements ErrorMessageRendererInterface
+{
+    // ...
+}
+
+// ...
+
+$validator = new Validator($schema);
+
+$validator->setErrorMessageRenderer(new MyErrorMessageRenderer());
+
+$valid = $validator->validate($data);
+```
 
 # <a name="custom-validation-rules"></a>Custom Validation Rules
 
