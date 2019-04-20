@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 use Ares\Validator;
 
-$schema = ['type' => 'string', 'required' => false, 'blankable' => true];
+$schema = ['type' => 'string', 'blankable' => true];
 $data = " \n\t\r ";
 
 $expectedErrors = [];

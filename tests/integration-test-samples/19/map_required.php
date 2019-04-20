@@ -14,7 +14,6 @@ use Ares\Validator;
 
 $schema = [
     'type' => 'map',
-    'required' => true,
     'schema' => [],
 ];
 
