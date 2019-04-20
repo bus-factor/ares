@@ -31,6 +31,7 @@ class UnknownRule extends AbstractRule
     {
         return [
             Type::MAP,
+            Type::TUPLE,
         ];
     }
 
