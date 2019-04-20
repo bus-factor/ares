@@ -103,6 +103,8 @@ class Validator
         $this->context->enter($field, $schema);
 
         if ($this->runBuiltinValidationRules($schema, $data)) {
+            $this->performFieldValidation($schema->getRules(), $data);
+
             switch ($schema->getRule(TypeRule::ID)->getArgs()) {
                 case Type::LIST:
                     $this->performListValidation($schema->getSchema(), $data);
@@ -115,8 +117,7 @@ class Validator
 
                     break;
                 default:
-                    $this->performFieldValidation($schema->getRules(), $data);
-
+                    // no op
                     break;
             }
         }
