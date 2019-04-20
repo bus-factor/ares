@@ -185,7 +185,7 @@ $validator->validate(['name' => 'John Doe', 'email' => null]); // -> true
 
 ## <a name="validation-options_all-required"></a>allRequired
 
-If set ```true``` fields that are defined in the schema and not present in the input, are considered invalid.
+If set ```true``` (default) fields that are defined in the schema and not present in the input, are considered invalid.
 If set ```false``` fields that are defined in the schema and not present in the input, are considered valid.
 
 ```php
