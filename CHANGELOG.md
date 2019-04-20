@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v1.1.1] 2019-04-20
 ### Added
-- fixes issue that type ```tuple``` accepted more items as defined per schema without validation errors
+- fixes issue that type ```tuple``` accepted more items than defined in the schema without validation errors
 
 ## [v1.1.0] 2019-04-19
 ### Added
