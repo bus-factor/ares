@@ -12,7 +12,7 @@ declare(strict_types=1);
 use Ares\Error\Error;
 use Ares\Validator;
 
-$schema = ['type' => 'string', 'required' => false, 'blankable' => false];
+$schema = ['type' => 'string', 'blankable' => false];
 $data = " \n\t\r ";
 
 $expectedErrors = [
