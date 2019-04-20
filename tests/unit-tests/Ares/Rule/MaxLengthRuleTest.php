@@ -45,7 +45,8 @@ class MaxLengthRuleTest extends TestCase
     /**
      * @covers ::getSupportedTypes
      *
-     * @testWith ["string"]
+     * @testWith ["list"]
+     *           ["string"]
      *
      * @param string $type Supported type.
      * @return void
@@ -140,6 +141,16 @@ class MaxLengthRuleTest extends TestCase
             'invalid string #1' => [
                 5,
                 'foobar',
+                false,
+            ],
+            'valid list #1' => [
+                5,
+                [1, 2, 3, 4, 5],
+                true,
+            ],
+            'invalid list #1' => [
+                5,
+                [1, 2, 3, 4, 5, 6],
                 false,
             ],
         ];

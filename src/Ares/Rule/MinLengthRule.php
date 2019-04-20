@@ -29,6 +29,7 @@ class MinLengthRule extends AbstractRule
     public function getSupportedTypes(): array
     {
         return [
+            Type::LIST,
             Type::STRING,
         ];
     }
@@ -46,7 +47,7 @@ class MinLengthRule extends AbstractRule
             throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
         }
 
-        if (strlen($data) >= $args) {
+        if (is_string($data) && strlen($data) >= $args || is_array($data) && count($data) >= $args) {
             return true;
         }
 
