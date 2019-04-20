@@ -47,6 +47,7 @@ class UnknownRuleTest extends TestCase
      * @covers ::getSupportedTypes
      *
      * @testWith ["map"]
+     *           ["tuple"]
      *
      * @param string $type Supported type.
      * @return void
