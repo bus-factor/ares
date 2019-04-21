@@ -23,7 +23,7 @@ Ares is a lightweight standalone validation library.
   * [allBlankable](#validation-options_all-blankable)
   * [allNullable](#validation-options_all-nullable)
   * [allRequired](#validation-options_all-required)
-  * [allowUnknown](#validation-options_allow-unknown)
+  * [allUnknownAllowed](#validation-options_all-unknown-allowed)
 * [Validation Rules](#validation-rules)
   * [allowed](#validation-rules_allowed)
   * [blankable](#validation-rules_blankable)
@@ -45,6 +45,7 @@ Ares is a lightweight standalone validation library.
     * [schema (map)](#validation-rules_schema_schema-map)
     * [schema (tuple)](#validation-rules_schema_schema-tuple)
   * [type](#validation-rules_type)
+  * [unknownAllowed](#validation-rules_unknownAllowed)
   * [url](#validation-rules_url)
 * [Custom Validation Error Messages](#custom-validation-error-messages)
   * [Change the Validation Error Message of a single Rule](#custom-validation-error-messages-per-field)
@@ -106,10 +107,10 @@ Default validation options are:
 
 ```php
 Validator::OPTIONS_DEFAULTS = [
-    'allBlankable' => false,
-    'allNullable'  => false,
-    'allRequired'  => false,
-    'allowUnknown' => false,
+    'allBlankable'      => false,
+    'allNullable'       => false,
+    'allRequired'       => true,
+    'allUnknownAllowed' => false,
 ]
 ```
 
@@ -216,7 +217,7 @@ $validator = new Validator($schema, ['allRequired' => true]);
 $validator->validate(['name' => 'John Doe']); // -> true
 ```
 
-## <a name="validation-options_allow-unknown"></a>allowUnknown
+## <a name="validation-options_all-unknown-allowed"></a>allUnknownAllowed
 
 This option applies to the type ```map``` only.
 If set ```true``` fields that occur in the input data but are not defined in the schema are considered invalid.
@@ -230,10 +231,10 @@ $schema = [
     ],
 ];
 
-$validator = new Validator($schema, ['allowUnknown' => false]);
+$validator = new Validator($schema, ['allUnknownAllowed' => false]);
 $validator->validate(['name' => 'John Doe', 'initials' => 'JD']); // -> false
 
-$validator = new Validator($schema, ['allowUnknown' => true]);
+$validator = new Validator($schema, ['allUnknownAllowed' => true]);
 $validator->validate(['name' => 'John Doe', 'initials' => 'JD']); // -> true
 ```
 
@@ -596,6 +597,27 @@ Examples:
 $validator = new Validator(['type' => 'float']);
 $validator->validate(5); // -> false
 $validator->validate('John Doe'); // -> false
+```
+
+## <a name="validation-rules_unknownAllowed"></a>unknownAllowed
+
+The ```unknownAllowed``` validation rule checks if a ```map``` contains fields that are not defined in the schema.
+If set ```true```, fields that are not defined in the schema are considered valid.
+If set ```false```, fields that are not defined in the schema are considered invalid.
+
+Examples:
+
+```php
+$validator = new Validator([
+    'type' => 'map',
+    'schema' => [
+        'name' => ['type' => 'string'],
+    ],
+    'unknownAllowed' => false,
+]);
+
+$validator->validate(['name' => 'John Doe', 'email' => 'john.doe@example.com']); // -> false
+$validator->validate(['name' => 'John Doe']); // -> true
 ```
 
 ## <a name="validation-rules_url"></a>url

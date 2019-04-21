@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * UnknownRuleTest.php
+ * UnknownAllowedRuleTest.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
  * @since  2019-03-20
@@ -15,7 +15,8 @@ use Ares\Context;
 use Ares\Error\Error;
 use Ares\Error\ErrorMessageRenderer;
 use Ares\Exception\InvalidValidationRuleArgsException;
-use Ares\Rule\UnknownRule;
+use Ares\Rule\TypeRule;
+use Ares\Rule\UnknownAllowedRule;
 use Ares\Schema\Rule;
 use Ares\Schema\Schema;
 use Ares\Schema\SchemaMap;
@@ -23,11 +24,11 @@ use Ares\Schema\Type;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class UnknownRuleTest
+ * Class UnknownAllowedRuleTest
  *
- * @coversDefaultClass \Ares\Rule\UnknownRule
+ * @coversDefaultClass \Ares\Rule\UnknownAllowedRule
  */
-class UnknownRuleTest extends TestCase
+class UnknownAllowedRuleTest extends TestCase
 {
     /**
      * @testWith ["Ares\\Rule\\RuleInterface"]
@@ -38,9 +39,9 @@ class UnknownRuleTest extends TestCase
      */
     public function testInstanceOf(string $fqcn): void
     {
-        $unknownRule = new UnknownRule();
+        $unknownAllowedRule = new UnknownAllowedRule();
 
-        $this->assertInstanceOf($fqcn, $unknownRule);
+        $this->assertInstanceOf($fqcn, $unknownAllowedRule);
     }
 
     /**
@@ -54,9 +55,9 @@ class UnknownRuleTest extends TestCase
      */
     public function testGetSupportedTypes(string $type): void
     {
-        $unknownRule = new UnknownRule();
+        $unknownAllowedRule = new UnknownAllowedRule();
 
-        $this->assertContains($type, $unknownRule->getSupportedTypes());
+        $this->assertContains($type, $unknownAllowedRule->getSupportedTypes());
     }
 
     /**
@@ -75,9 +76,9 @@ class UnknownRuleTest extends TestCase
         $context = new Context($data, new ErrorMessageRenderer());
         $context->enter('', $schema);
 
-        $unknownRule = new UnknownRule();
+        $unknownAllowedRule = new UnknownAllowedRule();
 
-        $this->assertTrue($unknownRule->performValidation($args, $data, $context));
+        $this->assertTrue($unknownAllowedRule->performValidation($args, $data, $context));
         $this->assertEquals($expectedErrors, $context->getErrors());
     }
 
@@ -109,11 +110,46 @@ class UnknownRuleTest extends TestCase
                         'fizz' => (new Schema())->setRule(new Rule('type', Type::STRING)),
                     ]),
                 [
-                    new Error(['', 'foo'], UnknownRule::ID, UnknownRule::ERROR_MESSAGE),
-                    new Error(['', 'x'], UnknownRule::ID, UnknownRule::ERROR_MESSAGE),
+                    new Error(['', 'foo'], UnknownAllowedRule::ID, UnknownAllowedRule::ERROR_MESSAGE),
+                    new Error(['', 'x'], UnknownAllowedRule::ID, UnknownAllowedRule::ERROR_MESSAGE),
                 ],
             ],
         ];
+    }
+
+    /**
+     * @covers ::performValidation
+     *
+     * @return void
+     */
+    public function testValidateHandlesCustomMessage(): void
+    {
+        $args = false;
+        $data = ['name' => 'John Doe', 'email' => 'john.doe@example.com'];
+        $customMessage = 'Please do not add unknown fields';
+
+        $context = $this->getMockBuilder(Context::class)
+            ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
+            ->setMethods(['addError', 'getMessage'])
+            ->getMock();
+
+        $innerSchema = (new Schema())
+            ->setRule(new Rule(TypeRule::ID, 'string'));
+
+        $outerSchema = (new SchemaMap())
+            ->setRule(new Rule(TypeRule::ID, 'map'))
+            ->setRule(new Rule(UnknownAllowedRule::ID, false, $customMessage))
+            ->setSchemas(['name' => $innerSchema]);
+
+        $context->enter('', $outerSchema);
+
+        $context->expects($this->once())
+            ->method('addError')
+            ->with(UnknownAllowedRule::ID, $customMessage);
+
+        $unknownAllowedRule = new UnknownAllowedRule();
+
+        $this->assertTrue($unknownAllowedRule->performValidation($args, $data, $context));
     }
 }
 

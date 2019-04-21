@@ -18,9 +18,9 @@ use Ares\Utility\Enum;
  */
 class Option extends Enum
 {
-    public const ALLOW_UNKNOWN = 'allowUnknown';
-    public const ALL_BLANKABLE = 'allBlankable';
-    public const ALL_NULLABLE  = 'allNullable';
-    public const ALL_REQUIRED  = 'allRequired';
+    public const ALL_UNKNOWN_ALLOWED = 'allUnknownAllowed';
+    public const ALL_BLANKABLE       = 'allBlankable';
+    public const ALL_NULLABLE        = 'allNullable';
+    public const ALL_REQUIRED        = 'allRequired';
 }
 

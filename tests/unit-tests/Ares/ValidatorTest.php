@@ -21,11 +21,11 @@ use Ares\Validator;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class ValidationTest
+ * Class ValidatorTest
  *
  * @coversDefaultClass \Ares\Validator
  */
-class ValidationTest extends TestCase
+class ValidatorTest extends TestCase
 {
     /**
      * @covers ::validate
@@ -87,11 +87,11 @@ class ValidationTest extends TestCase
      *           [{"allRequired": true}, null]
      *           [{"allBlankable": true}, null]
      *           [{"allNullable": true}, null]
-     *           [{"allowUnknown": true}, null]
+     *           [{"allUnknownAllowed": true}, null]
      *           [{"allRequired": 13.37}, "Invalid validation option: 'allRequired' must be of type <boolean>, got <double>"]
      *           [{"allBlankable": 13.37},  "Invalid validation option: 'allBlankable' must be of type <boolean>, got <double>"]
      *           [{"allNullable": 13.37},  "Invalid validation option: 'allNullable' must be of type <boolean>, got <double>"]
-     *           [{"allowUnknown": 13.37},  "Invalid validation option: 'allowUnknown' must be of type <boolean>, got <double>"]
+     *           [{"allUnknownAllowed": 13.37},  "Invalid validation option: 'allUnknownAllowed' must be of type <boolean>, got <double>"]
      *           [{"foo": "bar"}, "Unknown validation option: 'foo' is not a supported validation option"]
      *
      * @param array       $options                  Validation options.

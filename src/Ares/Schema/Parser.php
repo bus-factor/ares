@@ -15,7 +15,7 @@ use Ares\Exception\InvalidValidationSchemaException;
 use Ares\RuleFactory;
 use Ares\Rule\RequiredRule;
 use Ares\Rule\TypeRule;
-use Ares\Rule\UnknownRule;
+use Ares\Rule\UnknownAllowedRule;
 use Ares\Utility\JsonPointer;
 use Ares\Utility\PhpType;
 
@@ -282,11 +282,11 @@ class Parser
                 default:
                     $schema->setSchemas($this->parseTupleSchemas($context));
 
-                    if (!$schema->hasRule(UnknownRule::ID)) {
-                        $schema->setRule(new Rule(UnknownRule::ID, false));
+                    if (!$schema->hasRule(UnknownAllowedRule::ID)) {
+                        $schema->setRule(new Rule(UnknownAllowedRule::ID, false));
                     }
 
-                    $schema->getRule(UnknownRule::ID)->setArgs(false);
+                    $schema->getRule(UnknownAllowedRule::ID)->setArgs(false);
 
                     break;
             }

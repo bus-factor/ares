@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 /**
- * allowed_unknown_map_fields.php
+ * unknown_allowed_per_map_inverted.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
- * @since  2019-03-09
+ * @since  2019-04-21
  */
 
 use Ares\Error\Error;
@@ -15,34 +15,31 @@ use Ares\Validator;
 $schema = [
     'type' => 'map',
     'schema' => [
-        'name' => ['type' => 'string', 'required' => true],
+        'name' => ['type' => 'string'],
         'meta' => [
             'type' => 'map',
-            'required' => false,
             'schema' => [
-                'age' => ['type' => 'integer', 'required' => true],
             ],
-        ],
+            'unknownAllowed' => false,
+        ]
     ],
-];
-
-$options = [
-    'allUnknownAllowed' => true,
 ];
 
 $data = [
     'name' => 'John Doe',
-    'hobby' => 'Reading',
+    'age' => 41,
     'meta' => [
-        'age' => 23,
-        'size' => 1.80,
-        'joined' => '2019-03-09',
+        'hobbies' => ['reading', 'biking'],
+        'occupation' => 'Engineer',
     ],
 ];
 
-$expectedErrors = [];
+$expectedErrors = [
+    new Error(['', 'meta', 'hobbies'], 'unknownAllowed', 'Unknown field'),
+    new Error(['', 'meta', 'occupation'], 'unknownAllowed', 'Unknown field'),
+];
 
-$validator = new Validator($schema, $options);
+$validator = new Validator($schema, ['allUnknownAllowed' => true]);
 
 $this->assertSame(empty($expectedErrors), $validator->validate($data));
 $this->assertEquals($expectedErrors, $validator->getErrors());

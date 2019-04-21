@@ -29,7 +29,7 @@ use Ares\Rule\RegexRule;
 use Ares\Rule\RequiredRule;
 use Ares\Rule\RuleInterface;
 use Ares\Rule\TypeRule;
-use Ares\Rule\UnknownRule;
+use Ares\Rule\UnknownAllowedRule;
 use Ares\Rule\UrlRule;
 
 /**
@@ -39,24 +39,24 @@ class RuleFactory
 {
     /** @var array $ruleFqcns */
     protected $ruleFqcns = [
-        AllowedRule::ID   => ['className' => AllowedRule::class,   'reserved' => false],
-        BlankableRule::ID => ['className' => BlankableRule::class, 'reserved' => true],
-        DateTimeRule::ID  => ['className' => DateTimeRule::class,  'reserved' => false],
-        DirectoryRule::ID => ['className' => DirectoryRule::class, 'reserved' => false],
-        EmailRule::ID     => ['className' => EmailRule::class,     'reserved' => false],
-        FileRule::ID      => ['className' => FileRule::class,      'reserved' => false],
-        ForbiddenRule::ID => ['className' => ForbiddenRule::class, 'reserved' => false],
-        LengthRule::ID    => ['className' => LengthRule::class,    'reserved' => false],
-        MaxLengthRule::ID => ['className' => MaxLengthRule::class, 'reserved' => false],
-        MaxRule::ID       => ['className' => MaxRule::class,       'reserved' => false],
-        MinLengthRule::ID => ['className' => MinLengthRule::class, 'reserved' => false],
-        MinRule::ID       => ['className' => MinRule::class,       'reserved' => false],
-        NullableRule::ID  => ['className' => NullableRule::class,  'reserved' => true],
-        RegexRule::ID     => ['className' => RegexRule::class,     'reserved' => false],
-        RequiredRule::ID  => ['className' => RequiredRule::class,  'reserved' => true],
-        TypeRule::ID      => ['className' => TypeRule::class,      'reserved' => true],
-        UnknownRule::ID   => ['className' => UnknownRule::class,   'reserved' => true],
-        UrlRule::ID       => ['className' => UrlRule::class,       'reserved' => false],
+        AllowedRule::ID          => ['className' => AllowedRule::class,        'reserved' => false],
+        BlankableRule::ID        => ['className' => BlankableRule::class,      'reserved' => true],
+        DateTimeRule::ID         => ['className' => DateTimeRule::class,       'reserved' => false],
+        DirectoryRule::ID        => ['className' => DirectoryRule::class,      'reserved' => false],
+        EmailRule::ID            => ['className' => EmailRule::class,          'reserved' => false],
+        FileRule::ID             => ['className' => FileRule::class,           'reserved' => false],
+        ForbiddenRule::ID        => ['className' => ForbiddenRule::class,      'reserved' => false],
+        LengthRule::ID           => ['className' => LengthRule::class,         'reserved' => false],
+        MaxLengthRule::ID        => ['className' => MaxLengthRule::class,      'reserved' => false],
+        MaxRule::ID              => ['className' => MaxRule::class,            'reserved' => false],
+        MinLengthRule::ID        => ['className' => MinLengthRule::class,      'reserved' => false],
+        MinRule::ID              => ['className' => MinRule::class,            'reserved' => false],
+        NullableRule::ID         => ['className' => NullableRule::class,       'reserved' => true],
+        RegexRule::ID            => ['className' => RegexRule::class,          'reserved' => false],
+        RequiredRule::ID         => ['className' => RequiredRule::class,       'reserved' => true],
+        TypeRule::ID             => ['className' => TypeRule::class,           'reserved' => true],
+        UnknownAllowedRule::ID   => ['className' => UnknownAllowedRule::class, 'reserved' => true],
+        UrlRule::ID              => ['className' => UrlRule::class,            'reserved' => false],
     ];
 
     /** @var \Ares\Rule\RuleInterface[] $rules */

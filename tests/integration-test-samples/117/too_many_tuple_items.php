@@ -23,7 +23,7 @@ $schema = [
 $data = ['foo', 1337, 'bar'];
 
 $expectedErrors = [
-    new Error(['', 2], 'unknown', 'Unknown field'),
+    new Error(['', 2], 'unknownAllowed', 'Unknown field'),
 ];
 
 $validator = new Validator($schema);
