@@ -27,10 +27,10 @@ class OptionTest extends TestCase
     public function testConstants(): void
     {
         $expectedValues = [
-            'ALLOW_UNKNOWN' => 'allowUnknown',
-            'ALL_BLANKABLE' => 'allBlankable',
-            'ALL_NULLABLE' => 'allNullable',
-            'ALL_REQUIRED' => 'allRequired',
+            'ALL_UNKNOWN_ALLOWED' => 'allUnknownAllowed',
+            'ALL_BLANKABLE'       => 'allBlankable',
+            'ALL_NULLABLE'        => 'allNullable',
+            'ALL_REQUIRED'        => 'allRequired',
         ];
 
         $this->assertEquals($expectedValues, Option::getValues());

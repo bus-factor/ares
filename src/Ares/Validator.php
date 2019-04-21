@@ -19,7 +19,7 @@ use Ares\Rule\BlankableRule;
 use Ares\Rule\NullableRule;
 use Ares\Rule\RequiredRule;
 use Ares\Rule\TypeRule;
-use Ares\Rule\UnknownRule;
+use Ares\Rule\UnknownAllowedRule;
 use Ares\Schema\Parser;
 use Ares\Schema\Schema;
 use Ares\Schema\Type;
@@ -31,10 +31,10 @@ class Validator
 {
     /** @const array OPTIONS_DEFAULTS */
     private const OPTIONS_DEFAULTS = [
-        Option::ALLOW_UNKNOWN => false,
-        Option::ALL_BLANKABLE => false,
-        Option::ALL_NULLABLE  => false,
-        Option::ALL_REQUIRED  => true,
+        Option::ALL_UNKNOWN_ALLOWED => false,
+        Option::ALL_BLANKABLE       => false,
+        Option::ALL_NULLABLE        => false,
+        Option::ALL_REQUIRED        => true,
     ];
 
     /** @var \Ares\Context $context */
@@ -175,10 +175,10 @@ class Validator
     protected function prepareOptions(array $options): array
     {
         $expectedOptions = [
-            Option::ALLOW_UNKNOWN => 'boolean',
-            Option::ALL_BLANKABLE => 'boolean',
-            Option::ALL_NULLABLE => 'boolean',
-            Option::ALL_REQUIRED => 'boolean',
+            Option::ALL_UNKNOWN_ALLOWED => 'boolean',
+            Option::ALL_BLANKABLE       => 'boolean',
+            Option::ALL_NULLABLE        => 'boolean',
+            Option::ALL_REQUIRED        => 'boolean',
         ];
 
         foreach ($options as $key => $value) {
@@ -229,11 +229,11 @@ class Validator
     protected function runBuiltinValidationRules(Schema $schema, $data): bool
     {
         $rules = [
-            RequiredRule::ID  => $this->options[Option::ALL_REQUIRED],
-            TypeRule::ID      => null,
-            NullableRule::ID  => $this->options[Option::ALL_NULLABLE],
-            UnknownRule::ID   => $this->options[Option::ALLOW_UNKNOWN],
-            BlankableRule::ID => $this->options[Option::ALL_BLANKABLE],
+            RequiredRule::ID       => $this->options[Option::ALL_REQUIRED],
+            TypeRule::ID           => null,
+            NullableRule::ID       => $this->options[Option::ALL_NULLABLE],
+            UnknownAllowedRule::ID => $this->options[Option::ALL_UNKNOWN_ALLOWED],
+            BlankableRule::ID      => $this->options[Option::ALL_BLANKABLE],
         ];
 
         foreach ($rules as $ruleId => $defaultArgs) {

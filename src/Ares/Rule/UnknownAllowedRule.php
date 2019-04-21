@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * UnknownRule.php
+ * UnknownAllowedRule.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
  * @since  2019-03-21
@@ -17,11 +17,11 @@ use Ares\Schema\Schema;
 use Ares\Schema\Type;
 
 /**
- * Class UnknownRule
+ * Class UnknownAllowedRule
  */
-class UnknownRule extends AbstractRule
+class UnknownAllowedRule extends AbstractRule
 {
-    public const ID            = 'unknown';
+    public const ID            = 'unknownAllowed';
     public const ERROR_MESSAGE = 'Unknown field';
 
     /**
@@ -51,12 +51,16 @@ class UnknownRule extends AbstractRule
         $schema = $context->getSchema();
         $unknownFields = array_keys(array_diff_key($data, $schema->getSchemas()));
 
+        $message = $schema->hasRule(self::ID)
+            ? ($schema->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE)
+            : self::ERROR_MESSAGE;
+
         foreach ($unknownFields as $field) {
             $context->enter($field, new Schema());
 
             $context->addError(
                 self::ID,
-                $context->getErrorMessageRenderer()->render($context, self::ID, self::ERROR_MESSAGE)
+                $context->getErrorMessageRenderer()->render($context, self::ID, $message)
             );
 
             $context->leave();

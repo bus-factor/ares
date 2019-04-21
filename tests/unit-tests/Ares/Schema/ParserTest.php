@@ -421,7 +421,7 @@ class ParserTest extends TestCase
                     'tuple' => (new SchemaTuple())
                         ->setRules([
                             'type' => new Rule('type', 'tuple', 'Must be a tuple'),
-                            'unknown' => new Rule('unknown', false),
+                            'unknownAllowed' => new Rule('unknownAllowed', false),
                         ])
                         ->setSchemas([
                             (new Schema())
