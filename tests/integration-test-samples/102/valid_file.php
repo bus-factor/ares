@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @since  2019-04-17
  */
 
-use Ares\Validator;
+use Ares\Validation\Validator;
 
 $schema = ['type' => 'string', 'file' => true];
 $data = __FILE__;

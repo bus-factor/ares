@@ -9,8 +9,8 @@ declare(strict_types=1);
  * @since  2019-03-07
  */
 
-use Ares\Error\Error;
-use Ares\Validator;
+use Ares\Validation\Error\Error;
+use Ares\Validation\Validator;
 
 $schema = ['type' => 'float'];
 $data = 'foobar';

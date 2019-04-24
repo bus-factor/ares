@@ -10,7 +10,7 @@ declare(strict_types=1);
  */
 
 use Ares\Exception\InvalidValidationSchemaException;
-use Ares\Validator;
+use Ares\Validation\Validator;
 
 $schema = [];
 

@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @since  2019-04-19
  */
 
-use Ares\Validator;
+use Ares\Validation\Validator;
 
 $schema = ['type' => 'numeric'];
 $data = 42;

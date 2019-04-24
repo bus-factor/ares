@@ -23,7 +23,8 @@ class Schema
 
     /**
      * @param string $ruleId Validation rule ID.
-     * @return \Ares\Schema\Rule
+     * @return Rule
+     * @throws InvalidArgumentException
      */
     public function getRule(string $ruleId): Rule
     {
@@ -52,8 +53,8 @@ class Schema
     }
 
     /**
-     * @param \Ares\Schema\Rule $rule    Schema rule.
-     * @param boolean           $replace Indicate if the rule should be replace if already set.
+     * @param Rule    $rule    Schema rule.
+     * @param boolean $replace Indicate if the rule should be replace if already set.
      * @return self
      */
     public function setRule(Rule $rule, bool $replace = false): self

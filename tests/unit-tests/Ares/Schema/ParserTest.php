@@ -12,13 +12,13 @@ declare(strict_types=1);
 namespace UnitTest\Ares\Schema;
 
 use Ares\Exception\InvalidValidationSchemaException;
-use Ares\RuleFactory;
 use Ares\Schema\Parser;
 use Ares\Schema\Rule;
 use Ares\Schema\Schema;
 use Ares\Schema\SchemaList;
 use Ares\Schema\SchemaMap;
 use Ares\Schema\SchemaTuple;
+use Ares\Validation\RuleFactory;
 use PHPUnit\Framework\TestCase;
 
 /**
