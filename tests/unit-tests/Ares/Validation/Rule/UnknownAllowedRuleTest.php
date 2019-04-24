@@ -65,10 +65,10 @@ class UnknownAllowedRuleTest extends TestCase
      *
      * @dataProvider getValidateSamples
      *
-     * @param bool                $args           Validation rule configuration.
-     * @param mixed               $data           Validated data.
-     * @param \Ares\Schema\Schema $schema         Validation schema.
-     * @param array               $expectedErrors Validation errors.
+     * @param bool   $args           Validation rule configuration.
+     * @param mixed  $data           Validated data.
+     * @param Schema $schema         Schema.
+     * @param array  $expectedErrors Validation errors.
      * @return void
      */
     public function testValidate(bool $args, $data, Schema $schema, array $expectedErrors): void

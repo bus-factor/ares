@@ -10,7 +10,7 @@ declare(strict_types=1);
  */
 
 use Ares\Ares;
-use Ares\Exception\InvalidValidationSchemaException;
+use Ares\Exception\InvalidSchemaException;
 
 $schema = [
     'type' => 'map',
@@ -19,8 +19,8 @@ $schema = [
     ],
 ];
 
-$this->expectException(InvalidValidationSchemaException::class);
-$this->expectExceptionMessage('Insufficient validation schema: /schema/name contains no `type` validation rule');
+$this->expectException(InvalidSchemaException::class);
+$this->expectExceptionMessage('Insufficient schema: /schema/name contains no `type` validation rule');
 
 $ares = new Ares($schema);
 

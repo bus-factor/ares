@@ -49,7 +49,7 @@ class Validator
     protected $schema;
 
     /**
-     * @param array            $schema      Validation schema.
+     * @param array            $schema      Schema.
      * @param RuleFactory|null $ruleFactory Validation rule factory.
      */
     public function __construct(Schema $schema, ?RuleFactory $ruleFactory = null)
@@ -87,7 +87,7 @@ class Validator
     }
 
     /**
-     * @param Schema $schema  Validation schema.
+     * @param Schema $schema  Schema.
      * @param mixed  $data    Input data.
      * @param mixed  $field   Current field name or index (part of source reference).
      * @param array  $options Validation options.
@@ -141,7 +141,7 @@ class Validator
     }
 
     /**
-     * @param Schema $schema  Validation schema.
+     * @param Schema $schema  Schema.
      * @param mixed  $data    Input data.
      * @param array  $options Validation options.
      * @return void
@@ -154,7 +154,7 @@ class Validator
     }
 
     /**
-     * @param array $schemas Validation schemas.
+     * @param array $schemas Schemas.
      * @param mixed $data    Input data.
      * @param array $options Validation options.
      * @return void
@@ -208,7 +208,7 @@ class Validator
     }
 
     /**
-     * @param Schema $schema  Validation schema.
+     * @param Schema $schema  Schema.
      * @param mixed  $data    Input data.
      * @param array  $options Validation options.
      * @return bool

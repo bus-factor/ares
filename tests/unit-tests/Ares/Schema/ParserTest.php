@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace UnitTest\Ares\Schema;
 
-use Ares\Exception\InvalidValidationSchemaException;
+use Ares\Exception\InvalidSchemaException;
 use Ares\Schema\Parser;
 use Ares\Schema\Rule;
 use Ares\Schema\Schema;
@@ -42,11 +42,11 @@ class ParserTest extends TestCase
      *
      * @dataProvider getParseErrorHandlingSamples
      *
-     * @param \Ares\RuleFactory $ruleFactory              Validation rule factory.
-     * @param mixed             $schemaIn                 Provided validation schema.
-     * @param array|null        $expectedSchemaOut        Expected resulting validation schema.
-     * @param string|null       $expectedException        Expected exception.
-     * @param string|null       $expectedExceptionMessage Expected exception message.
+     * @param RuleFactory $ruleFactory              Validation rule factory.
+     * @param mixed       $schemaIn                 Provided schema.
+     * @param array|null  $expectedSchemaOut        Expected resulting schema.
+     * @param string|null $expectedException        Expected exception.
+     * @param string|null $expectedExceptionMessage Expected exception message.
      * @return void
      */
     public function testParseErrorHandling(
@@ -84,8 +84,8 @@ class ParserTest extends TestCase
                 new RuleFactory(),
                 'foobar',
                 null,
-                InvalidValidationSchemaException::class,
-                'Invalid validation schema value:  must be of type <array>, got <string>',
+                InvalidSchemaException::class,
+                'Invalid schema value:  must be of type <array>, got <string>',
             ],
             'multiple types' => [
                 new RuleFactory(),
@@ -94,15 +94,15 @@ class ParserTest extends TestCase
                     ['type' => 'integer'],
                 ],
                 null,
-                InvalidValidationSchemaException::class,
-                'Ambiguous validation schema:  contains multiple `type` validation rules',
+                InvalidSchemaException::class,
+                'Ambiguous schema:  contains multiple `type` validation rules',
             ],
             'missing type' => [
                 new RuleFactory(),
                 [],
                 null,
-                InvalidValidationSchemaException::class,
-                'Insufficient validation schema:  contains no `type` validation rule',
+                InvalidSchemaException::class,
+                'Insufficient schema:  contains no `type` validation rule',
             ],
             'invalid type' => [
                 new RuleFactory(),
@@ -110,8 +110,8 @@ class ParserTest extends TestCase
                     'type' => 'foo',
                 ],
                 null,
-                InvalidValidationSchemaException::class,
-                'Invalid validation schema:  uses unknown type: "foo"',
+                InvalidSchemaException::class,
+                'Invalid schema:  uses unknown type: "foo"',
             ],
             'invalid schema value' => [
                 new RuleFactory(),
@@ -120,8 +120,8 @@ class ParserTest extends TestCase
                     'foobar',
                 ],
                 null,
-                InvalidValidationSchemaException::class,
-                'Invalid validation schema value: /0 must be of type <array>, got <string>',
+                InvalidSchemaException::class,
+                'Invalid schema value: /0 must be of type <array>, got <string>',
             ],
             'type "list" without "schema"' => [
                 new RuleFactory(),
@@ -129,8 +129,8 @@ class ParserTest extends TestCase
                     'type' => 'list',
                 ],
                 null,
-                InvalidValidationSchemaException::class,
-                'Missing validation schema key:  uses type "list" but contains no "schema" key',
+                InvalidSchemaException::class,
+                'Missing schema key:  uses type "list" but contains no "schema" key',
             ],
             'nested type "list" without "schema"' => [
                 new RuleFactory(),
@@ -141,8 +141,8 @@ class ParserTest extends TestCase
                     ],
                 ],
                 null,
-                InvalidValidationSchemaException::class,
-                'Missing validation schema key: /schema uses type "list" but contains no "schema" key',
+                InvalidSchemaException::class,
+                'Missing schema key: /schema uses type "list" but contains no "schema" key',
             ],
             'type "map" without "schema"' => [
                 new RuleFactory(),
@@ -150,8 +150,8 @@ class ParserTest extends TestCase
                     'type' => 'map',
                 ],
                 null,
-                InvalidValidationSchemaException::class,
-                'Missing validation schema key:  uses type "map" but contains no "schema" key',
+                InvalidSchemaException::class,
+                'Missing schema key:  uses type "map" but contains no "schema" key',
             ],
             'nested type "map" without "schema"' => [
                 new RuleFactory(),
@@ -164,8 +164,8 @@ class ParserTest extends TestCase
                     ],
                 ],
                 null,
-                InvalidValidationSchemaException::class,
-                'Missing validation schema key: /schema/name uses type "map" but contains no "schema" key',
+                InvalidSchemaException::class,
+                'Missing schema key: /schema/name uses type "map" but contains no "schema" key',
             ],
             'type "list" with non-array schema value' => [
                 new RuleFactory(),
@@ -174,8 +174,8 @@ class ParserTest extends TestCase
                     'schema' => 'foo',
                 ],
                 null,
-                InvalidValidationSchemaException::class,
-                'Invalid validation schema value: /schema must be of type <array>, got <string>',
+                InvalidSchemaException::class,
+                'Invalid schema value: /schema must be of type <array>, got <string>',
             ],
             'nested type "list" with non-array schema value' => [
                 new RuleFactory(),
@@ -187,8 +187,8 @@ class ParserTest extends TestCase
                     ],
                 ],
                 null,
-                InvalidValidationSchemaException::class,
-                'Invalid validation schema value: /schema/schema must be of type <array>, got <double>',
+                InvalidSchemaException::class,
+                'Invalid schema value: /schema/schema must be of type <array>, got <double>',
             ],
             'type "map" with non-array schema value' => [
                 new RuleFactory(),
@@ -197,8 +197,8 @@ class ParserTest extends TestCase
                     'schema' => 'foo',
                 ],
                 null,
-                InvalidValidationSchemaException::class,
-                'Invalid validation schema value: /schema must be of type <array>, got <string>',
+                InvalidSchemaException::class,
+                'Invalid schema value: /schema must be of type <array>, got <string>',
             ],
             'nested type "map" with non-array schema value' => [
                 new RuleFactory(),
@@ -212,8 +212,8 @@ class ParserTest extends TestCase
                     ],
                 ],
                 null,
-                InvalidValidationSchemaException::class,
-                'Invalid validation schema value: /schema/name/schema must be of type <array>, got <boolean>',
+                InvalidSchemaException::class,
+                'Invalid schema value: /schema/name/schema must be of type <array>, got <boolean>',
             ],
             'invalid schema value (nested)' => [
                 new RuleFactory(),
@@ -227,8 +227,8 @@ class ParserTest extends TestCase
                     ],
                 ],
                 null,
-                InvalidValidationSchemaException::class,
-                'Invalid validation schema value: /schema/name/0 must be of type <array>, got <integer>',
+                InvalidSchemaException::class,
+                'Invalid schema value: /schema/name/0 must be of type <array>, got <integer>',
             ],
             'unknown rule' => [
                 new RuleFactory(),
@@ -237,7 +237,7 @@ class ParserTest extends TestCase
                     'whooops' => [1, 2, 3],
                 ],
                 null,
-                InvalidValidationSchemaException::class,
+                InvalidSchemaException::class,
                 'Unknown validation rule ID: /whooops specifies an unknown validation rule ID',
             ],
             'nested unknown rule' => [
@@ -250,7 +250,7 @@ class ParserTest extends TestCase
                     ],
                 ],
                 null,
-                InvalidValidationSchemaException::class,
+                InvalidSchemaException::class,
                 'Unknown validation rule ID: /schema/whooops specifies an unknown validation rule ID',
             ],
             'unknown rule with additions' => [
@@ -260,7 +260,7 @@ class ParserTest extends TestCase
                     ['whooops' => [1, 2, 3]],
                 ],
                 null,
-                InvalidValidationSchemaException::class,
+                InvalidSchemaException::class,
                 'Unknown validation rule ID: /0/whooops specifies an unknown validation rule ID',
             ],
             'nested unknown rule with additions' => [
@@ -273,7 +273,7 @@ class ParserTest extends TestCase
                     ],
                 ],
                 null,
-                InvalidValidationSchemaException::class,
+                InvalidSchemaException::class,
                 'Unknown validation rule ID: /schema/0/whooops specifies an unknown validation rule ID',
             ],
             'rule with additions with missing rule' => [
@@ -283,8 +283,8 @@ class ParserTest extends TestCase
                     [],
                 ],
                 null,
-                InvalidValidationSchemaException::class,
-                'Invalid validation schema: /0 contains no rule',
+                InvalidSchemaException::class,
+                'Invalid schema: /0 contains no rule',
             ],
             'nested rule with additions with missing rule' => [
                 new RuleFactory(),
@@ -296,8 +296,8 @@ class ParserTest extends TestCase
                     ],
                 ],
                 null,
-                InvalidValidationSchemaException::class,
-                'Invalid validation schema: /schema/0 contains no rule',
+                InvalidSchemaException::class,
+                'Invalid schema: /schema/0 contains no rule',
             ],
             'rule with additions with ambiguous rule' => [
                 new RuleFactory(),
@@ -306,8 +306,8 @@ class ParserTest extends TestCase
                     ['required' => false, 'blankable' => true],
                 ],
                 null,
-                InvalidValidationSchemaException::class,
-                'Invalid validation schema: /0 contains multiple rules (["required","blankable"])',
+                InvalidSchemaException::class,
+                'Invalid schema: /0 contains multiple rules (["required","blankable"])',
             ],
             'nested rule with additions with ambiguous rule' => [
                 new RuleFactory(),
@@ -319,8 +319,8 @@ class ParserTest extends TestCase
                     ],
                 ],
                 null,
-                InvalidValidationSchemaException::class,
-                'Invalid validation schema: /schema/0 contains multiple rules (["required","blankable"])',
+                InvalidSchemaException::class,
+                'Invalid schema: /schema/0 contains multiple rules (["required","blankable"])',
             ],
             'invalid "message" data type' => [
                 new RuleFactory(),
@@ -329,8 +329,8 @@ class ParserTest extends TestCase
                     ['nullable' => true, 'message' => 13.37],
                 ],
                 null,
-                InvalidValidationSchemaException::class,
-                'Invalid validation schema value: /0/message must be of type <string>, got <double>',
+                InvalidSchemaException::class,
+                'Invalid schema value: /0/message must be of type <string>, got <double>',
             ],
             'invalid "meta" data type' => [
                 new RuleFactory(),
@@ -339,8 +339,8 @@ class ParserTest extends TestCase
                     ['required' => true, 'meta' => 'foobar'],
                 ],
                 null,
-                InvalidValidationSchemaException::class,
-                'Invalid validation schema value: /0/meta must be of type <array>, got <string>',
+                InvalidSchemaException::class,
+                'Invalid schema value: /0/meta must be of type <array>, got <string>',
             ],
             'inapplicable rule' => [
                 new RuleFactory(),
@@ -349,8 +349,8 @@ class ParserTest extends TestCase
                     'blankable' => true,
                 ],
                 null,
-                InvalidValidationSchemaException::class,
-                'Invalid validation schema: /blankable validation rule is not applicable to type <integer>',
+                InvalidSchemaException::class,
+                'Invalid schema: /blankable validation rule is not applicable to type <integer>',
             ],
         ];
     }

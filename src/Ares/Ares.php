@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Ares;
 
+use Ares\Exception\InvalidSchemaException;
 use Ares\Exception\InvalidValidationOptionException;
-use Ares\Exception\InvalidValidationSchemaException;
 use Ares\Sanitization\Sanitizer;
 use Ares\Schema\Parser;
 use Ares\Schema\Schema;
@@ -36,7 +36,7 @@ class Ares
     /**
      * @param array       $schema      Schema definition.
      * @param RuleFactory $ruleFactory Validation rule factory instance.
-     * @throws InvalidValidationSchemaException
+     * @throws InvalidSchemaException
      */
     public function __construct(array $schema, ?RuleFactory $ruleFactory = null)
     {

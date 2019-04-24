@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace UnitTest\Ares\Validation;
 
 use Ares\Exception\InvalidValidationOptionException;
-use Ares\Exception\InvalidValidationSchemaException;
 use Ares\Schema\Parser;
 use Ares\Validation\Context;
 use Ares\Validation\Error\ErrorMessageRenderer;

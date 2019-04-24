@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class InvalidValidationOptionExceptionTest
  *
- * @coversDefaultClass \Ares:Exception\InvalidValidationOptionException
+ * @coversDefaultClass \Ares\Exception\InvalidValidationOptionException
  */
 class InvalidValidationOptionExceptionTest extends TestCase
 {

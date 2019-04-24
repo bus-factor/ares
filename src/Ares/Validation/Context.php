@@ -104,7 +104,7 @@ class Context
 
     /**
      * @param mixed  $reference Source reference.
-     * @param Schema $schema    Source specific validation schema.
+     * @param Schema $schema    Source specific schema.
      * @return self
      */
     public function enter($reference, Schema $schema): self

@@ -32,10 +32,11 @@ class Sanitizer
     /**
      * Sanitizes the input data using the provided schema.
      *
-     * @param mixed $data
+     * @param mixed $data    Input data.
+     * @param array $options Sanitization options.
      * @return mixed
      */
-    public function sanitize($data)
+    public function sanitize($data, array $options = [])
     {
         return $data;
     }
