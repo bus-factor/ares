@@ -9,8 +9,8 @@ declare(strict_types=1);
  * @since  2019-04-21
  */
 
+use Ares\Ares;
 use Ares\Validation\Error\Error;
-use Ares\Validation\Validator;
 
 $schema = [
     'type' => 'map',
@@ -39,8 +39,8 @@ $expectedErrors = [
     new Error(['', 'meta', 'occupation'], 'unknownAllowed', 'Unknown field'),
 ];
 
-$validator = new Validator($schema, ['allUnknownAllowed' => true]);
+$ares = new Ares($schema);
 
-$this->assertSame(empty($expectedErrors), $validator->validate($data));
-$this->assertEquals($expectedErrors, $validator->getErrors());
+$this->assertSame(empty($expectedErrors), $ares->validate($data, ['allUnknownAllowed' => true]));
+$this->assertEquals($expectedErrors, $ares->getValidationErrors());
 

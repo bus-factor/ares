@@ -24,6 +24,7 @@ use RegexIterator;
 class ValidatorTest extends TestCase
 {
     /**
+     * @covers \Ares\Ares
      * @covers \Ares\Validation\Validator
      *
      * @dataProvider getValidateSamples

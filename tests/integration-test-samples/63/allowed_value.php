@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @since  2019-03-22
  */
 
-use Ares\Validation\Validator;
+use Ares\Ares;
 
 $schema = [
     'type' => 'string',
@@ -20,8 +20,8 @@ $data = 'fizz';
 
 $expectedErrors = [];
 
-$validator = new Validator($schema);
+$ares = new Ares($schema);
 
-$this->assertSame(empty($expectedErrors), $validator->validate($data));
-$this->assertEquals($expectedErrors, $validator->getErrors());
+$this->assertSame(empty($expectedErrors), $ares->validate($data));
+$this->assertEquals($expectedErrors, $ares->getValidationErrors());
 

@@ -9,8 +9,8 @@ declare(strict_types=1);
  * @since  2019-04-06
  */
 
+use Ares\Ares;
 use Ares\Validation\Error\Error;
-use Ares\Validation\Validator;
 
 $schema = [
     'type' => 'map',
@@ -36,8 +36,8 @@ $expectedErrors = [
     new Error(['', 'email'], 'email', 'Please enter a valid email address'),
 ];
 
-$validator = new Validator($schema);
+$ares = new Ares($schema);
 
-$this->assertSame(empty($expectedErrors), $validator->validate($data));
-$this->assertEquals($expectedErrors, $validator->getErrors());
+$this->assertSame(empty($expectedErrors), $ares->validate($data));
+$this->assertEquals($expectedErrors, $ares->getValidationErrors());
 

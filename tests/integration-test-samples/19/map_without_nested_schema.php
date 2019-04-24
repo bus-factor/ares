@@ -9,8 +9,8 @@ declare(strict_types=1);
  * @since  2019-03-09
  */
 
+use Ares\Ares;
 use Ares\Exception\InvalidValidationSchemaException;
-use Ares\Validation\Validator;
 
 $schema = [
     'type' => 'map',
@@ -25,5 +25,5 @@ $schema = [
 $this->expectException(InvalidValidationSchemaException::class);
 $this->expectExceptionMessage('Missing validation schema key: /schema/options uses type "map" but contains no "schema" key');
 
-$validator = new Validator($schema);
+$ares = new Ares($schema);
 

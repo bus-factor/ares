@@ -13,7 +13,6 @@ namespace Ares\Validation;
 
 use Ares\Exception\InvalidValidationOptionException;
 use Ares\Exception\InvalidValidationRuleArgsException;
-use Ares\Exception\InvalidValidationSchemaException;
 use Ares\Exception\UnknownValidationRuleIdException;
 use Ares\Schema\Parser;
 use Ares\Schema\Schema;
@@ -44,8 +43,6 @@ class Validator
     protected $context;
     /** @var ErrorMessageRendererInterface $errorMessageRenderer */
     protected $errorMessageRenderer;
-    /** @var array $options */
-    protected $options;
     /** @var RuleFactory */
     protected $ruleFactory;
     /** @var Schema $schema */
@@ -53,16 +50,12 @@ class Validator
 
     /**
      * @param array            $schema      Validation schema.
-     * @param array            $options     Validation options.
      * @param RuleFactory|null $ruleFactory Validation rule factory.
-     * @throws InvalidValidationOptionException
-     * @throws InvalidValidationSchemaException
      */
-    public function __construct(array $schema, array $options = [], ?RuleFactory $ruleFactory = null)
+    public function __construct(Schema $schema, ?RuleFactory $ruleFactory = null)
     {
         $this->ruleFactory = $ruleFactory ?? new RuleFactory();
-        $this->options = $this->prepareOptions($options);
-        $this->schema = $this->prepareSchema($schema, $this->ruleFactory);
+        $this->schema = $schema;
     }
 
     /**
@@ -94,29 +87,30 @@ class Validator
     }
 
     /**
-     * @param Schema $schema Validation schema.
-     * @param mixed  $data   Input data.
-     * @param mixed  $field  Current field name or index (part of source reference).
+     * @param Schema $schema  Validation schema.
+     * @param mixed  $data    Input data.
+     * @param mixed  $field   Current field name or index (part of source reference).
+     * @param array  $options Validation options.
      * @return void
      * @throws InvalidValidationRuleArgsException
      * @throws UnknownValidationRuleIdException
      */
-    protected function performValidation(Schema $schema, $data, $field): void
+    protected function performValidation(Schema $schema, $data, $field, array $options): void
     {
         $this->context->enter($field, $schema);
 
-        if ($this->runBuiltinValidationRules($schema, $data)) {
+        if ($this->runBuiltinValidationRules($schema, $data, $options)) {
             $this->performFieldValidation($schema->getRules(), $data);
 
             switch ($schema->getRule(TypeRule::ID)->getArgs()) {
                 case Type::LIST:
-                    $this->performListValidation($schema->getSchema(), $data);
+                    $this->performListValidation($schema->getSchema(), $data, $options);
 
                     break;
                 case Type::MAP:
                     // no break
                 case Type::TUPLE:
-                    $this->performMapValidation($schema->getSchemas(), $data);
+                    $this->performMapValidation($schema->getSchemas(), $data, $options);
 
                     break;
                 default:
@@ -147,26 +141,28 @@ class Validator
     }
 
     /**
-     * @param Schema $schema Validation schema.
-     * @param mixed  $data   Input data.
+     * @param Schema $schema  Validation schema.
+     * @param mixed  $data    Input data.
+     * @param array  $options Validation options.
      * @return void
      */
-    protected function performListValidation(Schema $schema, $data): void
+    protected function performListValidation(Schema $schema, $data, array $options): void
     {
         foreach ($data as $key => $value) {
-            $this->performValidation($schema, $value, $key);
+            $this->performValidation($schema, $value, $key, $options);
         }
     }
 
     /**
      * @param array $schemas Validation schemas.
      * @param mixed $data    Input data.
+     * @param array $options Validation options.
      * @return void
      */
-    protected function performMapValidation(array $schemas, $data): void
+    protected function performMapValidation(array $schemas, $data, array $options): void
     {
         foreach ($schemas as $field => $schema) {
-            $this->performValidation($schema, $data[$field] ?? null, $field);
+            $this->performValidation($schema, $data[$field] ?? null, $field, $options);
         }
     }
 
@@ -212,31 +208,19 @@ class Validator
     }
 
     /**
-     * Sets the schema.
-     *
-     * @param array       $schema      Validation schema.
-     * @param RuleFactory $ruleFactory Validation rule factory.
-     * @return Schema
-     * @throws InvalidValidationSchemaException
-     */
-    protected function prepareSchema(array $schema, RuleFactory $ruleFactory): Schema
-    {
-        return (new Parser($ruleFactory))->parse($schema);
-    }
-
-    /**
-     * @param Schema $schema Validation schema.
-     * @param mixed  $data   Input data.
+     * @param Schema $schema  Validation schema.
+     * @param mixed  $data    Input data.
+     * @param array  $options Validation options.
      * @return bool
      */
-    protected function runBuiltinValidationRules(Schema $schema, $data): bool
+    protected function runBuiltinValidationRules(Schema $schema, $data, array $options): bool
     {
         $rules = [
-            RequiredRule::ID       => $this->options[Option::ALL_REQUIRED],
+            RequiredRule::ID       => $options[Option::ALL_REQUIRED],
             TypeRule::ID           => null,
-            NullableRule::ID       => $this->options[Option::ALL_NULLABLE],
-            UnknownAllowedRule::ID => $this->options[Option::ALL_UNKNOWN_ALLOWED],
-            BlankableRule::ID      => $this->options[Option::ALL_BLANKABLE],
+            NullableRule::ID       => $options[Option::ALL_NULLABLE],
+            UnknownAllowedRule::ID => $options[Option::ALL_UNKNOWN_ALLOWED],
+            BlankableRule::ID      => $options[Option::ALL_BLANKABLE],
         ];
 
         foreach ($rules as $ruleId => $defaultArgs) {
@@ -268,16 +252,20 @@ class Validator
     }
 
     /**
-     * @param mixed $data Input data.
+     * @param mixed $data    Input data.
+     * @param array $options Validation options.
      * @return boolean
+     * @throws InvalidValidationOptionException
      * @throws InvalidValidationRuleArgsException
      * @throws UnknownValidationRuleIdException
      */
-    public function validate($data): bool
+    public function validate($data, array $options = []): bool
     {
+        $options = $this->prepareOptions($options);
+
         $this->context = new Context($data, $this->getErrorMessageRenderer());
 
-        $this->performValidation($this->schema, $data, '');
+        $this->performValidation($this->schema, $data, '', $options);
 
         return !$this->context->hasErrors();
     }

@@ -9,8 +9,8 @@ declare(strict_types=1);
  * @since  2019-03-07
  */
 
+use Ares\Ares;
 use Ares\Validation\Error\Error;
-use Ares\Validation\Validator;
 
 $schema = ['type' => 'boolean'];
 $data = 13.37;
@@ -19,8 +19,8 @@ $expectedErrors = [
     new Error([''], 'type', 'Invalid type'),
 ];
 
-$validator = new Validator($schema);
+$ares = new Ares($schema);
 
-$this->assertSame(empty($expectedErrors), $validator->validate($data));
-$this->assertEquals($expectedErrors, $validator->getErrors());
+$this->assertSame(empty($expectedErrors), $ares->validate($data));
+$this->assertEquals($expectedErrors, $ares->getValidationErrors());
 

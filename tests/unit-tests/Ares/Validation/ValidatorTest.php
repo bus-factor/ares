@@ -13,6 +13,7 @@ namespace UnitTest\Ares\Validation;
 
 use Ares\Exception\InvalidValidationOptionException;
 use Ares\Exception\InvalidValidationSchemaException;
+use Ares\Schema\Parser;
 use Ares\Validation\Context;
 use Ares\Validation\Error\ErrorMessageRenderer;
 use Ares\Validation\Error\ErrorMessageRendererInterface;
@@ -28,21 +29,6 @@ use PHPUnit\Framework\TestCase;
 class ValidatorTest extends TestCase
 {
     /**
-     * @covers ::validate
-     * @covers ::performValidation
-     *
-     * @return void
-     */
-    public function testValidateHandlesUnknownValidationRuleIds(): void
-    {
-        $this->expectException(InvalidValidationSchemaException::class);
-        $this->expectExceptionMessage('Unknown validation rule ID: /uargh specifies an unknown validation rule ID');
-
-        $schema = ['type' => 'string', 'uargh' => true];
-        $validator = new Validator($schema);
-    }
-
-    /**
      * @covers ::__construct
      * @covers ::getErrorMessageRenderer
      * @covers ::setErrorMessageRenderer
@@ -51,7 +37,10 @@ class ValidatorTest extends TestCase
      */
     public function testErrorMessageRendererAccessors(): void
     {
-        $validator = new Validator(['type' => 'integer']);
+        $ruleFactory = new RuleFactory();
+        $schemaParser = new Parser($ruleFactory);
+        $schema = $schemaParser->parse(['type' => 'integer']);
+        $validator = new Validator($schema);
 
         $this->assertInstanceOf(ErrorMessageRenderer::class, $validator->getErrorMessageRenderer());
 
@@ -74,7 +63,9 @@ class ValidatorTest extends TestCase
     public function testConstructorUsesProvidedRuleFactory(): void
     {
         $ruleFactory = new RuleFactory();
-        $validator = new Validator(['type' => 'integer'], [], $ruleFactory);
+        $schemaParser = new Parser($ruleFactory);
+        $schema = $schemaParser->parse(['type' => 'integer']);
+        $validator = new Validator($schema, $ruleFactory);
 
         $this->assertSame($ruleFactory, $validator->getRuleFactory());
     }
@@ -82,6 +73,7 @@ class ValidatorTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::prepareOptions
+     * @covers ::validate
      *
      * @testWith [{}, null]
      *           [{"allRequired": true}, null]
@@ -107,7 +99,12 @@ class ValidatorTest extends TestCase
             $this->expectExceptionMessage($expectedExceptionMessage);
         }
 
-        $validator = new Validator(['type' => 'integer'], $options);
+        $ruleFactory = new RuleFactory();
+        $schemaParser = new Parser($ruleFactory);
+        $schema = $schemaParser->parse(['type' => 'integer']);
+        $validator = new Validator($schema, $ruleFactory);
+
+        $validator->validate(1337, $options);
 
         $this->assertTrue($expectedExceptionMessage === null);
     }
