@@ -44,7 +44,7 @@ class ValidatorTest extends TestCase
     {
         $paths = [];
 
-        $directory = new RecursiveDirectoryIterator(INTEGRATION_TEST_SAMPLES_DIR);
+        $directory = new RecursiveDirectoryIterator(INTEGRATION_TEST_SAMPLES_DIR . '/validation');
         $iterator = new RecursiveIteratorIterator($directory);
         $regex = new RegexIterator($iterator, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH);
 

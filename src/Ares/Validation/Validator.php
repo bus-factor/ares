@@ -17,6 +17,7 @@ use Ares\Exception\UnknownValidationRuleIdException;
 use Ares\Schema\Parser;
 use Ares\Schema\Schema;
 use Ares\Schema\Type;
+use Ares\Utility\PhpType;
 use Ares\Validation\Error\ErrorMessageRenderer;
 use Ares\Validation\Error\ErrorMessageRendererInterface;
 use Ares\Validation\RuleFactory;
@@ -173,33 +174,18 @@ class Validator
      */
     protected function prepareOptions(array $options): array
     {
-        $expectedOptions = [
-            Option::ALL_UNKNOWN_ALLOWED => 'boolean',
-            Option::ALL_BLANKABLE       => 'boolean',
-            Option::ALL_NULLABLE        => 'boolean',
-            Option::ALL_REQUIRED        => 'boolean',
-        ];
-
         foreach ($options as $key => $value) {
-            if (!isset($expectedOptions[$key])) {
+            if (!in_array($key, Option::getValues())) {
                 throw new InvalidValidationOptionException(
-                    sprintf(
-                        'Unknown validation option: \'%s\' is not a supported validation option',
-                        $key
-                    )
+                    sprintf('Unknown validation option: \'%s\' is not a supported validation option', $key)
                 );
             }
 
             $type = gettype($value);
 
-            if ($type !== $expectedOptions[$key]) {
+            if ($type !== PhpType::BOOLEAN) {
                 throw new InvalidValidationOptionException(
-                    sprintf(
-                        'Invalid validation option: \'%s\' must be of type <%s>, got <%s>',
-                        $key,
-                        $expectedOptions[$key],
-                        $type
-                    )
+                    sprintf('Invalid validation option: \'%s\' must be of type <boolean>, got <%s>', $key, $type)
                 );
             }
         }
