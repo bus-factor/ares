@@ -209,13 +209,11 @@ class Validator
             BlankableRule::ID      => $options[Option::ALL_BLANKABLE],
         ];
 
-        foreach ($rules as $ruleId => $defaultArgs) {
+        foreach ($rules as $ruleId => $defaultRuleArgs) {
             $rule = $this->ruleFactory->get($ruleId);
 
             if ($rule->isApplicable($this->context)) {
-                $ruleArgs = $schema->hasRule($ruleId)
-                    ? $schema->getRule($ruleId)->getArgs()
-                    : $defaultArgs;
+                $ruleArgs = $schema->hasRule($ruleId) ? $schema->getRule($ruleId)->getArgs() : $defaultRuleArgs;
 
                 if (!$rule->validate($ruleArgs, $data, $this->context)) {
                     return false;
