@@ -11,13 +11,13 @@ declare(strict_types=1);
 
 namespace Ares\Schema;
 
-use Ares\Exception\InvalidValidationSchemaException;
-use Ares\RuleFactory;
-use Ares\Rule\RequiredRule;
-use Ares\Rule\TypeRule;
-use Ares\Rule\UnknownAllowedRule;
+use Ares\Exception\InvalidSchemaException;
 use Ares\Utility\JsonPointer;
 use Ares\Utility\PhpType;
+use Ares\Validation\RuleFactory;
+use Ares\Validation\Rule\RequiredRule;
+use Ares\Validation\Rule\TypeRule;
+use Ares\Validation\Rule\UnknownAllowedRule;
 
 /**
  * Class Parser
@@ -26,15 +26,15 @@ class Parser
 {
     /** @const array ERROR_MESSAGES */
     private const ERROR_MESSAGES = [
-        ParserError::RULE_AMBIGUOUS      => 'Invalid validation schema: %s contains multiple rules (%s)',
+        ParserError::RULE_AMBIGUOUS      => 'Invalid schema: %s contains multiple rules (%s)',
         ParserError::RULE_ID_UNKNOWN     => 'Unknown validation rule ID: %s specifies an unknown validation rule ID',
-        ParserError::RULE_MISSING        => 'Invalid validation schema: %s contains no rule',
-        ParserError::SCHEMA_MISSING      => 'Missing validation schema key: %s uses type "%s" but contains no "schema" key',
-        ParserError::TYPE_MISSING        => 'Insufficient validation schema: %s contains no `type` validation rule',
-        ParserError::TYPE_REPEATED       => 'Ambiguous validation schema: %s contains multiple `type` validation rules',
-        ParserError::TYPE_UNKNOWN        => 'Invalid validation schema: %s uses unknown type: %s',
-        ParserError::VALUE_TYPE_MISMATCH => 'Invalid validation schema value: %s must be of type <%s>, got <%s>',
-        ParserError::RULE_INAPPLICABLE   => 'Invalid validation schema: %s validation rule is not applicable to type <%s>',
+        ParserError::RULE_MISSING        => 'Invalid schema: %s contains no rule',
+        ParserError::SCHEMA_MISSING      => 'Missing schema key: %s uses type "%s" but contains no "schema" key',
+        ParserError::TYPE_MISSING        => 'Insufficient schema: %s contains no `type` validation rule',
+        ParserError::TYPE_REPEATED       => 'Ambiguous schema: %s contains multiple `type` validation rules',
+        ParserError::TYPE_UNKNOWN        => 'Invalid schema: %s uses unknown type: %s',
+        ParserError::VALUE_TYPE_MISMATCH => 'Invalid schema value: %s must be of type <%s>, got <%s>',
+        ParserError::RULE_INAPPLICABLE   => 'Invalid schema: %s validation rule is not applicable to type <%s>',
     ];
 
     /** @const array VALID_RULE_ADDITION_KEYS */
@@ -55,11 +55,11 @@ class Parser
         Type::TUPLE   => SchemaTuple::class,
     ];
 
-    /** @param \Ares\RuleFactory $ruleFactory */
+    /** @param RuleFactory $ruleFactory */
     protected $ruleFactory;
 
     /**
-     * @param \Ares\RuleFactory $ruleFactory
+     * @param RuleFactory $ruleFactory
      */
     public function __construct(RuleFactory $ruleFactory)
     {
@@ -67,9 +67,9 @@ class Parser
     }
 
     /**
-     * @param \Ares\Schema\ParserContext $context Parser context.
+     * @param ParserContext $context Parser context.
      * @return void
-     * @throws \Ares\Exception\InvalidValidationSchemaException
+     * @throws InvalidSchemaException
      */
     protected function ascertainInputHoldsArrayOrFail(ParserContext $context): void
     {
@@ -81,9 +81,9 @@ class Parser
     }
 
     /**
-     * @param \Ares\Schema\ParserContext $context Parser context.
+     * @param ParserContext $context Parser context.
      * @return string
-     * @throws \Ares\Exception\InvalidValidationSchemaException
+     * @throws InvalidSchemaException
      */
     protected function extractTypeOrFail(ParserContext $context): string
     {
@@ -117,11 +117,11 @@ class Parser
     }
 
     /**
-     * @param int                        $parserError Parser error ID.
-     * @param \Ares\Schema\ParserContext $context     Parser context.
-     * @param array                      $messageVars Variables to substiture in the message.
-     * @throws \Ares\Exception\InvalidValidationSchemaException
-     * @see \Ares\Schema\ParserError
+     * @param int           $parserError Parser error ID.
+     * @param ParserContext $context     Parser context.
+     * @param array         $messageVars Variables to substiture in the message.
+     * @throws InvalidSchemaException
+     * @see ParserError
      */
     protected function fail(int $parserError, ParserContext $context, ...$messageVars)
     {
@@ -129,13 +129,13 @@ class Parser
         $source = JsonPointer::encode($context->getInputPosition());
         $sprintfArgs = array_merge([$message, $source], $messageVars);
 
-        throw new InvalidValidationSchemaException(call_user_func_array('sprintf', $sprintfArgs));
+        throw new InvalidSchemaException(call_user_func_array('sprintf', $sprintfArgs));
     }
 
     /**
-     * @param mixed $schema Validation schema.
-     * @return \Ares\Schema\Schema
-     * @throws \Ares\Exception\InvalidValidationSchemaException
+     * @param mixed $schema Schema.
+     * @return Schema
+     * @throws InvalidSchemaException
      */
     public function parse($schema): Schema
     {
@@ -145,11 +145,11 @@ class Parser
     }
 
     /**
-     * @param string                     $type    Value type.
-     * @param \Ares\Schema\ParserContext $context Parser context.
-     * @param string                     $ruleId  Validation rule ID.
-     * @return \Ares\Schema\Rule|null
-     * @throws \Ares\Exception\InvalidValidationSchemaException
+     * @param string        $type    Value type.
+     * @param ParserContext $context Parser context.
+     * @param string        $ruleId  Validation rule ID.
+     * @return Rule|null
+     * @throws InvalidSchemaException
      */
     protected function parseRule(string $type, ParserContext $context, string $ruleId): ?Rule
     {
@@ -181,11 +181,11 @@ class Parser
     }
 
     /**
-     * @param string                     $type    Value type.
-     * @param \Ares\Schema\ParserContext $context Parser context.
-     * @param mixed                      $index   Parser context related index.
-     * @return \Ares\Schema\Rule|null
-     * @throws \Ares\Exception\InvalidValidationSchemaException
+     * @param string        $type    Value type.
+     * @param ParserContext $context Parser context.
+     * @param mixed         $index   Parser context related index.
+     * @return Rule|null
+     * @throws InvalidSchemaException
      */
     protected function parseRuleWithAdditions(string $type, ParserContext $context, $index): ?Rule
     {
@@ -238,9 +238,9 @@ class Parser
     }
 
     /**
-     * @param \Ares\Schema\ParserContext $context Parser context.
-     * @return \Ares\Schema\Schema
-     * @throws \Ares\Exception\InvalidValidationSchemaException
+     * @param ParserContext $context Parser context.
+     * @return Schema
+     * @throws InvalidSchemaException
      */
     protected function parseSchema(ParserContext $context): Schema
     {
@@ -298,9 +298,9 @@ class Parser
     }
 
     /**
-     * @param \Ares\Schema\ParserContext $context Parser context.
+     * @param ParserContext $context Parser context.
      * @return array
-     * @throws \Ares\Exception\InvalidValidationSchemaException
+     * @throws InvalidSchemaException
      */
     protected function parseSchemas(ParserContext $context): array
     {
@@ -322,9 +322,9 @@ class Parser
     }
 
     /**
-     * @param \Ares\Schema\ParserContext $context Parser context.
+     * @param ParserContext $context Parser context.
      * @return array
-     * @throws \Ares\Exception\InvalidValidationSchemaException
+     * @throws InvalidSchemaException
      */
     protected function parseTupleSchemas(ParserContext $context): array
     {

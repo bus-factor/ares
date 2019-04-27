@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class UnknownValidationRuleIdExceptionTest
  *
- * @coversDefaultClass \Ares:Exception\UnknownValidationRuleIdException
+ * @coversDefaultClass \Ares\Exception\UnknownValidationRuleIdException
  */
 class UnknownValidationRuleIdExceptionTest extends TestCase
 {

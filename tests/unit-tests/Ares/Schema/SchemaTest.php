@@ -69,10 +69,10 @@ class SchemaTest extends TestCase
      *
      * @dataProvider getSetRuleSamples
      *
-     * @param \Ares\Schema\Rule $rule1        Schema rule.
-     * @param \Ares\Schema\Rule $rule2        Schema rule.
-     * @param boolean           $replace      Replace parameter.
-     * @param \Ares\Schema\Rule $expectedRule Schema rule.
+     * @param Rule    $rule1        Schema rule.
+     * @param Rule    $rule2        Schema rule.
+     * @param boolean $replace      Replace parameter.
+     * @param Rule    $expectedRule Schema rule.
      * @return void
      */
     public function testSetRule(Rule $rule1, Rule $rule2, bool $replace, Rule $expectedRule): void
