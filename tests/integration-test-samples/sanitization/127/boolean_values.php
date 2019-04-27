@@ -35,14 +35,14 @@ $schema = [
 ];
 
 $data = [
-    'list' => ['0', '1', [], ['foo' => 'bar']],
-    'tuple' => [0, 1],
+    'list' => ['0', '1', [], ['foo' => 'bar'], '', 'abc'],
+    'tuple' => [0, 1, 5],
     'boolean_5' => false,
     'boolean_6' => true,
 ];
 
 $dataExpected = [
-    'list' => [false, true, [], ['foo' => 'bar']],
+    'list' => [false, true, [], ['foo' => 'bar'], '', 'abc'],
     'tuple' => [false, true],
     'boolean_5' => false,
     'boolean_6' => true,
@@ -53,3 +53,8 @@ $ares = new Ares($schema);
 $dataSanitized = $ares->sanitize($data);
 
 $this->assertEquals($dataExpected, $dataSanitized);
+$this->assertSame(false, $dataSanitized['list'][0]);
+$this->assertSame(true, $dataSanitized['list'][1]);
+$this->assertSame(false, $dataSanitized['tuple'][0]);
+$this->assertSame(true, $dataSanitized['tuple'][1]);
+

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * InvalidValidationOptionException.php
+ * InvalidOptionException.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
  * @since  2019-04-14
@@ -14,9 +14,9 @@ namespace Ares\Exception;
 use InvalidArgumentException;
 
 /**
- * Class InvalidValidationOptionException
+ * Class InvalidOptionException
  */
-class InvalidValidationOptionException extends InvalidArgumentException
+class InvalidOptionException extends InvalidArgumentException
 {
 }
 

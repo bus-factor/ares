@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace UnitTest\Ares\Validation;
 
-use Ares\Exception\InvalidValidationOptionException;
+use Ares\Exception\InvalidOptionException;
 use Ares\Schema\Parser;
 use Ares\Validation\Context;
 use Ares\Validation\Error\ErrorMessageRenderer;
@@ -89,12 +89,12 @@ class ValidatorTest extends TestCase
      * @param string|null $expectedExceptionMessage Expected exception message.
      * @return void
      */
-    public function testConstructorHandlesInvalidOptions(
+    public function testValidateHandlesInvalidOptions(
         array $options,
         ?string $expectedExceptionMessage = null
     ): void {
         if ($expectedExceptionMessage !== null) {
-            $this->expectException(InvalidValidationOptionException::class);
+            $this->expectException(InvalidOptionException::class);
             $this->expectExceptionMessage($expectedExceptionMessage);
         }
 

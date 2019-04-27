@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Ares\Validation;
 
-use Ares\Exception\InvalidValidationOptionException;
+use Ares\Exception\InvalidOptionException;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Exception\UnknownValidationRuleIdException;
 use Ares\Schema\Parser;
@@ -170,13 +170,13 @@ class Validator
     /**
      * @param array $options User provided options.
      * @return array
-     * @throws InvalidValidationOptionException
+     * @throws InvalidOptionException
      */
     protected function prepareOptions(array $options): array
     {
         foreach ($options as $key => $value) {
             if (!in_array($key, Option::getValues())) {
-                throw new InvalidValidationOptionException(
+                throw new InvalidOptionException(
                     sprintf('Unknown validation option: \'%s\' is not a supported validation option', $key)
                 );
             }
@@ -184,7 +184,7 @@ class Validator
             $type = gettype($value);
 
             if ($type !== PhpType::BOOLEAN) {
-                throw new InvalidValidationOptionException(
+                throw new InvalidOptionException(
                     sprintf('Invalid validation option: \'%s\' must be of type <boolean>, got <%s>', $key, $type)
                 );
             }
@@ -239,7 +239,7 @@ class Validator
      * @param mixed $data    Input data.
      * @param array $options Validation options.
      * @return boolean
-     * @throws InvalidValidationOptionException
+     * @throws InvalidOptionException
      * @throws InvalidValidationRuleArgsException
      * @throws UnknownValidationRuleIdException
      */

@@ -53,3 +53,10 @@ $ares = new Ares($schema);
 $dataSanitized = $ares->sanitize($data);
 
 $this->assertEquals($dataExpected, $dataSanitized);
+$this->assertSame(2, $dataSanitized['list'][0]);
+$this->assertSame(42, $dataSanitized['list'][1]);
+$this->assertSame(false, $dataSanitized['tuple'][0]);
+$this->assertSame(true, $dataSanitized['tuple'][1]);
+$this->assertSame(2, $dataSanitized['integer_5']);
+$this->assertSame(13, $dataSanitized['integer_6']);
+

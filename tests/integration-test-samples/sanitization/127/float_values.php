@@ -45,7 +45,7 @@ $data = [
 
 $dataExpected = [
     'list' => [2.0, 42.0, [], ['foo' => 'bar'], 'abc'],
-    'tuple' => [0.0, 1.0],
+    'tuple' => [false, true],
     'float_5' => 2.55,
     'float_6' => 13.37,
     'float_7' => 13.0,
@@ -56,3 +56,11 @@ $ares = new Ares($schema);
 $dataSanitized = $ares->sanitize($data);
 
 $this->assertEquals($dataExpected, $dataSanitized);
+$this->assertSame(2.0, $dataSanitized['list'][0]);
+$this->assertSame(42.0, $dataSanitized['list'][1]);
+$this->assertSame(false, $dataSanitized['tuple'][0]);
+$this->assertSame(true, $dataSanitized['tuple'][1]);
+$this->assertSame(2.55, $dataSanitized['float_5']);
+$this->assertSame(13.37, $dataSanitized['float_6']);
+$this->assertSame(13.0, $dataSanitized['float_7']);
+

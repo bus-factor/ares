@@ -51,6 +51,8 @@ Ares is a lightweight standalone validation library.
   * [Change the Validation Error Message of a single Rule](#custom-validation-error-messages-per-field)
   * [Localization of Validation Error Messages](#custom-validation-error-messages-localization)
 * [Custom Validation Rules](#custom-validation-rules)
+* [Sanitization](#sanitization)
+  * [Sanitization Options](#sanitization-options)
 
 # <a name="installation"></a>Installation
 
@@ -724,4 +726,55 @@ $schema = [
 
 $ares = new Ares($schema, $ruleFactory);
 ```
+
+# <a name="sanitization"></a>Sanitization
+
+This following example shows how to sanitize data:
+
+```php
+$schema = [
+    'type' => 'map',
+    'schema' => [
+        'name' => ['type' => 'string'],
+        'age' => ['type' => 'integer'],
+        'active' => ['type' => 'boolean'],
+    ],
+];
+
+$ares = new Ares($schema);
+
+$data = [
+    'name' => ' John Doe   ',
+    'age' => '23',
+    'active' => '1',
+    'hobby' => 'Reading',
+];
+
+$sanitizedData = $ares->sanitize($data);
+
+// Result:
+// [
+//     'name' => 'John Doe',
+//     'age' => 23,
+//     'active' => true,
+// ]
+```
+
+As shown in the example, by default sanitization makes these adjustments:
+* Trim strings
+* Convert numeric strings into integer, or string values
+* Convert numeric non-empty strings into boolean values
+* Removes unknown fields from the input data
+
+## <a name="sanitization-options"></a>Sanitization Options
+
+### trimStrings
+
+If set ```true``` (default) sorrounding whitespace will be removed from strings.
+If set ```false``` sorrounding whitespace will be preserved.
+
+### purgeUnknown
+
+If set ```true``` (default) unknown fields (fields/indices not defined in the schema) will be removed from the input data.
+If set ```false``` unknown fields will be preserved.
 
