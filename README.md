@@ -81,7 +81,6 @@ $ares = new Ares([
 ]);
 $valid = $ares->validate(['firstName' => 'John', 'lastName' => 'Doe']);
 $errors = $ares->getValidationErrors();
-
 ```
 
 # <a name="validation-errors"></a>Validation Errors
@@ -95,7 +94,7 @@ Each ```Ares\Error\Error``` object implements the ```JsonSerializable``` interfa
 
 # <a name="validation-options"></a>Validation Options
 
-Validation options may be passed on validator construction:
+Validation options may be passed on validation:
 
 ```php
 $schema = [];

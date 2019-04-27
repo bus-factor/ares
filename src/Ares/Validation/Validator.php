@@ -50,12 +50,12 @@ class Validator
     protected $schema;
 
     /**
-     * @param array            $schema      Schema.
-     * @param RuleFactory|null $ruleFactory Validation rule factory.
+     * @param array       $schema      Schema.
+     * @param RuleFactory $ruleFactory Validation rule factory.
      */
-    public function __construct(Schema $schema, ?RuleFactory $ruleFactory = null)
+    public function __construct(Schema $schema, RuleFactory $ruleFactory)
     {
-        $this->ruleFactory = $ruleFactory ?? new RuleFactory();
+        $this->ruleFactory = $ruleFactory;
         $this->schema = $schema;
     }
 

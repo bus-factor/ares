@@ -41,9 +41,11 @@ class Ares
     public function __construct(array $schema, ?RuleFactory $ruleFactory = null)
     {
         $this->ruleFactory = $ruleFactory ?? new RuleFactory();
+
         $this->schema = (new Parser($this->ruleFactory))->parse($schema);
+
         $this->sanitizer = new Sanitizer($this->schema);
-        $this->validator = new Validator($this->schema);
+        $this->validator = new Validator($this->schema, $this->ruleFactory);
     }
 
     /**
@@ -59,7 +61,7 @@ class Ares
      */
     public function getValidationErrors(): array
     {
-        return $this->validator->getErrors();
+        return $this->getValidator()->getErrors();
     }
 
     /**
@@ -79,7 +81,7 @@ class Ares
      */
     public function sanitize($data, array $options = [])
     {
-        return $this->sanitizer->sanitize($data, $options);
+        return $this->getSanitizer()->sanitize($data, $options);
     }
 
     /**
@@ -90,7 +92,7 @@ class Ares
      */
     public function validate($data, array $options = []): bool
     {
-        return $this->validator->validate($data, $options);
+        return $this->getValidator()->validate($data, $options);
     }
 }
 

@@ -39,7 +39,7 @@ class ValidatorTest extends TestCase
         $ruleFactory = new RuleFactory();
         $schemaParser = new Parser($ruleFactory);
         $schema = $schemaParser->parse(['type' => 'integer']);
-        $validator = new Validator($schema);
+        $validator = new Validator($schema, $ruleFactory);
 
         $this->assertInstanceOf(ErrorMessageRenderer::class, $validator->getErrorMessageRenderer());
 
