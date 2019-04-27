@@ -55,5 +55,21 @@ class SanitizerTest extends TestCase
 
         $this->assertTrue(true);
     }
+
+    /**
+     * @covers ::performSanitization
+     * @covers ::sanitize
+     *
+     * @return void
+     */
+    public function testSanitizeIgnoresUnknownTypes(): void
+    {
+        $schema = (new Schema())->setRule(new Rule(TypeRule::ID, 'unknownType'));
+        $sanitizer = new Sanitizer($schema);
+
+        $data = ['foo' => 'bar', false, 13.37];
+
+        $this->assertSame($data, $sanitizer->sanitize($data));
+    }
 }
 
