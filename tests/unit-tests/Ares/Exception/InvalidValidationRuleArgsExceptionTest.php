@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class InvalidValidationRuleArgsExceptionTest
  *
- * @coversDefaultClass \Ares:Exception\InvalidValidationRuleArgsException
+ * @coversDefaultClass \Ares\Exception\InvalidValidationRuleArgsException
  */
 class InvalidValidationRuleArgsExceptionTest extends TestCase
 {

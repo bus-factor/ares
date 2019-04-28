@@ -28,7 +28,7 @@ class SchemaTuple extends Schema
     }
 
     /**
-     * @param \Ares\Schema\Schema $schema Schema instance.
+     * @param Schema $schema Schema instance.
      * @return self
      */
     public function appendSchema(Schema $schema): self

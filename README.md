@@ -23,7 +23,7 @@ Ares is a lightweight standalone validation library.
   * [allBlankable](#validation-options_all-blankable)
   * [allNullable](#validation-options_all-nullable)
   * [allRequired](#validation-options_all-required)
-  * [allowUnknown](#validation-options_allow-unknown)
+  * [allUnknownAllowed](#validation-options_all-unknown-allowed)
 * [Validation Rules](#validation-rules)
   * [allowed](#validation-rules_allowed)
   * [blankable](#validation-rules_blankable)
@@ -45,11 +45,15 @@ Ares is a lightweight standalone validation library.
     * [schema (map)](#validation-rules_schema_schema-map)
     * [schema (tuple)](#validation-rules_schema_schema-tuple)
   * [type](#validation-rules_type)
+  * [unknownAllowed](#validation-rules_unknownAllowed)
   * [url](#validation-rules_url)
+* [Custom Types](#custom-types)
 * [Custom Validation Error Messages](#custom-validation-error-messages)
   * [Change the Validation Error Message of a single Rule](#custom-validation-error-messages-per-field)
   * [Localization of Validation Error Messages](#custom-validation-error-messages-localization)
 * [Custom Validation Rules](#custom-validation-rules)
+* [Sanitization](#sanitization)
+  * [Sanitization Options](#sanitization-options)
 
 # <a name="installation"></a>Installation
 
@@ -63,25 +67,23 @@ composer require bus-factor/ares
 ```php
 <?php
 
-use Ares\Validator;
+use Ares\Ares;
 
 // atomic types
-$validator = new Validator(['type' => 'string', 'required' => true]);
-$valid = $validator->validate('John Doe');
-$errors = $validator->getErrors();
+$ares = new Ares(['type' => 'string']);
+$valid = $ares->validate('John Doe');
+$errors = $ares->getValidationErrors();
 
 // complex/nested types
-$validator = new Validator([
+$ares = new Ares([
     'type' => 'map',
-    'required' => true,
     'schema' => [
         'firstName' => ['type' => 'string', 'required' => true],
         'lastName' => ['type' => 'string', 'required' => true],
     ],
 ]);
-$valid = $validator->validate(['firstName' => 'John', 'lastName' => 'Doe']);
-$errors = $validator->getErrors();
-
+$valid = $ares->validate(['firstName' => 'John', 'lastName' => 'Doe']);
+$errors = $ares->getValidationErrors();
 ```
 
 # <a name="validation-errors"></a>Validation Errors
@@ -95,22 +97,22 @@ Each ```Ares\Error\Error``` object implements the ```JsonSerializable``` interfa
 
 # <a name="validation-options"></a>Validation Options
 
-Validation options may be passed on validator construction:
+Validation options may be passed on validation:
 
 ```php
 $schema = [];
 $options = [];
-$validator = new Validator($schema, $options);
+$ares = new Ares($schema, $options);
 ```
 
 Default validation options are:
 
 ```php
 Validator::OPTIONS_DEFAULTS = [
-    'allBlankable' => false,
-    'allNullable'  => false,
-    'allRequired'  => false,
-    'allowUnknown' => false,
+    'allBlankable'      => false,
+    'allNullable'       => false,
+    'allRequired'       => true,
+    'allUnknownAllowed' => false,
 ]
 ```
 
@@ -128,11 +130,10 @@ $schema = [
     ],
 ];
 
-$validator = new Validator($schema, ['allBlankable' => true]);
-$validator->validate(['name' => '']); // -> true
+$ares = new Ares($schema);
 
-$validator = new Validator($schema, ['allBlankable' => false]);
-$validator->validate(['name' => '']); // -> false
+$ares->validate(['name' => ''], ['allBlankable' => true]); // -> true
+$ares->validate(['name' => ''], ['allBlankable' => false]); // -> false
 ```
 
 This option may be overridden per field by using the ```blankable``` rule:
@@ -145,8 +146,7 @@ $schema = [
     ],
 ];
 
-$validator = new Validator($schema, ['allBlankable' => false]);
-$validator->validate(['name' => 'John Doe', 'email' => '']); // -> true
+$ares->validate(['name' => 'John Doe', 'email' => ''], ['allBlankable' => false]); // -> true
 ```
 
 ## <a name="validation-options_all-nullable"></a>allNullable
@@ -162,11 +162,8 @@ $schema = [
     ],
 ];
 
-$validator = new Validator($schema, ['allNullable' => true]);
-$validator->validate(['name' => null]); // -> true
-
-$validator = new Validator($schema, ['allNullable' => false]);
-$validator->validate(['name' => null]); // -> false
+$ares->validate(['name' => null], ['allNullable' => true]); // -> true
+$ares->validate(['name' => null], ['allNullable' => false]); // -> false
 ```
 
 This option may be overridden per field by using the ```nullable``` rule:
@@ -179,13 +176,12 @@ $schema = [
     ],
 ];
 
-$validator = new Validator($schema, ['allNullable' => false]);
-$validator->validate(['name' => 'John Doe', 'email' => null]); // -> true
+$ares->validate(['name' => 'John Doe', 'email' => null], ['allNullable' => false]); // -> true
 ```
 
 ## <a name="validation-options_all-required"></a>allRequired
 
-If set ```true``` fields that are defined in the schema and not present in the input, are considered invalid.
+If set ```true``` (default) fields that are defined in the schema and not present in the input, are considered invalid.
 If set ```false``` fields that are defined in the schema and not present in the input, are considered valid.
 
 ```php
@@ -196,11 +192,9 @@ $schema = [
     ],
 ];
 
-$validator = new Validator($schema, ['allRequired' => true]);
-$validator->validate([]); // -> false
-
-$validator = new Validator($schema, ['allRequired' => false]);
-$validator->validate([]); // -> true
+$ares = new Ares($schema);
+$ares->validate([], ['allRequired' => true]); // -> false
+$ares->validate([], ['allRequired' => false]); // -> true
 ```
 
 This option may be overridden per field by using the ```required``` rule:
@@ -213,11 +207,11 @@ $schema = [
     ],
 ];
 
-$validator = new Validator($schema, ['allRequired' => true]);
-$validator->validate(['name' => 'John Doe']); // -> true
+$ares = new Ares($schema);
+$ares->validate(['name' => 'John Doe'], ['allRequired' => true]); // -> true
 ```
 
-## <a name="validation-options_allow-unknown"></a>allowUnknown
+## <a name="validation-options_all-unknown-allowed"></a>allUnknownAllowed
 
 This option applies to the type ```map``` only.
 If set ```true``` fields that occur in the input data but are not defined in the schema are considered invalid.
@@ -231,11 +225,9 @@ $schema = [
     ],
 ];
 
-$validator = new Validator($schema, ['allowUnknown' => false]);
-$validator->validate(['name' => 'John Doe', 'initials' => 'JD']); // -> false
-
-$validator = new Validator($schema, ['allowUnknown' => true]);
-$validator->validate(['name' => 'John Doe', 'initials' => 'JD']); // -> true
+$ares = new Ares($schema);
+$ares->validate(['name' => 'John Doe', 'initials' => 'JD'], ['allUnknownAllowed' => false]); // -> false
+$ares->validate(['name' => 'John Doe', 'initials' => 'JD'], ['allUnknownAllowed' => true]); // -> true
 ```
 
 # <a name="validation-rules"></a>Validation Rules
@@ -247,9 +239,9 @@ The ```allowed``` validation rule checks if a value is in a given set of allowed
 Examples:
 
 ```php
-$validator = new Validator(['type' => 'string', 'allowed' => ['small', 'large']]);
-$validator->validate('medium'); // -> false
-$validator->validate('small'); // -> true
+$ares = new Ares(['type' => 'string', 'allowed' => ['small', 'large']]);
+$ares->validate('medium'); // -> false
+$ares->validate('small'); // -> true
 ```
 
 The ```allowed``` validation rule is the opposite of the ```forbidden``` validation rule.
@@ -263,13 +255,13 @@ If set ```false```, blank strings are considered invalid (default).
 Examples:
 
 ```php
-$validator = new Validator(['type' => 'string', 'blankable' => false]);
-$validator->validate(''); // -> false
-$validator->validate('   '); // -> false
-$validator->validate('John Doe'); // -> true
+$ares = new Ares(['type' => 'string', 'blankable' => false]);
+$ares->validate(''); // -> false
+$ares->validate('   '); // -> false
+$ares->validate('John Doe'); // -> true
 
-$validator = new Validator(['type' => 'string', 'blankable' => true]);
-$validator->validate('   '); // -> true
+$ares = new Ares(['type' => 'string', 'blankable' => true]);
+$ares->validate('   '); // -> true
 ```
 
 The ```blankable``` validation rule may be used in combination with the ```allBlankable``` validation option.
@@ -285,13 +277,13 @@ See [DateTime::createFromFormat()](http://php.net/manual/en/datetime.createfromf
 Examples:
 
 ```php
-$validator = new Validator(['type' => 'string', 'datetime' => true]);
-$validator->validate('foo'); // -> false
-$validator->validate('2018-03-23'); // -> true
+$ares = new Ares(['type' => 'string', 'datetime' => true]);
+$ares->validate('foo'); // -> false
+$ares->validate('2018-03-23'); // -> true
 
-$validator = new Validator(['type' => 'string', 'datetime' => 'd.m.Y H:i']);
-$validator->validate('2018-03-23'); // -> false
-$validator->validate('23.03.2019 00:20'); // -> true
+$ares = new Ares(['type' => 'string', 'datetime' => 'd.m.Y H:i']);
+$ares->validate('2018-03-23'); // -> false
+$ares->validate('23.03.2019 00:20'); // -> true
 ```
 
 ## <a name="validation-rules_directory"></a>directory
@@ -303,10 +295,10 @@ If set ```false```, all input is considered valid (no validation).
 Examples:
 
 ```php
-$validator = new Validator(['type' => 'string', 'directory' => true]);
-$validator->validate(''); // -> false
-$validator->validate(__FILE__); // -> false
-$validator->validate(__DIR__); // -> true
+$ares = new Ares(['type' => 'string', 'directory' => true]);
+$ares->validate(''); // -> false
+$ares->validate(__FILE__); // -> false
+$ares->validate(__DIR__); // -> true
 ```
 
 ## <a name="validation-rules_email"></a>email
@@ -318,9 +310,9 @@ If set ```false```, all input is considered valid (no validation).
 Examples:
 
 ```php
-$validator = new Validator(['type' => 'string', 'email' => true]);
-$validator->validate('John Doe'); // -> false
-$validator->validate('john.doe@example.com'); // -> true
+$ares = new Ares(['type' => 'string', 'email' => true]);
+$ares->validate('John Doe'); // -> false
+$ares->validate('john.doe@example.com'); // -> true
 ```
 
 ## <a name="validation-rules_file"></a>file
@@ -332,10 +324,10 @@ If set ```false```, all input is considered valid (no validation).
 Examples:
 
 ```php
-$validator = new Validator(['type' => 'string', 'file' => true]);
-$validator->validate(''); // -> false
-$validator->validate(__DIR__); // -> false
-$validator->validate(__FILE__); // -> true
+$ares = new Ares(['type' => 'string', 'file' => true]);
+$ares->validate(''); // -> false
+$ares->validate(__DIR__); // -> false
+$ares->validate(__FILE__); // -> true
 ```
 
 ## <a name="validation-rules_forbidden"></a>forbidden
@@ -345,9 +337,9 @@ The ```forbidden``` validation rule checks if a value is in a given set of forbi
 Examples:
 
 ```php
-$validator = new Validator(['type' => 'string', 'forbidden' => ['small', 'medium']]);
-$validator->validate('medium'); // -> false
-$validator->validate('large'); // -> true
+$ares = new Ares(['type' => 'string', 'forbidden' => ['small', 'medium']]);
+$ares->validate('medium'); // -> false
+$ares->validate('large'); // -> true
 ```
 
 The ```forbidden``` validation rule is the opposite of the ```allowed``` validation rule.
@@ -360,19 +352,19 @@ The ```length``` validation rule checks if a string, or list has a specified exa
 Examples:
 
 ```php
-$validator = new Validator(['type' => 'string', 'length' => 3]);
-$validator->validate('foobar'); // -> false
-$validator->validate('foo'); // -> true
+$ares = new Ares(['type' => 'string', 'length' => 3]);
+$ares->validate('foobar'); // -> false
+$ares->validate('foo'); // -> true
 
-$validator = new Validator([
+$ares = new Ares([
     'type' => 'list',
     'length' => 3,
     'schema' => [
         'type' => 'integer'
     ],
 ])
-$validator->validate([1, 2]); // -> false
-$validator->validate([1, 2, 3]); // -> true
+$ares->validate([1, 2]); // -> false
+$ares->validate([1, 2, 3]); // -> true
 
 ```
 
@@ -384,9 +376,9 @@ The ```max``` validation rule checks if a value is equal to or smaller a specifi
 Examples:
 
 ```php
-$validator = new Validator(['type' => 'integer', 'max' => 5]);
-$validator->validate(6); // -> false
-$validator->validate(2); // -> true
+$ares = new Ares(['type' => 'integer', 'max' => 5]);
+$ares->validate(6); // -> false
+$ares->validate(2); // -> true
 ```
 
 *Note* this validation rule will throw a ```Ares\Exception\InapplicableValidationRuleException``` when used in conjunction with non-supported value types.
@@ -399,19 +391,19 @@ The ```maxlength``` validation rule checks if a string, or list does not exceed 
 Examples:
 
 ```php
-$validator = new Validator(['type' => 'string', 'maxlength' => 5]);
-$validator->validate('foobar'); // -> false
-$validator->validate('foo'); // -> true
+$ares = new Ares(['type' => 'string', 'maxlength' => 5]);
+$ares->validate('foobar'); // -> false
+$ares->validate('foo'); // -> true
 
-$validator = new Validator([
+$ares = new Ares([
     'type' => 'list',
     'maxlength' => 3,
     'schema' => [
         'type' => 'integer'
     ],
 ])
-$validator->validate([1, 2, 3, 4]); // -> false
-$validator->validate([1, 2, 3]); // -> true
+$ares->validate([1, 2, 3, 4]); // -> false
+$ares->validate([1, 2, 3]); // -> true
 ```
 
 ## <a name="validation-rules_min"></a>min
@@ -422,9 +414,9 @@ The ```min``` validation rule checks if a value is equal to or greater a specifi
 Examples:
 
 ```php
-$validator = new Validator(['type' => 'integer', 'min' => 5]);
-$validator->validate(4); // -> false
-$validator->validate(8); // -> true
+$ares = new Ares(['type' => 'integer', 'min' => 5]);
+$ares->validate(4); // -> false
+$ares->validate(8); // -> true
 ```
 
 *Note* this validation rule will throw a ```Ares\Exception\InapplicableValidationRuleException``` when used in conjunction with non-supported value types.
@@ -437,19 +429,19 @@ The ```minlength``` validation rule checks if a string, or list is not shorter t
 Examples:
 
 ```php
-$validator = new Validator(['type' => 'string', 'minlength' => 5]);
-$validator->validate('foo'); // -> false
-$validator->validate('foobar'); // -> true
+$ares = new Ares(['type' => 'string', 'minlength' => 5]);
+$ares->validate('foo'); // -> false
+$ares->validate('foobar'); // -> true
 
-$validator = new Validator([
+$ares = new Ares([
     'type' => 'list',
     'minlength' => 3,
     'schema' => [
         'type' => 'integer'
     ],
 ])
-$validator->validate([1, 2]); // -> false
-$validator->validate([1, 2, 3]); // -> true
+$ares->validate([1, 2]); // -> false
+$ares->validate([1, 2, 3]); // -> true
 ```
 
 ## <a name="validation-rules_nullable"></a>nullable
@@ -460,12 +452,12 @@ If set ```false```, ```null``` is considered an invalid value (default).
 Examples:
 
 ```php
-$validator = new Validator(['type' => 'string', 'nullable' => false]);
-$validator->validate(null); // -> false
-$validator->validate('John Doe'); // -> true
+$ares = new Ares(['type' => 'string', 'nullable' => false]);
+$ares->validate(null); // -> false
+$ares->validate('John Doe'); // -> true
 
-$validator = new Validator(['type' => 'string', 'nullable' => true]);
-$validator->validate(null); // -> true
+$ares = new Ares(['type' => 'string', 'nullable' => true]);
+$ares->validate(null); // -> true
 ```
 
 The ```nullable``` validation rule may be used in combination with the ```allNullable``` validation option.
@@ -478,7 +470,7 @@ The ```regex``` validation rule checks if a string matches a regular expression.
 Examples:
 
 ```php
-$validator = new Validator([
+$ares = new Ares([
     'type' => 'map',
     'schema' => [
         'key' => [
@@ -488,8 +480,8 @@ $validator = new Validator([
     ],
 ]);
 
-$validator->validate(['key' => 'foobar']); // -> false
-$validator->validate(['key' => 'FOO']); // -> true
+$ares->validate(['key' => 'foobar']); // -> false
+$ares->validate(['key' => 'FOO']); // -> true
 ```
 
 ## <a name="validation-rules_required"></a>required
@@ -501,15 +493,15 @@ If set ```false```, absent fields are considered valid (default).
 Examples:
 
 ```php
-$validator = new Validator([
+$ares = new Ares([
     'type' => 'map',
     'schema' => [
         'name' => ['type' => 'string', 'required' => true],
     ],
 ]);
 
-$validator->validate([]); // -> false
-$validator->validate(['name' => 'John Doe']); // -> true
+$ares->validate([]); // -> false
+$ares->validate(['name' => 'John Doe']); // -> true
 ```
 
 The ```required``` validation rule may be used in combination with the ```allRequired``` validation option.
@@ -525,15 +517,15 @@ The validator expects the schema to define a list item's validation rules.
 Examples:
 
 ```php
-$validator = new Validator([
+$ares = new Ares([
     'type' => 'list',
     'schema' => [
         'type' => 'integer',
     ],
 ]);
 
-$validator->validate(['foo', 'bar']); // -> false
-$validator->validate([1, 2, 3]); // -> true
+$ares->validate(['foo', 'bar']); // -> false
+$ares->validate([1, 2, 3]); // -> true
 ```
 
 ### <a name="validation-rules_schema_schema-map"></a>schema (map)
@@ -543,7 +535,7 @@ The validator expects the schema to define per field validation rules for associ
 Examples:
 
 ```php
-$validator = new Validator([
+$ares = new Ares([
     'type' => 'map',
     'schema' => [
         'email' => ['type' => 'string', 'required' => true],
@@ -551,8 +543,8 @@ $validator = new Validator([
     ],
 ]);
 
-$validator->validate(['email' => 'john.doe@example.com']); // -> false
-$validator->validate(['email' => 'john.doe@example.com', 'password' => 'j4n3:)']); // -> true
+$ares->validate(['email' => 'john.doe@example.com']); // -> false
+$ares->validate(['email' => 'john.doe@example.com', 'password' => 'j4n3:)']); // -> true
 ```
 
 ### <a name="validation-rules_schema_schema-tuple"></a>schema (tuple)
@@ -563,7 +555,7 @@ During validation input array elements are expected to be continuous indexed sta
 Examples:
 
 ```php
-$validator = new Validator([
+$ares = new Ares([
     'type' => 'tuple',
     'schema' => [
         ['type' => 'string', 'email' => true],
@@ -571,9 +563,9 @@ $validator = new Validator([
     ],
 ]);
 
-$validator->validate(['john.doe@example.com']); // -> false
-$validator->validate([1 => 'john.doe@example.com', 2 => 23]); // -> false
-$validator->validate(['john.doe@example.com', 23]); // -> true
+$ares->validate(['john.doe@example.com']); // -> false
+$ares->validate([1 => 'john.doe@example.com', 2 => 23]); // -> false
+$ares->validate(['john.doe@example.com', 23]); // -> true
 ```
 
 Internally, all ```schema``` elements of a ```tuple``` are required and cannot be declared optional by schema.
@@ -594,9 +586,32 @@ The ```type``` rule is mandatory and defines the expected/allowed value type. Su
 Examples:
 
 ```php
-$validator = new Validator(['type' => 'float']);
-$validator->validate(5); // -> false
-$validator->validate('John Doe'); // -> false
+$ares = new Ares(['type' => 'float']);
+$ares->validate(5); // -> false
+$ares->validate('John Doe'); // -> false
+```
+
+Read the section [Custom Types](#custom-types) to find out how to define and reuse your own types.
+
+## <a name="validation-rules_unknownAllowed"></a>unknownAllowed
+
+The ```unknownAllowed``` validation rule checks if a ```map``` contains fields that are not defined in the schema.
+If set ```true```, fields that are not defined in the schema are considered valid.
+If set ```false```, fields that are not defined in the schema are considered invalid.
+
+Examples:
+
+```php
+$ares = new Ares([
+    'type' => 'map',
+    'schema' => [
+        'name' => ['type' => 'string'],
+    ],
+    'unknownAllowed' => false,
+]);
+
+$ares->validate(['name' => 'John Doe', 'email' => 'john.doe@example.com']); // -> false
+$ares->validate(['name' => 'John Doe']); // -> true
 ```
 
 ## <a name="validation-rules_url"></a>url
@@ -606,10 +621,52 @@ The ```url``` validation rule checks if a value is a valid URL.
 Examples:
 
 ```php
-$validator = new Validator(['type' => 'string', 'url' => true]);
-$validator->validate('example'); // -> false
-$validator->validate('https://example.com'); // -> true
+$ares = new Ares(['type' => 'string', 'url' => true]);
+$ares->validate('example'); // -> false
+$ares->validate('https://example.com'); // -> true
 ```
+
+# <a name="custom-types"></a>Custom Types
+
+Basically, a custom type is a user defined schema that is stored in and retrieved from a registry.
+Here's an example how it works:
+
+```php
+use Ares\Ares;
+use Ares\Schema\TypeRegistry;
+
+TypeRegistry::register('GermanDateString', [
+    'type' => 'string',
+    ['datetime' => 'd.m.Y', 'message' => 'Invalid date format, try something like "24.02.2019"'],
+]);
+
+TypeRegistry::register('ListOfHobbies', [
+    'type' => 'list',
+    'schema' => [
+        'type' => 'string',
+        'allowed' => ['Reading', 'Biking'],
+    ],
+]);
+
+TypeRegistry::register('Student', [
+    'type' => 'map',
+    'schema' => [
+        'birthDate' => ['type' => 'GermanDateString'],
+        'hobbies' => ['type' => 'ListOfHobbies', 'minlength' => 1],
+    ],
+]);
+
+$schema = ['type' => 'Student'];
+
+$ares = new Ares($schema);
+
+$ares->validate(['birthDate' => '1998-06-14', 'hobbies' => []]); // false
+$ares->validate(['birthDate' => '14.06.1998', 'hobbies' => ['Reading']]); // true
+```
+
+Previously registered types are unregistered using ```TypeRegistry::unregister()```.
+All priviously registered types are unregistered at once using ```TypeRegistry::unregisterAll()```.
+It is also possible to define recursive types.
 
 # <a name="custom-validation-error-messages"></a>Custom Validation Error Messages
 
@@ -619,12 +676,12 @@ The following example shows how validation error messages can be customized:
 
 ```php
 // validation rule without custom message (default)
-$validator = new Validator([
+$ares = new Ares([
     'type' => 'integer',
 ]);
 
 // validation rule with custom message
-$validator = new Validator([
+$ares = new Ares([
     ['type' => 'integer', 'message' => 'Pleaser provide an integer value']
 ]);
 ```
@@ -638,8 +695,8 @@ If not specified, an instance of ```Ares\Error\ErrorMessageRenderer``` is create
 If necessary, a custom error message renderer can be passed to the validator:
 
 ```php
-use Ares\Error\ErrorMessageRendererInterface;
-use Ares\Validator;
+use Ares\Ares;
+use Ares\Validation\Error\ErrorMessageRendererInterface;
 
 class MyErrorMessageRenderer implements ErrorMessageRendererInterface
 {
@@ -648,11 +705,11 @@ class MyErrorMessageRenderer implements ErrorMessageRendererInterface
 
 // ...
 
-$validator = new Validator($schema);
+$ares = new Ares($schema);
 
-$validator->setErrorMessageRenderer(new MyErrorMessageRenderer());
+$ares->getValidator()->setErrorMessageRenderer(new MyErrorMessageRenderer());
 
-$valid = $validator->validate($data);
+$valid = $ares->validate($data);
 ```
 
 # <a name="custom-validation-rules"></a>Custom Validation Rules
@@ -660,11 +717,11 @@ $valid = $validator->validate($data);
 The following simple example shows how custom validation rules are implemented and integrated:
 
 ```php
-use Ares\Context;
-use Ares\RuleFactory;
-use Ares\Rule\AbstractRule;
+use Ares\Ares;
 use Ares\Schema\Type;
-use Ares\Validator;
+use Ares\Validation\Context;
+use Ares\Validation\RuleRegistry;
+use Ares\Validation\Rule\AbstractRule;
 
 class ZipCodeRule extends AbstractRule
 {
@@ -686,9 +743,9 @@ class ZipCodeRule extends AbstractRule
     /**
      * Perform the value validation.
      *
-     * @param mixed         $args    Validation rule arguments.
-     * @param mixed         $data    Data being validated.
-     * @param \Ares\Context $context Validation context.
+     * @param mixed   $args    Validation rule arguments.
+     * @param mixed   $data    Data being validated.
+     * @param Context $context Validation context.
      * @return bool
      */
     public function performValidation($args, $data, Context $context): bool
@@ -704,14 +761,64 @@ class ZipCodeRule extends AbstractRule
     }
 }
 
-$ruleFactory = new RuleFactory();
-$ruleFactory->set(ZipCodeRule::ID, new ZipCodeRule());
+RuleRegistry::register(ZipCodeRule::ID, new ZipCodeRule());
 
 $schema = [
     'type' => 'string',
     'zipcode' => true,
 ];
 
-$validator = new Validator($schema, [], $ruleFactory);
+$ares = new Ares($schema);
 ```
+
+# <a name="sanitization"></a>Sanitization
+
+This following example shows how to sanitize data:
+
+```php
+$schema = [
+    'type' => 'map',
+    'schema' => [
+        'name' => ['type' => 'string'],
+        'age' => ['type' => 'integer'],
+        'active' => ['type' => 'boolean'],
+    ],
+];
+
+$ares = new Ares($schema);
+
+$data = [
+    'name' => ' John Doe   ',
+    'age' => '23',
+    'active' => '1',
+    'hobby' => 'Reading',
+];
+
+$sanitizedData = $ares->sanitize($data);
+
+// Result:
+// [
+//     'name' => 'John Doe',
+//     'age' => 23,
+//     'active' => true,
+// ]
+```
+
+As shown in the example, by default sanitization makes these adjustments:
+* Trim strings
+* Convert numeric strings into integer, or string values
+* Convert numeric non-empty strings into boolean values
+* Removes unknown fields from the input data
+
+## <a name="sanitization-options"></a>Sanitization Options
+
+### trimStrings
+
+If set ```true``` (default) sorrounding whitespace will be removed from strings.
+If set ```false``` sorrounding whitespace will be preserved.
+
+### purgeUnknown
+
+If set ```true``` (default) unknown fields (fields/indices not defined in the schema) will be removed from the input data.
+If set ```false``` unknown fields will be preserved.
 

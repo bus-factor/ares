@@ -28,8 +28,8 @@ class SchemaMap extends Schema
     }
 
     /**
-     * @param string              $field  Field name.
-     * @param \Ares\Schema\Schema $schema Schema instance.
+     * @param string $field  Field name.
+     * @param Schema $schema Schema instance.
      * @return self
      */
     public function setSchema(string $field, Schema $schema): self

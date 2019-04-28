@@ -16,11 +16,11 @@ namespace Ares\Schema;
  */
 class SchemaList extends Schema
 {
-    /** @var \Ares\Schema\Schema|null $schema */
+    /** @var Schema|null $schema */
     protected $schema;
 
     /**
-     * @return \Ares\Schema\Schema|null
+     * @return Schema|null
      */
     public function getSchema(): ?Schema
     {
@@ -28,7 +28,7 @@ class SchemaList extends Schema
     }
 
     /**
-     * @param \Ares\Schema\Schema $schema Schema instance.
+     * @param Schema $schema Schema instance.
      * @return self
      */
     public function setSchema(Schema $schema): self

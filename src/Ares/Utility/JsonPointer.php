@@ -37,7 +37,7 @@ class JsonPointer
     /**
      * @param array $references References.
      * @return string
-     * @throw \InvalidArgumentException
+     * @throw InvalidArgumentException
      */
     public static function encode(array $references): string
     {
