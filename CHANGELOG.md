@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] 2019-04-28
+### Fixed
+- fixed issue when custom type schema contained multiple references to itself
+
 ## [2.0.0] 2019-04-28
 ### Added
 - ```length```, ```maxlength```, ```minlength``` are now applicable to ```list``` types
