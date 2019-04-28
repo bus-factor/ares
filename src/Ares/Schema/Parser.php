@@ -365,7 +365,7 @@ class Parser
 
             if ($typeRegistryGetCall['type'] === $type) {
                 $schema = new SchemaReference();
-                self::$typeRegistryGetCallStack[$i]['reference'] = &$schema;
+                self::$typeRegistryGetCallStack[$i]['references'][] = &$schema;
 
                 return $schema;
             }
@@ -374,7 +374,7 @@ class Parser
         $schema = null;
 
         try {
-            array_push(self::$typeRegistryGetCallStack, ['type' => $type, 'reference' => null]);
+            array_push(self::$typeRegistryGetCallStack, ['type' => $type, 'references' => []]);
 
             $schema = TypeRegistry::get($type);
 
@@ -382,8 +382,10 @@ class Parser
         } finally {
             $typeRegistryGetCall = array_pop(self::$typeRegistryGetCallStack);
 
-            if (isset($typeRegistryGetCall['reference'], $schema)) {
-                $typeRegistryGetCall['reference']->setSchema($schema);
+            if (isset($schema)) {
+                foreach ($typeRegistryGetCall['references'] as &$schemaReference) {
+                    $schemaReference->setSchema($schema);
+                }
             }
         }
     }
