@@ -17,8 +17,9 @@ use Ares\Schema\Rule;
 use Ares\Schema\Schema;
 use Ares\Schema\SchemaList;
 use Ares\Schema\SchemaMap;
+use Ares\Schema\SchemaReference;
 use Ares\Schema\SchemaTuple;
-use Ares\Validation\RuleFactory;
+use Ares\Schema\TypeRegistry;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -29,7 +30,6 @@ use PHPUnit\Framework\TestCase;
 class ParserTest extends TestCase
 {
     /**
-     * @covers ::__construct
      * @covers ::ascertainInputHoldsArrayOrFail
      * @covers ::extractTypeOrFail
      * @covers ::fail
@@ -39,10 +39,10 @@ class ParserTest extends TestCase
      * @covers ::parseSchema
      * @covers ::parseSchemas
      * @covers ::parseTupleSchemas
+     * @covers ::prepareSchemaInstance
      *
      * @dataProvider getParseErrorHandlingSamples
      *
-     * @param RuleFactory $ruleFactory              Validation rule factory.
      * @param mixed       $schemaIn                 Provided schema.
      * @param array|null  $expectedSchemaOut        Expected resulting schema.
      * @param string|null $expectedException        Expected exception.
@@ -50,14 +50,12 @@ class ParserTest extends TestCase
      * @return void
      */
     public function testParseErrorHandling(
-        RuleFactory $ruleFactory,
         $schemaIn,
         ?array $expectedSchemaOut = null,
         ?string $expectedException = null,
         ?string $expectedExceptionMessage = null
     ): void {
-        //$ruleFactory = new RuleFactory();
-        $parser = new Parser($ruleFactory);
+        $parser = new Parser();
 
         if ($expectedException !== null) {
             $this->expectException($expectedException);
@@ -81,14 +79,12 @@ class ParserTest extends TestCase
     {
         return [
             'invalid schema' => [
-                new RuleFactory(),
                 'foobar',
                 null,
                 InvalidSchemaException::class,
                 'Invalid schema value:  must be of type <array>, got <string>',
             ],
             'multiple types' => [
-                new RuleFactory(),
                 [
                     'type' => 'integer',
                     ['type' => 'integer'],
@@ -98,14 +94,12 @@ class ParserTest extends TestCase
                 'Ambiguous schema:  contains multiple `type` validation rules',
             ],
             'missing type' => [
-                new RuleFactory(),
                 [],
                 null,
                 InvalidSchemaException::class,
                 'Insufficient schema:  contains no `type` validation rule',
             ],
             'invalid type' => [
-                new RuleFactory(),
                 [
                     'type' => 'foo',
                 ],
@@ -114,7 +108,6 @@ class ParserTest extends TestCase
                 'Invalid schema:  uses unknown type: "foo"',
             ],
             'invalid schema value' => [
-                new RuleFactory(),
                 [
                     'type' => 'string',
                     'foobar',
@@ -124,7 +117,6 @@ class ParserTest extends TestCase
                 'Invalid schema value: /0 must be of type <array>, got <string>',
             ],
             'type "list" without "schema"' => [
-                new RuleFactory(),
                 [
                     'type' => 'list',
                 ],
@@ -133,7 +125,6 @@ class ParserTest extends TestCase
                 'Missing schema key:  uses type "list" but contains no "schema" key',
             ],
             'nested type "list" without "schema"' => [
-                new RuleFactory(),
                 [
                     'type' => 'list',
                     'schema' => [
@@ -145,7 +136,6 @@ class ParserTest extends TestCase
                 'Missing schema key: /schema uses type "list" but contains no "schema" key',
             ],
             'type "map" without "schema"' => [
-                new RuleFactory(),
                 [
                     'type' => 'map',
                 ],
@@ -154,7 +144,6 @@ class ParserTest extends TestCase
                 'Missing schema key:  uses type "map" but contains no "schema" key',
             ],
             'nested type "map" without "schema"' => [
-                new RuleFactory(),
                 [
                     'type' => 'map',
                     'schema' => [
@@ -168,7 +157,6 @@ class ParserTest extends TestCase
                 'Missing schema key: /schema/name uses type "map" but contains no "schema" key',
             ],
             'type "list" with non-array schema value' => [
-                new RuleFactory(),
                 [
                     'type' => 'list',
                     'schema' => 'foo',
@@ -178,7 +166,6 @@ class ParserTest extends TestCase
                 'Invalid schema value: /schema must be of type <array>, got <string>',
             ],
             'nested type "list" with non-array schema value' => [
-                new RuleFactory(),
                 [
                     'type' => 'list',
                     'schema' => [
@@ -191,7 +178,6 @@ class ParserTest extends TestCase
                 'Invalid schema value: /schema/schema must be of type <array>, got <double>',
             ],
             'type "map" with non-array schema value' => [
-                new RuleFactory(),
                 [
                     'type' => 'map',
                     'schema' => 'foo',
@@ -201,7 +187,6 @@ class ParserTest extends TestCase
                 'Invalid schema value: /schema must be of type <array>, got <string>',
             ],
             'nested type "map" with non-array schema value' => [
-                new RuleFactory(),
                 [
                     'type' => 'map',
                     'schema' => [
@@ -216,7 +201,6 @@ class ParserTest extends TestCase
                 'Invalid schema value: /schema/name/schema must be of type <array>, got <boolean>',
             ],
             'invalid schema value (nested)' => [
-                new RuleFactory(),
                 [
                     'type' => 'map',
                     'schema' => [
@@ -231,7 +215,6 @@ class ParserTest extends TestCase
                 'Invalid schema value: /schema/name/0 must be of type <array>, got <integer>',
             ],
             'unknown rule' => [
-                new RuleFactory(),
                 [
                     'type' => 'integer',
                     'whooops' => [1, 2, 3],
@@ -241,7 +224,6 @@ class ParserTest extends TestCase
                 'Unknown validation rule ID: /whooops specifies an unknown validation rule ID',
             ],
             'nested unknown rule' => [
-                new RuleFactory(),
                 [
                     'type' => 'list',
                     'schema' => [
@@ -254,7 +236,6 @@ class ParserTest extends TestCase
                 'Unknown validation rule ID: /schema/whooops specifies an unknown validation rule ID',
             ],
             'unknown rule with additions' => [
-                new RuleFactory(),
                 [
                     'type' => 'integer',
                     ['whooops' => [1, 2, 3]],
@@ -264,7 +245,6 @@ class ParserTest extends TestCase
                 'Unknown validation rule ID: /0/whooops specifies an unknown validation rule ID',
             ],
             'nested unknown rule with additions' => [
-                new RuleFactory(),
                 [
                     'type' => 'list',
                     'schema' => [
@@ -277,7 +257,6 @@ class ParserTest extends TestCase
                 'Unknown validation rule ID: /schema/0/whooops specifies an unknown validation rule ID',
             ],
             'rule with additions with missing rule' => [
-                new RuleFactory(),
                 [
                     'type' => 'string',
                     [],
@@ -287,7 +266,6 @@ class ParserTest extends TestCase
                 'Invalid schema: /0 contains no rule',
             ],
             'nested rule with additions with missing rule' => [
-                new RuleFactory(),
                 [
                     'type' => 'list',
                     'schema' => [
@@ -300,7 +278,6 @@ class ParserTest extends TestCase
                 'Invalid schema: /schema/0 contains no rule',
             ],
             'rule with additions with ambiguous rule' => [
-                new RuleFactory(),
                 [
                     'type' => 'string',
                     ['required' => false, 'blankable' => true],
@@ -310,7 +287,6 @@ class ParserTest extends TestCase
                 'Invalid schema: /0 contains multiple rules (["required","blankable"])',
             ],
             'nested rule with additions with ambiguous rule' => [
-                new RuleFactory(),
                 [
                     'type' => 'list',
                     'schema' => [
@@ -323,7 +299,6 @@ class ParserTest extends TestCase
                 'Invalid schema: /schema/0 contains multiple rules (["required","blankable"])',
             ],
             'invalid "message" data type' => [
-                new RuleFactory(),
                 [
                     'type' => 'boolean',
                     ['nullable' => true, 'message' => 13.37],
@@ -333,7 +308,6 @@ class ParserTest extends TestCase
                 'Invalid schema value: /0/message must be of type <string>, got <double>',
             ],
             'invalid "meta" data type' => [
-                new RuleFactory(),
                 [
                     'type' => 'float',
                     ['required' => true, 'meta' => 'foobar'],
@@ -343,7 +317,6 @@ class ParserTest extends TestCase
                 'Invalid schema value: /0/meta must be of type <array>, got <string>',
             ],
             'inapplicable rule' => [
-                new RuleFactory(),
                 [
                     'type' => 'integer',
                     'blankable' => true,
@@ -356,7 +329,6 @@ class ParserTest extends TestCase
     }
 
     /**
-     * @covers ::__construct
      * @covers ::ascertainInputHoldsArrayOrFail
      * @covers ::extractTypeOrFail
      * @covers ::fail
@@ -366,13 +338,28 @@ class ParserTest extends TestCase
      * @covers ::parseSchema
      * @covers ::parseSchemas
      * @covers ::parseTupleSchemas
+     * @covers ::prepareCustomTypeSchemaInstance
+     * @covers ::prepareSchemaInstance
      *
      * @return void
      */
     public function testParse(): void
     {
-        $ruleFactory = new RuleFactory();
-        $parser = new Parser($ruleFactory);
+        TypeRegistry::register('Email', [
+            'type' => 'string',
+            'email' => true,
+        ]);
+
+        TypeRegistry::register('RecursiveType', [
+            'type' => 'map',
+            'schema' => [
+                'recursiveReference' => [
+                    'type' => 'RecursiveType',
+                ],
+            ],
+        ]);
+
+        $parser = new Parser();
 
         $schema = $parser->parse([
             'type' => 'map',
@@ -397,8 +384,25 @@ class ParserTest extends TestCase
                         ],
                     ],
                 ],
+                'email' => [
+                    'type' => 'Email',
+                    'nullable' => true,
+                ],
+                'recursiveReference' => [
+                    'type' => 'RecursiveType'
+                ],
             ],
         ]);
+
+        $recursiveReference = new SchemaReference();
+
+        $recursiveReferenceMap = (new SchemaMap())
+            ->setRule(new Rule('type', 'map'))
+            ->setSchemas([
+                'recursiveReference' => $recursiveReference
+            ]);
+
+        $recursiveReference->setSchema($recursiveReferenceMap);
 
         $this->assertEquals(
             (new SchemaMap())
@@ -435,6 +439,9 @@ class ParserTest extends TestCase
                                     'required' => new Rule('required', true),
                                 ]),
                         ]),
+                    'email' => TypeRegistry::get('Email')
+                        ->setRule(new Rule('nullable', true)),
+                    'recursiveReference' => $recursiveReferenceMap,
                 ]),
             $schema
         );

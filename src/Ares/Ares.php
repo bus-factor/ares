@@ -16,7 +16,6 @@ use Ares\Exception\InvalidValidationOptionException;
 use Ares\Sanitization\Sanitizer;
 use Ares\Schema\Parser;
 use Ares\Schema\Schema;
-use Ares\Validation\RuleFactory;
 use Ares\Validation\Validator;
 
 /**
@@ -24,8 +23,6 @@ use Ares\Validation\Validator;
  */
 class Ares
 {
-    /** @var RuleFactory $ruleFactory */
-    protected $ruleFactory;
     /** @var Sanitizer $sanitizer */
     protected $sanitizer;
     /** @var Schema $schema */
@@ -34,18 +31,14 @@ class Ares
     protected $validator;
 
     /**
-     * @param array       $schema      Schema definition.
-     * @param RuleFactory $ruleFactory Validation rule factory instance.
+     * @param array $schema Schema definition.
      * @throws InvalidSchemaException
      */
-    public function __construct(array $schema, ?RuleFactory $ruleFactory = null)
+    public function __construct(array $schema)
     {
-        $this->ruleFactory = $ruleFactory ?? new RuleFactory();
-
-        $this->schema = (new Parser($this->ruleFactory))->parse($schema);
-
+        $this->schema = (new Parser())->parse($schema);
         $this->sanitizer = new Sanitizer($this->schema);
-        $this->validator = new Validator($this->schema, $this->ruleFactory);
+        $this->validator = new Validator($this->schema);
     }
 
     /**

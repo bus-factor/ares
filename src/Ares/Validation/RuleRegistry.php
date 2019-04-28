@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 /**
- * RuleFactory.php
+ * RuleRegistry.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
- * @since  2019-04-03
+ * @since  2019-04-28
  */
 
 namespace Ares\Validation;
@@ -33,12 +33,12 @@ use Ares\Validation\Rule\UnknownAllowedRule;
 use Ares\Validation\Rule\UrlRule;
 
 /**
- * Class RuleFactory
+ * Class RuleRegistry
  */
-class RuleFactory
+class RuleRegistry
 {
-    /** @var array $ruleFqcns */
-    protected $ruleFqcns = [
+    /** @const array BUILT_IN_RULE_FQCNS */
+    private const BUILT_IN_RULE_FQCNS = [
         AllowedRule::ID        => ['className' => AllowedRule::class,        'reserved' => false],
         BlankableRule::ID      => ['className' => BlankableRule::class,      'reserved' => true],
         DateTimeRule::ID       => ['className' => DateTimeRule::class,       'reserved' => false],
@@ -60,54 +60,74 @@ class RuleFactory
     ];
 
     /** @var RuleInterface[] $rules */
-    protected $rules = [];
+    protected static $rules = [];
 
     /**
      * @param string $ruleId Validation rule ID.
      * @return RuleInterface
+     * @throws UnknownValidationRuleIdException
      */
-    public function get(string $ruleId): RuleInterface
+    public static function get(string $ruleId): RuleInterface
     {
-        if (!isset($this->rules[$ruleId])) {
-            if (!isset($this->ruleFqcns[$ruleId])) {
+        if (!isset(self::$rules[$ruleId])) {
+            if (!isset(self::BUILT_IN_RULE_FQCNS[$ruleId])) {
                 throw new UnknownValidationRuleIdException("Unknown validation rule ID: {$ruleId}");
             }
 
-            $ruleFqcn = $this->ruleFqcns[$ruleId]['className'];
-            $this->rules[$ruleId] = new $ruleFqcn();
+            $ruleFqcn = self::BUILT_IN_RULE_FQCNS[$ruleId]['className'];
+            self::$rules[$ruleId] = new $ruleFqcn();
         }
 
-        return $this->rules[$ruleId];
-    }
-
-    /**
-     * @param string $ruleId Rule ID.
-     * @return bool
-     */
-    public function has(string $ruleId): bool
-    {
-        return isset($this->rules[$ruleId]) || isset($this->ruleFqcns[$ruleId]);
+        return self::$rules[$ruleId];
     }
 
     /**
      * @param string $ruleId Validation rule ID.
      * @return bool
      */
-    public function isReserved(string $ruleId): bool
+    public static function isRegistered(string $ruleId): bool
     {
-        return !empty($this->ruleFqcns[$ruleId]['reserved']);
+        return isset(self::$rules[$ruleId]) || isset(self::BUILT_IN_RULE_FQCNS[$ruleId]);
+    }
+
+    /**
+     * @param string $ruleId Validation rule ID.
+     * @return bool
+     */
+    public static function isReserved(string $ruleId): bool
+    {
+        return !empty(self::BUILT_IN_RULE_FQCNS[$ruleId]['reserved']);
     }
 
     /**
      * @param string        $ruleId Validation rule ID.
      * @param RuleInterface $rule   Validation rule instance.
-     * @return self
+     * @return void
      */
-    public function set(string $ruleId, RuleInterface $rule): self
+    public static function register(string $ruleId, RuleInterface $rule): void
     {
-        $this->rules[$ruleId] = $rule;
+        self::$rules[$ruleId] = $rule;
+    }
 
-        return $this;
+    /**
+     * @param string $ruleId Validation rule ID.
+     * @return void
+     */
+    public static function unregister(string $ruleId): void
+    {
+        if (!isset(self::$rules[$ruleId])) {
+            throw new UnknownValidationRuleIdException(sprintf('Unknown validation rule: cannot unregister <%s>', $ruleId));
+        }
+
+        unset(self::$rules[$ruleId]);
+    }
+
+    /**
+     * @return void
+     */
+    public static function unregisterAll(): void
+    {
+        self::$rules = [];
     }
 }
 

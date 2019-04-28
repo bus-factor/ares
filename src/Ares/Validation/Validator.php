@@ -16,11 +16,11 @@ use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Exception\UnknownValidationRuleIdException;
 use Ares\Schema\Parser;
 use Ares\Schema\Schema;
+use Ares\Schema\SchemaReference;
 use Ares\Schema\Type;
 use Ares\Utility\PhpType;
 use Ares\Validation\Error\ErrorMessageRenderer;
 use Ares\Validation\Error\ErrorMessageRendererInterface;
-use Ares\Validation\RuleFactory;
 use Ares\Validation\Rule\BlankableRule;
 use Ares\Validation\Rule\NullableRule;
 use Ares\Validation\Rule\RequiredRule;
@@ -44,18 +44,14 @@ class Validator
     protected $context;
     /** @var ErrorMessageRendererInterface $errorMessageRenderer */
     protected $errorMessageRenderer;
-    /** @var RuleFactory */
-    protected $ruleFactory;
     /** @var Schema $schema */
     protected $schema;
 
     /**
-     * @param array       $schema      Schema.
-     * @param RuleFactory $ruleFactory Validation rule factory.
+     * @param array $schema Schema.
      */
-    public function __construct(Schema $schema, RuleFactory $ruleFactory)
+    public function __construct(Schema $schema)
     {
-        $this->ruleFactory = $ruleFactory;
         $this->schema = $schema;
     }
 
@@ -80,14 +76,6 @@ class Validator
     }
 
     /**
-     * @return RuleFactory
-     */
-    public function getRuleFactory(): RuleFactory
-    {
-        return $this->ruleFactory;
-    }
-
-    /**
      * @param Schema $schema  Schema.
      * @param mixed  $data    Input data.
      * @param mixed  $field   Current field name or index (part of source reference).
@@ -98,6 +86,10 @@ class Validator
      */
     protected function performValidation(Schema $schema, $data, $field, array $options): void
     {
+        if ($schema instanceof SchemaReference) {
+            $schema = $schema->getSchema();
+        }
+
         $this->context->enter($field, $schema);
 
         if ($this->runBuiltinValidationRules($schema, $data, $options)) {
@@ -131,11 +123,11 @@ class Validator
     protected function performFieldValidation(array $rules, $data): void
     {
         foreach ($rules as $ruleId => $rule) {
-            if ($this->ruleFactory->isReserved($ruleId)) {
+            if (RuleRegistry::isReserved($ruleId)) {
                 continue;
             }
 
-            if (!$this->ruleFactory->get($ruleId)->validate($rule->getArgs(), $data, $this->context)) {
+            if (!RuleRegistry::get($ruleId)->validate($rule->getArgs(), $data, $this->context)) {
                 break;
             }
         }
@@ -210,7 +202,7 @@ class Validator
         ];
 
         foreach ($rules as $ruleId => $defaultRuleArgs) {
-            $rule = $this->ruleFactory->get($ruleId);
+            $rule = RuleRegistry::get($ruleId);
 
             if ($rule->isApplicable($this->context)) {
                 $ruleArgs = $schema->hasRule($ruleId) ? $schema->getRule($ruleId)->getArgs() : $defaultRuleArgs;
