@@ -8,9 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - ```length```, ```maxlength```, ```minlength``` are now applicable to ```list``` types
 - adds ```unknownAllowed``` validation rule
+- adds sanitization feature
+- introduces ```Ares\Ares``` as facade for data validation and sanitization
+- adds custom types to allow for easier schema reuse
 ### Changed
 - ```'required' => true``` is now validation default behavior 
 - renames validation option ```allowUnknown``` to ```allUnknownAllowed```
+- moves all validation related classes into sub-namespace ```Validation```
 
 ## [v1.1.1] 2019-04-20
 ### Added

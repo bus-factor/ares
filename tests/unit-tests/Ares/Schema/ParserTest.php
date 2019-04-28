@@ -17,7 +17,9 @@ use Ares\Schema\Rule;
 use Ares\Schema\Schema;
 use Ares\Schema\SchemaList;
 use Ares\Schema\SchemaMap;
+use Ares\Schema\SchemaReference;
 use Ares\Schema\SchemaTuple;
+use Ares\Schema\TypeRegistry;
 use Ares\Validation\RuleFactory;
 use PHPUnit\Framework\TestCase;
 
@@ -39,6 +41,7 @@ class ParserTest extends TestCase
      * @covers ::parseSchema
      * @covers ::parseSchemas
      * @covers ::parseTupleSchemas
+     * @covers ::prepareSchemaInstance
      *
      * @dataProvider getParseErrorHandlingSamples
      *
@@ -366,11 +369,27 @@ class ParserTest extends TestCase
      * @covers ::parseSchema
      * @covers ::parseSchemas
      * @covers ::parseTupleSchemas
+     * @covers ::prepareCustomTypeSchemaInstance
+     * @covers ::prepareSchemaInstance
      *
      * @return void
      */
     public function testParse(): void
     {
+        TypeRegistry::register('Email', [
+            'type' => 'string',
+            'email' => true,
+        ]);
+
+        TypeRegistry::register('RecursiveType', [
+            'type' => 'map',
+            'schema' => [
+                'recursiveReference' => [
+                    'type' => 'RecursiveType',
+                ],
+            ],
+        ]);
+
         $ruleFactory = new RuleFactory();
         $parser = new Parser($ruleFactory);
 
@@ -397,8 +416,25 @@ class ParserTest extends TestCase
                         ],
                     ],
                 ],
+                'email' => [
+                    'type' => 'Email',
+                    'nullable' => true,
+                ],
+                'recursiveReference' => [
+                    'type' => 'RecursiveType'
+                ],
             ],
         ]);
+
+        $recursiveReference = new SchemaReference();
+
+        $recursiveReferenceMap = (new SchemaMap())
+            ->setRule(new Rule('type', 'map'))
+            ->setSchemas([
+                'recursiveReference' => $recursiveReference
+            ]);
+
+        $recursiveReference->setSchema($recursiveReferenceMap);
 
         $this->assertEquals(
             (new SchemaMap())
@@ -435,6 +471,9 @@ class ParserTest extends TestCase
                                     'required' => new Rule('required', true),
                                 ]),
                         ]),
+                    'email' => TypeRegistry::get('Email')
+                        ->setRule(new Rule('nullable', true)),
+                    'recursiveReference' => $recursiveReferenceMap,
                 ]),
             $schema
         );

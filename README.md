@@ -47,6 +47,7 @@ Ares is a lightweight standalone validation library.
   * [type](#validation-rules_type)
   * [unknownAllowed](#validation-rules_unknownAllowed)
   * [url](#validation-rules_url)
+* [Custom Types](#custom-types)
 * [Custom Validation Error Messages](#custom-validation-error-messages)
   * [Change the Validation Error Message of a single Rule](#custom-validation-error-messages-per-field)
   * [Localization of Validation Error Messages](#custom-validation-error-messages-localization)
@@ -590,6 +591,8 @@ $ares->validate(5); // -> false
 $ares->validate('John Doe'); // -> false
 ```
 
+Read the section [Custom Types](#custom-types) to find out how to define and reuse your own types.
+
 ## <a name="validation-rules_unknownAllowed"></a>unknownAllowed
 
 The ```unknownAllowed``` validation rule checks if a ```map``` contains fields that are not defined in the schema.
@@ -622,6 +625,48 @@ $ares = new Ares(['type' => 'string', 'url' => true]);
 $ares->validate('example'); // -> false
 $ares->validate('https://example.com'); // -> true
 ```
+
+# <a name="custom-types"></a>Custom Types
+
+Basically, a custom type is a user defined schema that is stored in and retrieved from a registry.
+Here's an example how it works:
+
+```php
+use Ares\Ares;
+use Ares\Schema\TypeRegistry;
+
+TypeRegistry::register('GermanDateString', [
+    'type' => 'string',
+    ['datetime' => 'd.m.Y', 'message' => 'Invalid date format, try something like "24.02.2019"'],
+]);
+
+TypeRegistry::register('ListOfHobbies', [
+    'type' => 'list',
+    'schema' => [
+        'type' => 'string',
+        'allowed' => ['Reading', 'Biking'],
+    ],
+]);
+
+TypeRegistry::register('Student', [
+    'type' => 'map',
+    'schema' => [
+        'birthDate' => ['type' => 'GermanDateString'],
+        'hobbies' => ['type' => 'ListOfHobbies', 'minlength' => 1],
+    ],
+]);
+
+$schema = ['type' => 'Student'];
+
+$ares = new Ares($schema);
+
+$ares->validate(['birthDate' => '1998-06-14', 'hobbies' => []]); // false
+$ares->validate(['birthDate' => '14.06.1998', 'hobbies' => ['Reading']]); // true
+```
+
+Previously registered types are unregistered using ```TypeRegistry::unregister()```.
+All priviously registered types are unregistered at once using ```TypeRegistry::unregisterAll()```.
+It is also possible to define recursive types.
 
 # <a name="custom-validation-error-messages"></a>Custom Validation Error Messages
 

@@ -18,6 +18,7 @@ use Ares\Validation\RuleFactory;
 use Ares\Validation\Rule\RequiredRule;
 use Ares\Validation\Rule\TypeRule;
 use Ares\Validation\Rule\UnknownAllowedRule;
+use InvalidArgumentException;
 
 /**
  * Class Parser
@@ -57,6 +58,8 @@ class Parser
 
     /** @param RuleFactory $ruleFactory */
     protected $ruleFactory;
+    /** @param array $typeRegistryGetCallStack */
+    protected static $typeRegistryGetCallStack = [];
 
     /**
      * @param RuleFactory $ruleFactory
@@ -81,11 +84,12 @@ class Parser
     }
 
     /**
-     * @param ParserContext $context Parser context.
+     * @param ParserContext $context      Parser context.
+     * @param bool          $isCustomType Set TRUE if extracted a custom type, FALSE otherwise.
      * @return string
      * @throws InvalidSchemaException
      */
-    protected function extractTypeOrFail(ParserContext $context): string
+    protected function extractTypeOrFail(ParserContext $context, bool &$isCustomType): string
     {
         $types = [];
 
@@ -109,7 +113,11 @@ class Parser
 
         $type = $types[0];
 
-        if (!in_array($type, Type::getValues(), true)) {
+        if (in_array($type, Type::getValues(), true)) {
+            $isCustomType = false;
+        } elseif (TypeRegistry::isRegistered($type)) {
+            $isCustomType = true;
+        } else {
             $this->fail(ParserError::TYPE_UNKNOWN, $context, json_encode($type));
         }
 
@@ -136,6 +144,7 @@ class Parser
      * @param mixed $schema Schema.
      * @return Schema
      * @throws InvalidSchemaException
+     * @throws InvalidArgumentException
      */
     public function parse($schema): Schema
     {
@@ -241,14 +250,26 @@ class Parser
      * @param ParserContext $context Parser context.
      * @return Schema
      * @throws InvalidSchemaException
+     * @throws InvalidArgumentException
      */
     protected function parseSchema(ParserContext $context): Schema
     {
         $this->ascertainInputHoldsArrayOrFail($context);
 
-        $type = $this->extractTypeOrFail($context);
-        $schemaFqcn = self::SCHEMA_FQCNS_BY_TYPE[$type];
-        $schema = new $schemaFqcn();
+        // this variable is set by extractTypeOrFail()
+        $isCustomType = false;
+
+        $type = $this->extractTypeOrFail($context, $isCustomType);
+        $schema = $this->prepareSchemaInstance($type, $isCustomType);
+
+        if ($schema instanceof SchemaReference) {
+            return $schema;
+        }
+
+        if ($isCustomType) {
+            $type = $schema->getRule(TypeRule::ID)->getArgs();
+        }
+
         $keys = array_keys($context->getInput());
 
         foreach ($keys as $key) {
@@ -256,12 +277,12 @@ class Parser
                 ? $this->parseRule($type, $context, $key)
                 : $this->parseRuleWithAdditions($type, $context, $key);
 
-            if ($rule !== null) {
+            if ($rule !== null && !$schema->hasRule($rule->getId())) {
                 $schema->setRule($rule);
             }
         }
 
-        if (in_array($type, [Type::LIST, Type::MAP, Type::TUPLE], true)) {
+        if (!$isCustomType && in_array($type, [Type::LIST, Type::MAP, Type::TUPLE], true)) {
             if (!array_key_exists(Keyword::SCHEMA, $context->getInput())) {
                 $this->fail(ParserError::SCHEMA_MISSING, $context, $type);
             }
@@ -301,6 +322,7 @@ class Parser
      * @param ParserContext $context Parser context.
      * @return array
      * @throws InvalidSchemaException
+     * @throws InvalidArgumentException
      */
     protected function parseSchemas(ParserContext $context): array
     {
@@ -339,6 +361,58 @@ class Parser
         }
 
         return $schemas;
+    }
+
+    /**
+     * @param string $type Type name.
+     * @return Schema
+     * @throws InvalidSchemaException
+     */
+    protected function prepareCustomTypeSchemaInstance(string $type): Schema
+    {
+        for ($i = count(self::$typeRegistryGetCallStack) - 1; $i >= 0; $i--) {
+            $typeRegistryGetCall = self::$typeRegistryGetCallStack[$i];
+
+            if ($typeRegistryGetCall['type'] === $type) {
+                $schema = new SchemaReference();
+                self::$typeRegistryGetCallStack[$i]['reference'] = &$schema;
+
+                return $schema;
+            }
+        }
+
+        $schema = null;
+
+        try {
+            array_push(self::$typeRegistryGetCallStack, ['type' => $type, 'reference' => null]);
+
+            $schema = TypeRegistry::get($type);
+
+            return $schema;
+        } finally {
+            $typeRegistryGetCall = array_pop(self::$typeRegistryGetCallStack);
+
+            if (isset($typeRegistryGetCall['reference'], $schema)) {
+                $typeRegistryGetCall['reference']->setSchema($schema);
+            }
+        }
+    }
+
+    /**
+     * @param string $type         Type name.
+     * @param bool   $isCustomType Indicates if the provided type name is a custom type.
+     * @return Schema
+     * @throws InvalidSchemaException
+     */
+    protected function prepareSchemaInstance(string $type, bool $isCustomType): Schema
+    {
+        if ($isCustomType) {
+            return $this->prepareCustomTypeSchemaInstance($type);
+        }
+
+        $schemaFqcn = self::SCHEMA_FQCNS_BY_TYPE[$type];
+
+        return new $schemaFqcn();
     }
 }
 

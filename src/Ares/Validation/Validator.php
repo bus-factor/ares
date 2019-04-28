@@ -16,6 +16,7 @@ use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Exception\UnknownValidationRuleIdException;
 use Ares\Schema\Parser;
 use Ares\Schema\Schema;
+use Ares\Schema\SchemaReference;
 use Ares\Schema\Type;
 use Ares\Utility\PhpType;
 use Ares\Validation\Error\ErrorMessageRenderer;
@@ -98,6 +99,10 @@ class Validator
      */
     protected function performValidation(Schema $schema, $data, $field, array $options): void
     {
+        if ($schema instanceof SchemaReference) {
+            $schema = $schema->getSchema();
+        }
+
         $this->context->enter($field, $schema);
 
         if ($this->runBuiltinValidationRules($schema, $data, $options)) {
