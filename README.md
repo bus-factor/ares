@@ -720,7 +720,7 @@ The following simple example shows how custom validation rules are implemented a
 use Ares\Ares;
 use Ares\Schema\Type;
 use Ares\Validation\Context;
-use Ares\Validation\RuleFactory;
+use Ares\Validation\RuleRegistry;
 use Ares\Validation\Rule\AbstractRule;
 
 class ZipCodeRule extends AbstractRule
@@ -761,15 +761,14 @@ class ZipCodeRule extends AbstractRule
     }
 }
 
-$ruleFactory = new RuleFactory();
-$ruleFactory->set(ZipCodeRule::ID, new ZipCodeRule());
+RuleRegistry::register(ZipCodeRule::ID, new ZipCodeRule());
 
 $schema = [
     'type' => 'string',
     'zipcode' => true,
 ];
 
-$ares = new Ares($schema, $ruleFactory);
+$ares = new Ares($schema);
 ```
 
 # <a name="sanitization"></a>Sanitization

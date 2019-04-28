@@ -21,7 +21,6 @@ use Ares\Schema\Type;
 use Ares\Utility\PhpType;
 use Ares\Validation\Error\ErrorMessageRenderer;
 use Ares\Validation\Error\ErrorMessageRendererInterface;
-use Ares\Validation\RuleFactory;
 use Ares\Validation\Rule\BlankableRule;
 use Ares\Validation\Rule\NullableRule;
 use Ares\Validation\Rule\RequiredRule;
@@ -45,18 +44,14 @@ class Validator
     protected $context;
     /** @var ErrorMessageRendererInterface $errorMessageRenderer */
     protected $errorMessageRenderer;
-    /** @var RuleFactory */
-    protected $ruleFactory;
     /** @var Schema $schema */
     protected $schema;
 
     /**
-     * @param array       $schema      Schema.
-     * @param RuleFactory $ruleFactory Validation rule factory.
+     * @param array $schema Schema.
      */
-    public function __construct(Schema $schema, RuleFactory $ruleFactory)
+    public function __construct(Schema $schema)
     {
-        $this->ruleFactory = $ruleFactory;
         $this->schema = $schema;
     }
 
@@ -78,14 +73,6 @@ class Validator
         }
 
         return $this->errorMessageRenderer;
-    }
-
-    /**
-     * @return RuleFactory
-     */
-    public function getRuleFactory(): RuleFactory
-    {
-        return $this->ruleFactory;
     }
 
     /**
@@ -136,11 +123,11 @@ class Validator
     protected function performFieldValidation(array $rules, $data): void
     {
         foreach ($rules as $ruleId => $rule) {
-            if ($this->ruleFactory->isReserved($ruleId)) {
+            if (RuleRegistry::isReserved($ruleId)) {
                 continue;
             }
 
-            if (!$this->ruleFactory->get($ruleId)->validate($rule->getArgs(), $data, $this->context)) {
+            if (!RuleRegistry::get($ruleId)->validate($rule->getArgs(), $data, $this->context)) {
                 break;
             }
         }
@@ -215,7 +202,7 @@ class Validator
         ];
 
         foreach ($rules as $ruleId => $defaultRuleArgs) {
-            $rule = $this->ruleFactory->get($ruleId);
+            $rule = RuleRegistry::get($ruleId);
 
             if ($rule->isApplicable($this->context)) {
                 $ruleArgs = $schema->hasRule($ruleId) ? $schema->getRule($ruleId)->getArgs() : $defaultRuleArgs;

@@ -14,7 +14,7 @@ namespace Ares\Schema;
 use Ares\Exception\InvalidSchemaException;
 use Ares\Utility\JsonPointer;
 use Ares\Utility\PhpType;
-use Ares\Validation\RuleFactory;
+use Ares\Validation\RuleRegistry;
 use Ares\Validation\Rule\RequiredRule;
 use Ares\Validation\Rule\TypeRule;
 use Ares\Validation\Rule\UnknownAllowedRule;
@@ -56,18 +56,8 @@ class Parser
         Type::TUPLE   => SchemaTuple::class,
     ];
 
-    /** @param RuleFactory $ruleFactory */
-    protected $ruleFactory;
     /** @param array $typeRegistryGetCallStack */
     protected static $typeRegistryGetCallStack = [];
-
-    /**
-     * @param RuleFactory $ruleFactory
-     */
-    public function __construct(RuleFactory $ruleFactory)
-    {
-        $this->ruleFactory = $ruleFactory;
-    }
 
     /**
      * @param ParserContext $context Parser context.
@@ -167,11 +157,11 @@ class Parser
         $context->enter($ruleId);
 
         if ($ruleId !== Keyword::SCHEMA) {
-            if (!$this->ruleFactory->has($ruleId)) {
+            if (!RuleRegistry::isRegistered($ruleId)) {
                 $this->fail(ParserError::RULE_ID_UNKNOWN, $context);
             }
 
-            $validationRule = $this->ruleFactory->get($ruleId);
+            $validationRule = RuleRegistry::get($ruleId);
 
             if (method_exists($validationRule, 'getSupportedTypes')) {
                 $supportedTypes = $validationRule->getSupportedTypes();

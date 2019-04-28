@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Ares\Schema;
 
 use Ares\Exception\InvalidSchemaException;
-use Ares\Validation\RuleFactory;
 use Closure;
 use InvalidArgumentException;
 
@@ -61,10 +60,7 @@ class TypeRegistry
         }
 
         self::$schemas[$type] = function () use ($schema): Schema {
-            $ruleFactory = new RuleFactory();
-            $parser = new Parser($ruleFactory);
-
-            return $parser->parse($schema);
+            return (new Parser())->parse($schema);
         };
     }
 

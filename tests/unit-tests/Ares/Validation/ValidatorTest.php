@@ -16,7 +16,6 @@ use Ares\Schema\Parser;
 use Ares\Validation\Context;
 use Ares\Validation\Error\ErrorMessageRenderer;
 use Ares\Validation\Error\ErrorMessageRendererInterface;
-use Ares\Validation\RuleFactory;
 use Ares\Validation\Validator;
 use PHPUnit\Framework\TestCase;
 
@@ -36,10 +35,9 @@ class ValidatorTest extends TestCase
      */
     public function testErrorMessageRendererAccessors(): void
     {
-        $ruleFactory = new RuleFactory();
-        $schemaParser = new Parser($ruleFactory);
+        $schemaParser = new Parser();
         $schema = $schemaParser->parse(['type' => 'integer']);
-        $validator = new Validator($schema, $ruleFactory);
+        $validator = new Validator($schema);
 
         $this->assertInstanceOf(ErrorMessageRenderer::class, $validator->getErrorMessageRenderer());
 
@@ -51,22 +49,6 @@ class ValidatorTest extends TestCase
 
         $this->assertSame($validator, $validator->setErrorMessageRenderer($errorMessageRenderer));
         $this->assertSame($errorMessageRenderer, $validator->getErrorMessageRenderer());
-    }
-
-    /**
-     * @covers ::__construct
-     * @covers ::getRuleFactory
-     *
-     * @return void
-     */
-    public function testConstructorUsesProvidedRuleFactory(): void
-    {
-        $ruleFactory = new RuleFactory();
-        $schemaParser = new Parser($ruleFactory);
-        $schema = $schemaParser->parse(['type' => 'integer']);
-        $validator = new Validator($schema, $ruleFactory);
-
-        $this->assertSame($ruleFactory, $validator->getRuleFactory());
     }
 
     /**
@@ -98,10 +80,9 @@ class ValidatorTest extends TestCase
             $this->expectExceptionMessage($expectedExceptionMessage);
         }
 
-        $ruleFactory = new RuleFactory();
-        $schemaParser = new Parser($ruleFactory);
+        $schemaParser = new Parser();
         $schema = $schemaParser->parse(['type' => 'integer']);
-        $validator = new Validator($schema, $ruleFactory);
+        $validator = new Validator($schema);
 
         $validator->validate(1337, $options);
 
