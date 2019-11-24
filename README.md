@@ -47,6 +47,7 @@ Ares is a lightweight standalone validation library.
   * [type](#validation-rules_type)
   * [unknownAllowed](#validation-rules_unknownAllowed)
   * [url](#validation-rules_url)
+  * [uuid](#validation-rules_uuid)
 * [Custom Types](#custom-types)
 * [Custom Validation Error Messages](#custom-validation-error-messages)
   * [Change the Validation Error Message of a single Rule](#custom-validation-error-messages-per-field)
@@ -624,6 +625,18 @@ Examples:
 $ares = new Ares(['type' => 'string', 'url' => true]);
 $ares->validate('example'); // -> false
 $ares->validate('https://example.com'); // -> true
+```
+
+## <a name="validation-rules_uuid"></a>uuid
+
+The ```uuid``` validation rule checks if a value is a valid UUID.
+
+Examples:
+
+```php
+$ares = new Ares(['type' => 'string', 'uuid' => true]);
+$ares->validate('example'); // -> false
+$ares->validate('609de7b6-0ef5-11ea-8d71-362b9e155667'); // -> true
 ```
 
 # <a name="custom-types"></a>Custom Types

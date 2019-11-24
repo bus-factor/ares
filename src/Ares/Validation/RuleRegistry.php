@@ -31,6 +31,7 @@ use Ares\Validation\Rule\RuleInterface;
 use Ares\Validation\Rule\TypeRule;
 use Ares\Validation\Rule\UnknownAllowedRule;
 use Ares\Validation\Rule\UrlRule;
+use Ares\Validation\Rule\UuidRule;
 
 /**
  * Class RuleRegistry
@@ -57,6 +58,7 @@ class RuleRegistry
         TypeRule::ID           => ['className' => TypeRule::class,           'reserved' => true],
         UnknownAllowedRule::ID => ['className' => UnknownAllowedRule::class, 'reserved' => true],
         UrlRule::ID            => ['className' => UrlRule::class,            'reserved' => false],
+        UuidRule::ID           => ['className' => UuidRule::class,           'reserved' => false],
     ];
 
     /** @var RuleInterface[] $rules */

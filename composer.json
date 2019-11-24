@@ -4,10 +4,11 @@
   "type": "library",
   "archive": {
     "exclude": [
-      "/tests",
+      "/.gitattributes",
       "/.gitignore",
       "/.travis.yml",
-      "/phpunit.xml"
+      "/phpunit.xml",
+      "/tests"
     ]
   },
   "keywords": [
