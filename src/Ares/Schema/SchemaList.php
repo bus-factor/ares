@@ -17,7 +17,7 @@ namespace Ares\Schema;
 class SchemaList extends Schema
 {
     /** @var Schema|null $schema */
-    protected $schema;
+    private $schema;
 
     /**
      * @return Schema|null

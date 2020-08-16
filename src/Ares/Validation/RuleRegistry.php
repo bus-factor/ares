@@ -62,7 +62,7 @@ class RuleRegistry
     ];
 
     /** @var RuleInterface[] $rules */
-    protected static $rules = [];
+    private static $rules = [];
 
     /**
      * @param string $ruleId Validation rule ID.

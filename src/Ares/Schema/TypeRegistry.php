@@ -21,7 +21,7 @@ use InvalidArgumentException;
 class TypeRegistry
 {
     /** @var array $schemas */
-    protected static $schemas = [];
+    private static $schemas = [];
 
     /**
      * @param string $type Type name.

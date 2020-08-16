@@ -17,7 +17,7 @@ namespace Ares\Schema;
 class SchemaMap extends Schema
 {
     /** @var array $schemas */
-    protected $schemas = [];
+    private $schemas = [];
 
     /**
      * @return array

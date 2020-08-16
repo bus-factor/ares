@@ -19,13 +19,13 @@ use JsonSerializable;
 class Error implements JsonSerializable
 {
     /** @var string $code */
-    protected $code;
+    private $code;
     /** @var string $message */
-    protected $message;
+    private $message;
     /** @var array $meta */
-    protected $meta;
+    private $meta;
     /** @var array $source */
-    protected $source;
+    private $source;
 
     /**
      * Initializes the instance.
