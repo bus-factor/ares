@@ -41,11 +41,11 @@ class Validator
     ];
 
     /** @var Context $context */
-    protected $context;
+    private $context;
     /** @var ErrorMessageRendererInterface $errorMessageRenderer */
-    protected $errorMessageRenderer;
+    private $errorMessageRenderer;
     /** @var Schema $schema */
-    protected $schema;
+    private $schema;
 
     /**
      * @param array $schema Schema.
@@ -84,7 +84,7 @@ class Validator
      * @throws InvalidValidationRuleArgsException
      * @throws UnknownValidationRuleIdException
      */
-    protected function performValidation(Schema $schema, $data, $field, array $options): void
+    private function performValidation(Schema $schema, $data, $field, array $options): void
     {
         if ($schema instanceof SchemaReference) {
             $schema = $schema->getSchema();
@@ -92,7 +92,10 @@ class Validator
 
         $this->context->enter($field, $schema);
 
-        if ($this->runBuiltinValidationRules($schema, $data, $options)) {
+        $skipRules = false;
+        $builtInValidationsOk = $this->runBuiltinValidationRules($schema, $data, $options, $skipRules);
+
+        if ($builtInValidationsOk && !$skipRules) {
             $this->performFieldValidation($schema->getRules(), $data);
 
             switch ($schema->getRule(TypeRule::ID)->getArgs()) {
@@ -120,7 +123,7 @@ class Validator
      * @param mixed $data  Input data.
      * @return void
      */
-    protected function performFieldValidation(array $rules, $data): void
+    private function performFieldValidation(array $rules, $data): void
     {
         foreach ($rules as $ruleId => $rule) {
             if (RuleRegistry::isReserved($ruleId)) {
@@ -139,7 +142,7 @@ class Validator
      * @param array  $options Validation options.
      * @return void
      */
-    protected function performListValidation(Schema $schema, $data, array $options): void
+    private function performListValidation(Schema $schema, $data, array $options): void
     {
         foreach ($data as $key => $value) {
             $this->performValidation($schema, $value, $key, $options);
@@ -152,7 +155,7 @@ class Validator
      * @param array $options Validation options.
      * @return void
      */
-    protected function performMapValidation(array $schemas, $data, array $options): void
+    private function performMapValidation(array $schemas, $data, array $options): void
     {
         foreach ($schemas as $field => $schema) {
             $this->performValidation($schema, $data[$field] ?? null, $field, $options);
@@ -164,7 +167,7 @@ class Validator
      * @return array
      * @throws InvalidOptionException
      */
-    protected function prepareOptions(array $options): array
+    private function prepareOptions(array $options): array
     {
         foreach ($options as $key => $value) {
             if (!in_array($key, Option::getValues())) {
@@ -186,12 +189,13 @@ class Validator
     }
 
     /**
-     * @param Schema $schema  Schema.
-     * @param mixed  $data    Input data.
-     * @param array  $options Validation options.
+     * @param Schema $schema    Schema.
+     * @param mixed  $data      Input data.
+     * @param array  $options   Validation options.
+     * @param bool   $skipRules Indicates if all following rules should be skipped.
      * @return bool
      */
-    protected function runBuiltinValidationRules(Schema $schema, $data, array $options): bool
+    private function runBuiltinValidationRules(Schema $schema, $data, array $options, bool &$skipRules): bool
     {
         $rules = [
             RequiredRule::ID       => $options[Option::ALL_REQUIRED],
@@ -201,6 +205,8 @@ class Validator
             BlankableRule::ID      => $options[Option::ALL_BLANKABLE],
         ];
 
+        $skipRules = false;
+
         foreach ($rules as $ruleId => $defaultRuleArgs) {
             $rule = RuleRegistry::get($ruleId);
 
@@ -209,6 +215,10 @@ class Validator
 
                 if (!$rule->validate($ruleArgs, $data, $this->context)) {
                     return false;
+                }
+
+                if ($ruleId === NullableRule::ID && $data === null) {
+                    $skipRules = true;
                 }
             }
         }
@@ -238,7 +248,6 @@ class Validator
     public function validate($data, array $options = []): bool
     {
         $options = $this->prepareOptions($options);
-
         $this->context = new Context($data, $this->getErrorMessageRenderer());
 
         $this->performValidation($this->schema, $data, '', $options);

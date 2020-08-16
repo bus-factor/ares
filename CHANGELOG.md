@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0] 2020-08-16
+### Added
+- drops PHP < 7.1 support
+- adds ext-json dependency (PHP extension)
+### Fixed
+- validations for nullable fields are now skipped if null value provided
+
 ## [2.1.0] 2019-11-24
 ### Added
 - adds ```uuid``` validation rule
