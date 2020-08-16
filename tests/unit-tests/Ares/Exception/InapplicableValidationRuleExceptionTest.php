@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class InapplicableValidationRuleExceptionTest
  *
- * @coversDefaultClass \Ares\Exception\InapplicableValidationRuleException
+ * @covers \Ares\Exception\InapplicableValidationRuleException
  */
 class InapplicableValidationRuleExceptionTest extends TestCase
 {

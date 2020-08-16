@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class OptionTest
  *
- * @coversDefaultClass \Ares\Sanitization\Option
+ * @covers \Ares\Sanitization\Option
  */
 class OptionTest extends TestCase
 {

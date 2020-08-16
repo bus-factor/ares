@@ -29,6 +29,7 @@ use PHPUnit\Framework\TestCase;
 class RequiredRuleTest extends TestCase
 {
     /**
+     * @covers \Ares\Validation\Rule\RequiredRule
      * @testWith ["Ares\\Validation\\Rule\\RuleInterface"]
      *           ["Ares\\Validation\\Rule\\AbstractRule"]
      *

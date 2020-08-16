@@ -24,6 +24,8 @@ use PHPUnit\Framework\TestCase;
 class SchemaMapTest extends TestCase
 {
     /**
+     * @covers \Ares\Schema\SchemaMap
+     *
      * @return void
      */
     public function testInstanceOf(): void

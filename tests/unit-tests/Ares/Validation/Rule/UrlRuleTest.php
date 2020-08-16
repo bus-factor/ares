@@ -27,6 +27,7 @@ use PHPUnit\Framework\TestCase;
 class UrlRuleTest extends TestCase
 {
     /**
+     * @covers \Ares\Validation\Rule\UrlRule
      * @testWith ["Ares\\Validation\\Rule\\RuleInterface"]
      *           ["Ares\\Validation\\Rule\\AbstractRule"]
      *

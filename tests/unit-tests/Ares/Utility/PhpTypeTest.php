@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class PhpTypeTest
  *
- * @coversDefaultClass \Ares\Utility\PhpType
+ * @covers \Ares\Utility\PhpType
  */
 class PhpTypeTest extends TestCase
 {

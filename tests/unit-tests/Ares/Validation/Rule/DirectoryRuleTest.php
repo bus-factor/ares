@@ -30,6 +30,7 @@ use PHPUnit\Framework\TestCase;
 class DirectoryRuleTest extends TestCase
 {
     /**
+     * @covers \Ares\Validation\Rule\DirectoryRule
      * @testWith ["Ares\\Validation\\Rule\\RuleInterface"]
      *           ["Ares\\Validation\\Rule\\AbstractRule"]
      *

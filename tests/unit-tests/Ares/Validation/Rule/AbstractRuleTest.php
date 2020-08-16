@@ -28,6 +28,7 @@ use PHPUnit\Framework\TestCase;
 class AbstractRuleTest extends TestCase
 {
     /**
+     * @covers \Ares\Validation\Rule\AbstractRule
      * @testWith ["Ares\\Validation\\Rule\\RuleInterface"]
      *
      * @param string $fqcn Fully-qualified class name of the interface, or class.

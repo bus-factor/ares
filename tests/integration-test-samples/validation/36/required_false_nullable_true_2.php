@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 /**
- * required_false_nullable_true.php
+ * required_false_nullable_true_2.php
  *
  * @author Michael Leßnau <michael.lessnau@gmail.com>
- * @since  2019-03-13
+ * @since  2020-08-16
  */
 
 use Ares\Ares;
@@ -14,15 +14,16 @@ use Ares\Ares;
 $schema = [
     'type' => 'map',
     'schema' => [
-        'name' => [
+        'date' => [
             'type' => 'string',
             'required' => false,
             'nullable' => true,
+            'datetime' => 'Y-m-d',
         ],
     ],
 ];
 
-$data = ['name' => null];
+$data = ['date' => null];
 
 $expectedErrors = [];
 

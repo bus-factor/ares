@@ -29,6 +29,7 @@ use PHPUnit\Framework\TestCase;
 class MaxRuleTest extends TestCase
 {
     /**
+     * @covers \Ares\Validation\Rule\MaxRule
      * @testWith ["Ares\\Validation\\Rule\\RuleInterface"]
      *           ["Ares\\Validation\\Rule\\AbstractRule"]
      *

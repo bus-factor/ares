@@ -10,7 +10,6 @@ declare(strict_types=1);
  */
 
 use Ares\Ares;
-use Ares\Validation\Error\Error;
 
 $schema = [
     'type' => 'map',

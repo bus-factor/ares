@@ -27,6 +27,7 @@ use PHPUnit\Framework\TestCase;
 class UuidRuleTest extends TestCase
 {
     /**
+     * @covers \Ares\Validation\Rule\UuidRule
      * @testWith ["Ares\\Validation\\Rule\\RuleInterface"]
      *           ["Ares\\Validation\\Rule\\AbstractRule"]
      *

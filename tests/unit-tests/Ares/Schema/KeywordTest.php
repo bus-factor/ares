@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class KeywordTest
  *
- * @coversDefaultClass \Ares\Schema\Keyword
+ * @covers \Ares\Schema\Keyword
  */
 class KeywordTest extends TestCase
 {

@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class TypeTest
  *
- * @coversDefaultClass \Ares\Schema\Type
+ * @covers \Ares\Schema\Type
  */
 class TypeTest extends TestCase
 {

@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class InvalidOptionExceptionTest
  *
- * @coversDefaultClass \Ares\Exception\InvalidOptionException
+ * @covers \Ares\Exception\InvalidOptionException
  */
 class InvalidOptionExceptionTest extends TestCase
 {
