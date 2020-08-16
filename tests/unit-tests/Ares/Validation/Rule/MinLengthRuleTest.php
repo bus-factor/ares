@@ -29,6 +29,7 @@ use PHPUnit\Framework\TestCase;
 class MinLengthRuleTest extends TestCase
 {
     /**
+     * @covers \Ares\Validation\Rule\MinLengthRule
      * @testWith ["Ares\\Validation\\Rule\\RuleInterface"]
      *           ["Ares\\Validation\\Rule\\AbstractRule"]
      *

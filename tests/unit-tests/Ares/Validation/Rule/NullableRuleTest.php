@@ -29,6 +29,7 @@ use PHPUnit\Framework\TestCase;
 class NullableRuleTest extends TestCase
 {
     /**
+     * @covers \Ares\Validation\Rule\NullableRule
      * @testWith ["Ares\\Validation\\Rule\\RuleInterface"]
      *           ["Ares\\Validation\\Rule\\AbstractRule"]
      *

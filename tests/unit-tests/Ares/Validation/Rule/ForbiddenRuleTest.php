@@ -29,6 +29,7 @@ use PHPUnit\Framework\TestCase;
 class ForbiddenRuleTest extends TestCase
 {
     /**
+     * @covers \Ares\Validation\Rule\ForbiddenRule
      * @testWith ["Ares\\Validation\\Rule\\RuleInterface"]
      *           ["Ares\\Validation\\Rule\\AbstractRule"]
      *

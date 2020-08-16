@@ -24,6 +24,8 @@ use PHPUnit\Framework\TestCase;
 class SchemaTest extends TestCase
 {
     /**
+     * @covers \Ares\Schema\Schema
+     *
      * @return void
      */
     public function testRulesDefaults(): void

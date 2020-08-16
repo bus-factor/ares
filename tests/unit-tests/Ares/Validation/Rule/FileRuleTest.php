@@ -30,6 +30,7 @@ use PHPUnit\Framework\TestCase;
 class FileRuleTest extends TestCase
 {
     /**
+     * @covers \Ares\Validation\Rule\FileRule
      * @testWith ["Ares\\Validation\\Rule\\RuleInterface"]
      *           ["Ares\\Validation\\Rule\\AbstractRule"]
      *

@@ -24,6 +24,8 @@ use PHPUnit\Framework\TestCase;
 class SchemaTupleTest extends TestCase
 {
     /**
+     * @covers \Ares\Schema\SchemaTuple
+     *
      * @return void
      */
     public function testInstanceOf(): void

@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class InvalidSchemaExceptionTest
  *
- * @coversDefaultClass \Ares\Exception\InvalidSchemaException
+ * @covers \Ares\Exception\InvalidSchemaException
  */
 class InvalidSchemaExceptionTest extends TestCase
 {

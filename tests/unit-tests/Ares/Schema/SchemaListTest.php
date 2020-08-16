@@ -23,6 +23,8 @@ use PHPUnit\Framework\TestCase;
 class SchemaListTest extends TestCase
 {
     /**
+     * @covers \Ares\Schema\SchemaList
+     *
      * @return void
      */
     public function testInstanceOf(): void

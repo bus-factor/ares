@@ -29,6 +29,7 @@ use PHPUnit\Framework\TestCase;
 class DateTimeRuleTest extends TestCase
 {
     /**
+     * @covers \Ares\Validation\Rule\DateTimeRule
      * @testWith ["Ares\\Validation\\Rule\\RuleInterface"]
      *           ["Ares\\Validation\\Rule\\AbstractRule"]
      *

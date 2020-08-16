@@ -29,6 +29,7 @@ use PHPUnit\Framework\TestCase;
 class EmailRuleTest extends TestCase
 {
     /**
+     * @covers \Ares\Validation\Rule\EmailRule
      * @testWith ["Ares\\Validation\\Rule\\RuleInterface"]
      *           ["Ares\\Validation\\Rule\\AbstractRule"]
      *

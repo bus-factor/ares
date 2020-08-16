@@ -23,6 +23,8 @@ use PHPUnit\Framework\TestCase;
 class SchemaReferenceTest extends TestCase
 {
     /**
+     * @covers \Ares\Schema\SchemaReference
+     *
      * @return void
      */
     public function testInstanceOf(): void
