@@ -71,7 +71,7 @@ class DateTimeRule extends AbstractRule
      * @param Context $context Validation context.
      * @return boolean
      */
-    protected function validateDataProcessability($data, Context $context): bool
+    private function validateDataProcessability($data, Context $context): bool
     {
         if (!is_string($data)) {
             $message = $context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE;
@@ -107,7 +107,7 @@ class DateTimeRule extends AbstractRule
      * @return bool
      * @throws InvalidValidationRuleArgsException
      */
-    protected function validateDateTimeFormat(string $format, string $data, Context $context): bool
+    private function validateDateTimeFormat(string $format, string $data, Context $context): bool
     {
         $dateTime = DateTime::createFromFormat($format, $data);
 

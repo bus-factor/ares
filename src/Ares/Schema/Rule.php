@@ -17,13 +17,13 @@ namespace Ares\Schema;
 class Rule
 {
     /** @var string $id */
-    protected $id;
+    private $id;
     /** @var mixed $args */
-    protected $args;
+    private $args;
     /** @var string|null $message */
-    protected $message;
+    private $message;
     /** @var array $meta */
-    protected $meta;
+    private $meta;
 
     /**
      * @param string      $id      Validation rule ID.

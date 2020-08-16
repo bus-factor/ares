@@ -29,7 +29,7 @@ class Sanitizer
     ];
 
     /** @var Schema $schema */
-    protected $schema;
+    private $schema;
 
     /**
      * @param Schema $schema Schema instance.
@@ -44,7 +44,7 @@ class Sanitizer
      * @return array
      * @throws InvalidOptionException
      */
-    protected function prepareOptions(array $options): array
+    private function prepareOptions(array $options): array
     {
         foreach ($options as $key => $value) {
             if (!in_array($key, Option::getValues())) {
@@ -70,7 +70,7 @@ class Sanitizer
      * @param array $options Sanitization options.
      * @return mixed
      */
-    protected function performBooleanSanitization($data, array $options)
+    private function performBooleanSanitization($data, array $options)
     {
         $type = gettype($data);
 
@@ -88,7 +88,7 @@ class Sanitizer
      * @param array $options Sanitization options.
      * @return mixed
      */
-    protected function performFloatSanitization($data, array $options)
+    private function performFloatSanitization($data, array $options)
     {
         return is_numeric($data)
             ? (float)$data
@@ -100,7 +100,7 @@ class Sanitizer
      * @param array $options Sanitization options.
      * @return mixed
      */
-    protected function performIntegerSanitization($data, array $options)
+    private function performIntegerSanitization($data, array $options)
     {
         return is_numeric($data)
             ? (int)$data
@@ -113,7 +113,7 @@ class Sanitizer
      * @param array  $options Sanitization options.
      * @return mixed
      */
-    protected function performListSanitization(Schema $schema, $data, array $options)
+    private function performListSanitization(Schema $schema, $data, array $options)
     {
         if (is_array($data)) {
             foreach ($data as $index => $value) {
@@ -130,7 +130,7 @@ class Sanitizer
      * @param array    $options Sanitization options.
      * @return mixed
      */
-    protected function performMapSanitization(array $schemas, $data, array $options)
+    private function performMapSanitization(array $schemas, $data, array $options)
     {
         if (is_array($data)) {
             foreach ($schemas as $index => $schema) {
@@ -159,7 +159,7 @@ class Sanitizer
      * @param array  $options Sanitization options.
      * @return mixed
      */
-    protected function performSanitization(Schema $schema, $data, array $options)
+    private function performSanitization(Schema $schema, $data, array $options)
     {
         $type = $schema->getRule(TypeRule::ID)->getArgs();
 
@@ -202,7 +202,7 @@ class Sanitizer
      * @param array $options Sanitization options.
      * @return mixed
      */
-    protected function performStringSanitization($data, array $options)
+    private function performStringSanitization($data, array $options)
     {
         return (is_string($data) && $options[Option::TRIM_STRINGS])
             ? trim($data)

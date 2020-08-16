@@ -57,14 +57,14 @@ class Parser
     ];
 
     /** @param array $typeRegistryGetCallStack */
-    protected static $typeRegistryGetCallStack = [];
+    private static $typeRegistryGetCallStack = [];
 
     /**
      * @param ParserContext $context Parser context.
      * @return void
      * @throws InvalidSchemaException
      */
-    protected function ascertainInputHoldsArrayOrFail(ParserContext $context): void
+    private function ascertainInputHoldsArrayOrFail(ParserContext $context): void
     {
         $type = gettype($context->getInput());
 
@@ -79,7 +79,7 @@ class Parser
      * @return string
      * @throws InvalidSchemaException
      */
-    protected function extractTypeOrFail(ParserContext $context, bool &$isCustomType): string
+    private function extractTypeOrFail(ParserContext $context, bool &$isCustomType): string
     {
         $types = [];
 
@@ -121,7 +121,7 @@ class Parser
      * @throws InvalidSchemaException
      * @see ParserError
      */
-    protected function fail(int $parserError, ParserContext $context, ...$messageVars)
+    private function fail(int $parserError, ParserContext $context, ...$messageVars)
     {
         $message = self::ERROR_MESSAGES[$parserError];
         $source = JsonPointer::encode($context->getInputPosition());
@@ -150,7 +150,7 @@ class Parser
      * @return Rule|null
      * @throws InvalidSchemaException
      */
-    protected function parseRule(string $type, ParserContext $context, string $ruleId): ?Rule
+    private function parseRule(string $type, ParserContext $context, string $ruleId): ?Rule
     {
         $rule = null;
 
@@ -186,7 +186,7 @@ class Parser
      * @return Rule|null
      * @throws InvalidSchemaException
      */
-    protected function parseRuleWithAdditions(string $type, ParserContext $context, $index): ?Rule
+    private function parseRuleWithAdditions(string $type, ParserContext $context, $index): ?Rule
     {
         $context->enter($index);
 
@@ -242,7 +242,7 @@ class Parser
      * @throws InvalidSchemaException
      * @throws InvalidArgumentException
      */
-    protected function parseSchema(ParserContext $context): Schema
+    private function parseSchema(ParserContext $context): Schema
     {
         $this->ascertainInputHoldsArrayOrFail($context);
 
@@ -314,7 +314,7 @@ class Parser
      * @throws InvalidSchemaException
      * @throws InvalidArgumentException
      */
-    protected function parseSchemas(ParserContext $context): array
+    private function parseSchemas(ParserContext $context): array
     {
         $schemas = [];
 
@@ -338,7 +338,7 @@ class Parser
      * @return array
      * @throws InvalidSchemaException
      */
-    protected function parseTupleSchemas(ParserContext $context): array
+    private function parseTupleSchemas(ParserContext $context): array
     {
         $schemas = $this->parseSchemas($context);
 
@@ -358,7 +358,7 @@ class Parser
      * @return Schema
      * @throws InvalidSchemaException
      */
-    protected function prepareCustomTypeSchemaInstance(string $type): Schema
+    private function prepareCustomTypeSchemaInstance(string $type): Schema
     {
         for ($i = count(self::$typeRegistryGetCallStack) - 1; $i >= 0; $i--) {
             $typeRegistryGetCall = self::$typeRegistryGetCallStack[$i];
@@ -396,7 +396,7 @@ class Parser
      * @return Schema
      * @throws InvalidSchemaException
      */
-    protected function prepareSchemaInstance(string $type, bool $isCustomType): Schema
+    private function prepareSchemaInstance(string $type, bool $isCustomType): Schema
     {
         if ($isCustomType) {
             return $this->prepareCustomTypeSchemaInstance($type);

@@ -17,7 +17,7 @@ namespace Ares\Schema;
 class SchemaReference extends Schema
 {
     /** @param Schema $schema */
-    protected $schema;
+    private $schema;
 
     /**
      * @return Schema

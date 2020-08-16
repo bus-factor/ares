@@ -19,7 +19,7 @@ use InvalidArgumentException;
 class Schema
 {
     /** @var array $rules */
-    protected $rules = [];
+    private $rules = [];
 
     /**
      * @param string $ruleId Validation rule ID.

@@ -24,11 +24,11 @@ use Ares\Validation\Validator;
 class Ares
 {
     /** @var Sanitizer $sanitizer */
-    protected $sanitizer;
+    private $sanitizer;
     /** @var Schema $schema */
-    protected $schema;
+    private $schema;
     /** @var Validator $validator */
-    protected $validator;
+    private $validator;
 
     /**
      * @param array $schema Schema definition.

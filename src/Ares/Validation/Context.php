@@ -21,15 +21,15 @@ use Ares\Schema\Schema;
 class Context
 {
     /** @var mixed $data */
-    protected $data;
+    private $data;
     /** @var array $errors */
-    protected $errors = [];
+    private $errors = [];
     /** @var ErrorMessageRendererInterface $errorMessageRenderer */
-    protected $errorMessageRenderer;
+    private $errorMessageRenderer;
     /** @var array $schemas */
-    protected $schemas = [];
+    private $schemas = [];
     /** @var array $source */
-    protected $source = [];
+    private $source = [];
 
     /**
      * @param mixed                         $data                 Input data.
