@@ -16,7 +16,9 @@ namespace Ares\Schema;
  */
 class SchemaTuple extends Schema
 {
-    /** @var array $schemas */
+    /**
+     * @var array
+     */
     private $schemas = [];
 
     /**
@@ -51,4 +53,3 @@ class SchemaTuple extends Schema
         return $this;
     }
 }
-

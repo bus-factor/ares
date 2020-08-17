@@ -25,6 +25,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class FileRuleTest
  *
+ * @covers \Ares\Validation\Rule\AbstractRule
  * @coversDefaultClass \Ares\Validation\Rule\FileRule
  */
 class FileRuleTest extends TestCase

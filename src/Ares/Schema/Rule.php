@@ -16,13 +16,24 @@ namespace Ares\Schema;
  */
 class Rule
 {
-    /** @var string $id */
+    /**
+     * @var string
+     */
     private $id;
-    /** @var mixed $args */
+
+    /**
+     * @var mixed
+     */
     private $args;
-    /** @var string|null $message */
+
+    /**
+     * @var string|null
+     */
     private $message;
-    /** @var array $meta */
+
+    /**
+     * @var array
+     */
     private $meta;
 
     /**
@@ -31,8 +42,12 @@ class Rule
      * @param string|null $message Custom validation error message.
      * @param array|null  $meta    Validation error meta data.
      */
-    public function __construct(string $id, $args, ?string $message = null, ?array $meta = null)
-    {
+    public function __construct(
+        string $id,
+        $args,
+        ?string $message = null,
+        ?array $meta = null
+    ) {
         $this->id = $id;
         $this->args = $args;
         $this->message = $message;
@@ -115,4 +130,3 @@ class Rule
         return $this;
     }
 }
-

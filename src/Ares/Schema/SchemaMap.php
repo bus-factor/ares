@@ -16,7 +16,9 @@ namespace Ares\Schema;
  */
 class SchemaMap extends Schema
 {
-    /** @var array $schemas */
+    /**
+     * @var array
+     */
     private $schemas = [];
 
     /**
@@ -52,4 +54,3 @@ class SchemaMap extends Schema
         return $this;
     }
 }
-

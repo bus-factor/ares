@@ -47,21 +47,30 @@ class ForbiddenRule extends AbstractRule
     public function performValidation($args, $data, Context $context): bool
     {
         if (!is_array($args)) {
-            throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
+            throw new InvalidValidationRuleArgsException(
+                'Invalid args: ' . json_encode($args)
+            );
         }
 
         if (!in_array($data, $args, true)) {
             return true;
         }
 
-        $message = $context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE;
+        $message = $this->getErrorMessage(
+            $context,
+            self::ID,
+            self::ERROR_MESSAGE
+        );
 
         $context->addError(
             self::ID,
-            $context->getErrorMessageRenderer()->render($context, self::ID, $message)
+            $context->getErrorMessageRenderer()->render(
+                $context,
+                self::ID,
+                $message
+            )
         );
 
         return false;
     }
 }
-

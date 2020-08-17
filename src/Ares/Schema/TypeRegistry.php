@@ -19,7 +19,9 @@ use InvalidArgumentException;
  */
 class TypeRegistry
 {
-    /** @var array|callable[] $schemas */
+    /**
+     * @var array|callable[]
+     */
     private static $schemas = [];
 
     /**
@@ -31,7 +33,9 @@ class TypeRegistry
     public static function get(string $type): Schema
     {
         if (!isset(self::$schemas[$type])) {
-            throw new InvalidArgumentException(sprintf('Unknown type: type <%s> is not registered', $type));
+            throw new InvalidArgumentException(
+                sprintf('Unknown type: type <%s> is not registered', $type)
+            );
         }
 
         $callable = self::$schemas[$type];
@@ -57,7 +61,12 @@ class TypeRegistry
     public static function register(string $type, array $schema): void
     {
         if (in_array($type, Type::getValues(), true)) {
-            throw new InvalidArgumentException(sprintf('Reserved type: <%s> is a built-in type and must not be overwritten', $type));
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Reserved type: <%s> is a built-in type and must not be overwritten',
+                    $type
+                )
+            );
         }
 
         self::$schemas[$type] = function () use ($schema): Schema {
@@ -72,7 +81,9 @@ class TypeRegistry
     public static function unregister(string $type): void
     {
         if (!isset(self::$schemas[$type])) {
-            throw new InvalidArgumentException(sprintf('Unknown type: cannot unregister <%s>', $type));
+            throw new InvalidArgumentException(
+                sprintf('Unknown type: cannot unregister <%s>', $type)
+            );
         }
 
         unset(self::$schemas[$type]);
@@ -86,4 +97,3 @@ class TypeRegistry
         self::$schemas = [];
     }
 }
-

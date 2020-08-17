@@ -246,7 +246,7 @@ class RuleRegistryTest extends TestCase
     public function testUnregisterHandlesUnknownRuleIds(): void
     {
         $this->expectException(UnknownValidationRuleIdException::class);
-        $this->expectExceptionMessage('Unknown validation rule: cannot unregister <foobar>');
+        $this->expectExceptionMessage('Unknown validation rule ID: foobar');
 
         RuleRegistry::unregister('foobar');
     }

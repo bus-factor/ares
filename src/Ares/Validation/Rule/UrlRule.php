@@ -42,35 +42,32 @@ class UrlRule extends AbstractRule
      */
     public function performValidation($args, $data, Context $context): bool
     {
-        if (!is_bool($args)) {
-            throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
-        }
+        $validationResult = $this->performFixedStringFormatValidation(
+            $args,
+            $data,
+            $context,
+            self::ID,
+            self::ERROR_MESSAGE
+        );
 
-        if (!$args) {
-            return true;
-        }
-
-        if (!is_string($data)) {
-            $message = $context->getSchema()->hasRule(self::ID)
-                ? ($context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE)
-                : self::ERROR_MESSAGE;
-
-            $context->addError(
-                self::ID,
-                $context->getErrorMessageRenderer()->render($context, self::ID, $message)
-            );
-
-            return false;
+        if ($validationResult !== null) {
+            return $validationResult;
         }
 
         if (filter_var($data, FILTER_VALIDATE_URL) === false) {
-            $message = $context->getSchema()->hasRule(self::ID)
-                ? ($context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE)
-                : self::ERROR_MESSAGE;
+            $message = $this->getErrorMessage(
+                $context,
+                self::ID,
+                self::ERROR_MESSAGE
+            );
 
             $context->addError(
                 self::ID,
-                $context->getErrorMessageRenderer()->render($context, self::ID, $message)
+                $context->getErrorMessageRenderer()->render(
+                    $context,
+                    self::ID,
+                    $message
+                )
             );
 
             return false;
@@ -79,4 +76,3 @@ class UrlRule extends AbstractRule
         return true;
     }
 }
-

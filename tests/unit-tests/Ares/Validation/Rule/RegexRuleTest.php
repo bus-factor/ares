@@ -26,6 +26,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class RegexRuleTest
  *
+ * @covers \Ares\Validation\Rule\AbstractRule
  * @coversDefaultClass \Ares\Validation\Rule\RegexRule
  */
 class RegexRuleTest extends TestCase

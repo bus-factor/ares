@@ -34,4 +34,3 @@ interface RuleInterface
      */
     public function validate($args, $data, Context $context): bool;
 }
-
