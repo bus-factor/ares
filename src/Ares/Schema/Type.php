@@ -27,4 +27,3 @@ class Type extends Enum
     public const STRING  = 'string';
     public const TUPLE   = 'tuple';
 }
-

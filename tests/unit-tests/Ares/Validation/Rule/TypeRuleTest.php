@@ -22,6 +22,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class TypeRuleTest
  *
+ * @covers \Ares\Validation\Rule\AbstractRule
  * @coversDefaultClass \Ares\Validation\Rule\TypeRule
  */
 class TypeRuleTest extends TestCase

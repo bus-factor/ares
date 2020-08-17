@@ -24,6 +24,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class DateTimeRuleTest
  *
+ * @covers \Ares\Validation\Rule\AbstractRule
  * @coversDefaultClass \Ares\Validation\Rule\DateTimeRule
  */
 class DateTimeRuleTest extends TestCase

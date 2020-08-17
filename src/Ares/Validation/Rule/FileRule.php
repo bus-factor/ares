@@ -44,25 +44,36 @@ class FileRule extends AbstractRule
     public function performValidation($args, $data, Context $context): bool
     {
         if (!is_bool($args)) {
-            throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
+            throw new InvalidValidationRuleArgsException(
+                'Invalid args: ' . json_encode($args)
+            );
         }
 
         if (!is_string($data)) {
-            throw new InapplicableValidationRuleException('This rule applies to <string> types only');
+            throw new InapplicableValidationRuleException(
+                'This rule applies to <string> types only'
+            );
         }
 
         if (!$args || file_exists($data) && is_file($data)) {
             return true;
         }
 
-        $message = $context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE;
+        $message = $this->getErrorMessage(
+            $context,
+            self::ID,
+            self::ERROR_MESSAGE
+        );
 
         $context->addError(
             self::ID,
-            $context->getErrorMessageRenderer()->render($context, self::ID, $message)
+            $context->getErrorMessageRenderer()->render(
+                $context,
+                self::ID,
+                $message
+            )
         );
 
         return false;
     }
 }
-

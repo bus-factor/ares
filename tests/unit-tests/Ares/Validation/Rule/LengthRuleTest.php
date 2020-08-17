@@ -25,6 +25,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class LengthRuleTest
  *
+ * @covers \Ares\Validation\Rule\AbstractRule
  * @coversDefaultClass \Ares\Validation\Rule\LengthRule
  */
 class LengthRuleTest extends TestCase

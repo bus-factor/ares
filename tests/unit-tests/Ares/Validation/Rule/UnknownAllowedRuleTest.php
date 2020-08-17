@@ -26,6 +26,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class UnknownAllowedRuleTest
  *
+ * @covers \Ares\Validation\Rule\AbstractRule
  * @coversDefaultClass \Ares\Validation\Rule\UnknownAllowedRule
  */
 class UnknownAllowedRuleTest extends TestCase

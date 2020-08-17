@@ -25,6 +25,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class MaxLengthRuleTest
  *
+ * @covers \Ares\Validation\Rule\AbstractRule
  * @coversDefaultClass \Ares\Validation\Rule\MaxLengthRule
  */
 class MaxLengthRuleTest extends TestCase

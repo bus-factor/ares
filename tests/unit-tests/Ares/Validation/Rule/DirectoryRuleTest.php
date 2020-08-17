@@ -25,6 +25,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class DirectoryRuleTest
  *
+ * @covers \Ares\Validation\Rule\AbstractRule
  * @coversDefaultClass \Ares\Validation\Rule\DirectoryRule
  */
 class DirectoryRuleTest extends TestCase

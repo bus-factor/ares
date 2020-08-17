@@ -49,7 +49,9 @@ class MaxLengthRule extends AbstractRule
     public function performValidation($args, $data, Context $context): bool
     {
         if (!is_int($args) || $args < 0) {
-            throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
+            throw new InvalidValidationRuleArgsException(
+                'Invalid args: ' . json_encode($args)
+            );
         }
 
         $dataType = gettype($data);
@@ -61,20 +63,21 @@ class MaxLengthRule extends AbstractRule
             return true;
         }
 
-        $customMessage = $context->getSchema()->getRule(self::ID)->getMessage();
-
-        if (isset($customMessage)) {
-            $message = $customMessage;
-        } else {
-            $message = self::ERROR_MESSAGES[$dataType];
-        }
+        $message = $this->getErrorMessage(
+            $context,
+            self::ID,
+            self::ERROR_MESSAGES[$dataType]
+        );
 
         $context->addError(
             self::ID,
-            $context->getErrorMessageRenderer()->render($context, self::ID, $message)
+            $context->getErrorMessageRenderer()->render(
+                $context,
+                self::ID,
+                $message
+            )
         );
 
         return false;
     }
 }
-

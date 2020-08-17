@@ -23,11 +23,19 @@ use Ares\Validation\Validator;
  */
 class Ares
 {
-    /** @var Sanitizer $sanitizer */
+    /**
+     * @var Sanitizer
+     */
     private $sanitizer;
-    /** @var Schema $schema */
+
+    /**
+     * @var Schema
+     */
     private $schema;
-    /** @var Validator $validator */
+
+    /**
+     * @var Validator
+     */
     private $validator;
 
     /**
@@ -88,4 +96,3 @@ class Ares
         return $this->getValidator()->validate($data, $options);
     }
 }
-

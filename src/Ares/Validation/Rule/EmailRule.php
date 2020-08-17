@@ -42,35 +42,32 @@ class EmailRule extends AbstractRule
      */
     public function performValidation($args, $data, Context $context): bool
     {
-        if (!is_bool($args)) {
-            throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
+        $validationResult = $this->performFixedStringFormatValidation(
+            $args,
+            $data,
+            $context,
+            self::ID,
+            self::ERROR_MESSAGE
+        );
+
+        if ($validationResult !== null) {
+            return $validationResult;
         }
 
-        if (!$args) {
-            return true;
-        }
-
-        if (!is_string($data)) {
-            $message = $context->getSchema()->hasRule(self::ID)
-                ? ($context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE)
-                : self::ERROR_MESSAGE;
-
-            $context->addError(
+        if (filter_var($data, FILTER_VALIDATE_EMAIL) === false) {
+            $message = $this->getErrorMessage(
+                $context,
                 self::ID,
-                $context->getErrorMessageRenderer()->render($context, self::ID, $message)
+                self::ERROR_MESSAGE
             );
 
-            return false;
-        }
-
-        $email = filter_var($data, FILTER_VALIDATE_EMAIL);
-
-        if ($email === false) {
-            $message = $context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE;
-
             $context->addError(
                 self::ID,
-                $context->getErrorMessageRenderer()->render($context, self::ID, $message)
+                $context->getErrorMessageRenderer()->render(
+                    $context,
+                    self::ID,
+                    $message
+                )
             );
 
             return false;
@@ -80,4 +77,3 @@ class EmailRule extends AbstractRule
         return true;
     }
 }
-

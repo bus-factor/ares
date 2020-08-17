@@ -25,13 +25,17 @@ use Ares\Validation\Rule\TypeRule;
  */
 class Sanitizer
 {
-    /** @const array OPTIONS_DEFAULTS */
+    /**
+     * @const array
+     */
     private const OPTIONS_DEFAULTS = [
         Option::TRIM_STRINGS  => true,
         Option::PURGE_UNKNOWN => true,
     ];
 
-    /** @var Schema $schema */
+    /**
+     * @var Schema
+     */
     private $schema;
 
     /**
@@ -52,7 +56,10 @@ class Sanitizer
         foreach ($options as $key => $value) {
             if (!in_array($key, Option::getValues())) {
                 throw new InvalidOptionException(
-                    sprintf('Unknown sanitization option: \'%s\' is not a supported sanitization option', $key)
+                    sprintf(
+                        'Unknown sanitization option: \'%s\' is not a supported sanitization option',
+                        $key
+                    )
                 );
             }
 
@@ -60,7 +67,11 @@ class Sanitizer
 
             if ($type !== PhpType::BOOLEAN) {
                 throw new InvalidOptionException(
-                    sprintf('Invalid sanitization option: \'%s\' must be of type <boolean>, got <%s>', $key, $type)
+                    sprintf(
+                        'Invalid sanitization option: \'%s\' must be of type <boolean>, got <%s>',
+                        $key,
+                        $type
+                    )
                 );
             }
         }
@@ -116,11 +127,18 @@ class Sanitizer
      * @param array  $options Sanitization options.
      * @return mixed
      */
-    private function performListSanitization(Schema $schema, $data, array $options)
-    {
+    private function performListSanitization(
+        Schema $schema,
+        $data,
+        array $options
+    ) {
         if (is_array($data)) {
             foreach ($data as $index => $value) {
-                $data[$index] = $this->performSanitization($schema, $data[$index], $options);
+                $data[$index] = $this->performSanitization(
+                    $schema,
+                    $data[$index],
+                    $options
+                );
             }
         }
 
@@ -133,19 +151,29 @@ class Sanitizer
      * @param array    $options Sanitization options.
      * @return mixed
      */
-    private function performMapSanitization(array $schemas, $data, array $options)
-    {
+    private function performMapSanitization(
+        array $schemas,
+        $data,
+        array $options
+    ) {
         if (is_array($data)) {
             foreach ($schemas as $index => $schema) {
                 if (!array_key_exists($index, $data)) {
                     continue;
                 }
 
-                $data[$index] = $this->performSanitization($schema, $data[$index], $options);
+                $data[$index] = $this->performSanitization(
+                    $schema,
+                    $data[$index],
+                    $options
+                );
             }
 
             if ($options[Option::PURGE_UNKNOWN]) {
-                $unknownIndices = array_diff(array_keys($data), array_keys($schemas));
+                $unknownIndices = array_diff(
+                    array_keys($data),
+                    array_keys($schemas)
+                );
 
                 foreach ($unknownIndices as $unknownIndex) {
                     unset($data[$unknownIndex]);
@@ -169,15 +197,30 @@ class Sanitizer
         switch ($type) {
             case Type::LIST:
                 /** @var SchemaList $schema */
-                $data = $this->performListSanitization($schema->getSchema(), $data, $options);
+                $data = $this->performListSanitization(
+                    $schema->getSchema(),
+                    $data,
+                    $options
+                );
+
                 break;
             case Type::MAP:
                 /** @var SchemaMap $schema */
-                $data = $this->performMapSanitization($schema->getSchemas(), $data, $options);
+                $data = $this->performMapSanitization(
+                    $schema->getSchemas(),
+                    $data,
+                    $options
+                );
+
                 break;
             case Type::TUPLE:
                 /** @var SchemaTuple $schema */
-                $data = $this->performMapSanitization($schema->getSchemas(), $data, $options);
+                $data = $this->performMapSanitization(
+                    $schema->getSchemas(),
+                    $data,
+                    $options
+                );
+
                 break;
             case Type::FLOAT:
                 $data = $this->performFloatSanitization($data, $options);
@@ -224,4 +267,3 @@ class Sanitizer
         return $this->performSanitization($this->schema, $data, $options);
     }
 }
-

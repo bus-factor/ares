@@ -23,4 +23,3 @@ class Option extends Enum
     public const ALL_NULLABLE        = 'allNullable';
     public const ALL_REQUIRED        = 'allRequired';
 }
-

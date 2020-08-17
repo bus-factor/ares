@@ -22,4 +22,3 @@ class Keyword extends Enum
     public const META    = 'meta';
     public const SCHEMA  = 'schema';
 }
-

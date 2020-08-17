@@ -16,9 +16,14 @@ namespace Ares\Schema;
  */
 class ParserContext
 {
-    /** @var array $inputs */
+    /**
+     * @var array
+     */
     private $inputs = [];
-    /** @var array $inputPosition */
+
+    /**
+     * @var array
+     */
     private $inputPosition = [];
 
     /**
@@ -70,4 +75,3 @@ class ParserContext
         return $this;
     }
 }
-

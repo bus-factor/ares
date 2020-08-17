@@ -34,7 +34,9 @@ use Ares\Validation\Rule\UnknownAllowedRule;
  */
 class Validator
 {
-    /** @const array OPTIONS_DEFAULTS */
+    /**
+     * @const array
+     */
     private const OPTIONS_DEFAULTS = [
         Option::ALL_UNKNOWN_ALLOWED => false,
         Option::ALL_BLANKABLE       => false,
@@ -42,11 +44,19 @@ class Validator
         Option::ALL_REQUIRED        => true,
     ];
 
-    /** @var Context $context */
+    /**
+     * @var Context
+     */
     private $context;
-    /** @var ErrorMessageRendererInterface $errorMessageRenderer */
+
+    /**
+     * @var ErrorMessageRendererInterface
+     */
     private $errorMessageRenderer;
-    /** @var Schema $schema */
+
+    /**
+     * @var Schema
+     */
     private $schema;
 
     /**
@@ -80,14 +90,18 @@ class Validator
     /**
      * @param Schema $schema  Schema.
      * @param mixed  $data    Input data.
-     * @param mixed  $field   Current field name or index (part of source reference).
+     * @param mixed  $field   Current field name or index.
      * @param array  $options Validation options.
      * @return void
      * @throws InvalidValidationRuleArgsException
      * @throws UnknownValidationRuleIdException
      */
-    private function performValidation(Schema $schema, $data, $field, array $options): void
-    {
+    private function performValidation(
+        Schema $schema,
+        $data,
+        $field,
+        array $options
+    ): void {
         if ($schema instanceof SchemaReference) {
             $schema = $schema->getSchema();
         }
@@ -95,7 +109,12 @@ class Validator
         $this->context->enter($field, $schema);
 
         $skipRules = false;
-        $builtInValidationsOk = $this->runBuiltinValidationRules($schema, $data, $options, $skipRules);
+        $builtInValidationsOk = $this->runBuiltinValidationRules(
+            $schema,
+            $data,
+            $options,
+            $skipRules
+        );
 
         if ($builtInValidationsOk && !$skipRules) {
             $this->performFieldValidation($schema->getRules(), $data);
@@ -103,15 +122,30 @@ class Validator
             switch ($schema->getRule(TypeRule::ID)->getArgs()) {
                 case Type::LIST:
                     /** @var SchemaList $schema */
-                    $this->performListValidation($schema->getSchema(), $data, $options);
+                    $this->performListValidation(
+                        $schema->getSchema(),
+                        $data,
+                        $options
+                    );
+
                     break;
                 case Type::MAP:
                     /** @var SchemaMap $schema */
-                    $this->performMapValidation($schema->getSchemas(), $data, $options);
+                    $this->performMapValidation(
+                        $schema->getSchemas(),
+                        $data,
+                        $options
+                    );
+
                     break;
                 case Type::TUPLE:
                     /** @var SchemaTuple $schema */
-                    $this->performMapValidation($schema->getSchemas(), $data, $options);
+                    $this->performMapValidation(
+                        $schema->getSchemas(),
+                        $data,
+                        $options
+                    );
+
                     break;
                 default:
                     // no op
@@ -134,7 +168,13 @@ class Validator
                 continue;
             }
 
-            if (!RuleRegistry::get($ruleId)->validate($rule->getArgs(), $data, $this->context)) {
+            $valid = RuleRegistry::get($ruleId)->validate(
+                $rule->getArgs(),
+                $data,
+                $this->context
+            );
+
+            if (!$valid) {
                 break;
             }
         }
@@ -146,8 +186,11 @@ class Validator
      * @param array  $options Validation options.
      * @return void
      */
-    private function performListValidation(Schema $schema, $data, array $options): void
-    {
+    private function performListValidation(
+        Schema $schema,
+        $data,
+        array $options
+    ): void {
         foreach ($data as $key => $value) {
             $this->performValidation($schema, $value, $key, $options);
         }
@@ -159,10 +202,18 @@ class Validator
      * @param array $options Validation options.
      * @return void
      */
-    private function performMapValidation(array $schemas, $data, array $options): void
-    {
+    private function performMapValidation(
+        array $schemas,
+        $data,
+        array $options
+    ): void {
         foreach ($schemas as $field => $schema) {
-            $this->performValidation($schema, $data[$field] ?? null, $field, $options);
+            $this->performValidation(
+                $schema,
+                $data[$field] ?? null,
+                $field,
+                $options
+            );
         }
     }
 
@@ -176,7 +227,10 @@ class Validator
         foreach ($options as $key => $value) {
             if (!in_array($key, Option::getValues())) {
                 throw new InvalidOptionException(
-                    sprintf('Unknown validation option: \'%s\' is not a supported validation option', $key)
+                    sprintf(
+                        'Unknown validation option: \'%s\' is not a supported validation option',
+                        $key
+                    )
                 );
             }
 
@@ -184,7 +238,11 @@ class Validator
 
             if ($type !== PhpType::BOOLEAN) {
                 throw new InvalidOptionException(
-                    sprintf('Invalid validation option: \'%s\' must be of type <boolean>, got <%s>', $key, $type)
+                    sprintf(
+                        'Invalid validation option: \'%s\' must be of type <boolean>, got <%s>',
+                        $key,
+                        $type
+                    )
                 );
             }
         }
@@ -196,11 +254,15 @@ class Validator
      * @param Schema $schema    Schema.
      * @param mixed  $data      Input data.
      * @param array  $options   Validation options.
-     * @param bool   $skipRules Indicates if all following rules should be skipped.
+     * @param bool   $skipRules Set if all following rules should be skipped.
      * @return bool
      */
-    private function runBuiltinValidationRules(Schema $schema, $data, array $options, bool &$skipRules): bool
-    {
+    private function runBuiltinValidationRules(
+        Schema $schema,
+        $data,
+        array $options,
+        bool &$skipRules
+    ): bool {
         $rules = [
             RequiredRule::ID       => $options[Option::ALL_REQUIRED],
             TypeRule::ID           => null,
@@ -215,7 +277,9 @@ class Validator
             $rule = RuleRegistry::get($ruleId);
 
             if ($rule->isApplicable($this->context)) {
-                $ruleArgs = $schema->hasRule($ruleId) ? $schema->getRule($ruleId)->getArgs() : $defaultRuleArgs;
+                $ruleArgs = $schema->hasRule($ruleId)
+                    ? $schema->getRule($ruleId)->getArgs()
+                    : $defaultRuleArgs;
 
                 if (!$rule->validate($ruleArgs, $data, $this->context)) {
                     return false;
@@ -234,8 +298,9 @@ class Validator
      * @param ErrorMessageRendererInterface $errorMessageRenderer Error message renderer.
      * @return self
      */
-    public function setErrorMessageRenderer(ErrorMessageRendererInterface $errorMessageRenderer): self
-    {
+    public function setErrorMessageRenderer(
+        ErrorMessageRendererInterface $errorMessageRenderer
+    ): self {
         $this->errorMessageRenderer = $errorMessageRenderer;
 
         return $this;
@@ -259,4 +324,3 @@ class Validator
         return !$this->context->hasErrors();
     }
 }
-

@@ -20,23 +20,39 @@ use Ares\Schema\Schema;
  */
 class Context
 {
-    /** @var mixed $data */
+    /**
+     * @var mixed
+     */
     private $data;
-    /** @var array $errors */
+
+    /**
+     * @var array
+     */
     private $errors = [];
-    /** @var ErrorMessageRendererInterface $errorMessageRenderer */
+
+    /**
+     * @var ErrorMessageRendererInterface
+     */
     private $errorMessageRenderer;
-    /** @var array $schemas */
+
+    /**
+     * @var array
+     */
     private $schemas = [];
-    /** @var array $source */
+
+    /**
+     * @var array
+     */
     private $source = [];
 
     /**
      * @param mixed                         $data                 Input data.
      * @param ErrorMessageRendererInterface $errorMessageRenderer Error message renderer.
      */
-    public function __construct(&$data, ErrorMessageRendererInterface $errorMessageRenderer)
-    {
+    public function __construct(
+        &$data,
+        ErrorMessageRendererInterface $errorMessageRenderer
+    ) {
         $this->data = &$data;
         $this->errorMessageRenderer = $errorMessageRenderer;
     }
@@ -47,8 +63,11 @@ class Context
      * @param array  $meta    Error metadata.
      * @return self
      */
-    public function addError(string $code, string $message, array $meta = []): self
-    {
+    public function addError(
+        string $code,
+        string $message,
+        array $meta = []
+    ): self {
         $this->errors[] = new Error($this->source, $code, $message, $meta);
 
         return $this;
@@ -126,4 +145,3 @@ class Context
         return $this;
     }
 }
-

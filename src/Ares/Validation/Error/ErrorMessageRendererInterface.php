@@ -25,5 +25,10 @@ interface ErrorMessageRendererInterface
      * @param array   $substitutions Error message substitutions.
      * @return string
      */
-    public function render(Context $context, string $ruleId, string $message, array $substitutions = []): string;
+    public function render(
+        Context $context,
+        string $ruleId,
+        string $message,
+        array $substitutions = []
+    ): string;
 }
