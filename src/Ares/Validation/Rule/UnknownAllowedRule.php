@@ -13,6 +13,8 @@ namespace Ares\Validation\Rule;
 
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Schema\Schema;
+use Ares\Schema\SchemaMap;
+use Ares\Schema\SchemaTuple;
 use Ares\Schema\Type;
 use Ares\Validation\Context;
 
@@ -48,6 +50,7 @@ class UnknownAllowedRule extends AbstractRule
             return true;
         }
 
+        /** @var SchemaMap|SchemaTuple $schema */
         $schema = $context->getSchema();
         $unknownFields = array_keys(array_diff_key($data, $schema->getSchemas()));
 

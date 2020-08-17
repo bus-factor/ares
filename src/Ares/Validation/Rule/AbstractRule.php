@@ -14,7 +14,6 @@ namespace Ares\Validation\Rule;
 use Ares\Exception\InapplicableValidationRuleException;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Validation\Context;
-use Ares\Validation\Rule\TypeRule;
 
 /**
  * Class AbstractRule

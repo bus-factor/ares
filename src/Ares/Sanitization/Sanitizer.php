@@ -13,6 +13,9 @@ namespace Ares\Sanitization;
 
 use Ares\Exception\InvalidOptionException;
 use Ares\Schema\Schema;
+use Ares\Schema\SchemaList;
+use Ares\Schema\SchemaMap;
+use Ares\Schema\SchemaTuple;
 use Ares\Schema\Type;
 use Ares\Utility\PhpType;
 use Ares\Validation\Rule\TypeRule;
@@ -165,30 +168,28 @@ class Sanitizer
 
         switch ($type) {
             case Type::LIST:
+                /** @var SchemaList $schema */
                 $data = $this->performListSanitization($schema->getSchema(), $data, $options);
-
                 break;
             case Type::MAP:
-                // no break
-            case Type::TUPLE:
+                /** @var SchemaMap $schema */
                 $data = $this->performMapSanitization($schema->getSchemas(), $data, $options);
-
+                break;
+            case Type::TUPLE:
+                /** @var SchemaTuple $schema */
+                $data = $this->performMapSanitization($schema->getSchemas(), $data, $options);
                 break;
             case Type::FLOAT:
                 $data = $this->performFloatSanitization($data, $options);
-
                 break;
             case Type::INTEGER:
                 $data = $this->performIntegerSanitization($data, $options);
-
                 break;
             case Type::BOOLEAN:
                 $data = $this->performBooleanSanitization($data, $options);
-
                 break;
             case Type::STRING:
                 $data = $this->performStringSanitization($data, $options);
-
                 break;
             default:
                 break;

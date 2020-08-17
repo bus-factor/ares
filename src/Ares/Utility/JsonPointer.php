@@ -54,4 +54,3 @@ class JsonPointer
         return implode('/', $encodedReferences);
     }
 }
-

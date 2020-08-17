@@ -19,6 +19,7 @@ use Ares\Validation\Context;
 use Ares\Validation\Error\ErrorMessageRenderer;
 use Ares\Validation\Rule\MaxLengthRule;
 use Ares\Validation\Rule\TypeRule;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -97,6 +98,7 @@ class MaxLengthRuleTest extends TestCase
      */
     public function testValidate($args, $data, bool $expectedRetVal): void
     {
+        /** @var Context&MockObject $context */
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
             ->setMethods(['addError'])
@@ -112,7 +114,7 @@ class MaxLengthRuleTest extends TestCase
         if ($expectedRetVal === false) {
             $context->expects($this->once())
                 ->method('addError')
-                ->with(MaxLengthRule::ID, MaxLengthRule::ERROR_MESSAGE);
+                ->with(MaxLengthRule::ID, MaxLengthRule::ERROR_MESSAGES[gettype($data)]);
         } else {
             $context->expects($this->never())
                 ->method('addError');
@@ -168,6 +170,7 @@ class MaxLengthRuleTest extends TestCase
         $data = 'foo';
         $customMessage = 'The provided value must not be longer than 2 chars';
 
+        /** @var Context&MockObject $context */
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
             ->setMethods(['addError'])

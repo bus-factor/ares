@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Ares\Schema;
 
 use Ares\Exception\InvalidSchemaException;
-use Closure;
 use InvalidArgumentException;
 
 /**
@@ -20,7 +19,7 @@ use InvalidArgumentException;
  */
 class TypeRegistry
 {
-    /** @var array $schemas */
+    /** @var array|callable[] $schemas */
     private static $schemas = [];
 
     /**
@@ -35,7 +34,9 @@ class TypeRegistry
             throw new InvalidArgumentException(sprintf('Unknown type: type <%s> is not registered', $type));
         }
 
-        return self::$schemas[$type]();
+        $callable = self::$schemas[$type];
+
+        return $callable();
     }
 
     /**

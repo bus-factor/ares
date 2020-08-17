@@ -20,7 +20,7 @@ $schema = [
 $data = '23.03.2019 00:12';
 
 $expectedErrors = [
-    new Error([''], 'datetime', 'Invalid date/time value'),
+    new Error([''], 'datetime', 'Value is not a valid date/time string'),
 ];
 
 $ares = new Ares($schema);

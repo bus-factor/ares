@@ -20,6 +20,12 @@ use Ares\Validation\Context;
 interface RuleInterface
 {
     /**
+     * @param Context $context Validation context.
+     * @return bool
+     */
+    public function isApplicable(Context $context): bool;
+
+    /**
      * @param mixed   $args    Validation rule configuration.
      * @param mixed   $data    Input data.
      * @param Context $context Validation context.

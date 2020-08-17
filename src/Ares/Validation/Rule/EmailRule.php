@@ -51,7 +51,9 @@ class EmailRule extends AbstractRule
         }
 
         if (!is_string($data)) {
-            $message = $context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE;
+            $message = $context->getSchema()->hasRule(self::ID)
+                ? ($context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE)
+                : self::ERROR_MESSAGE;
 
             $context->addError(
                 self::ID,

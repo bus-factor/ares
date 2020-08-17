@@ -46,8 +46,12 @@ class RegexRule extends AbstractRule
             throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
         }
 
-        if (preg_match($args, $data) === 1) {
+        if (@preg_match($args, $data) === 1) {
             return true;
+        }
+
+        if (preg_last_error() !== PREG_NO_ERROR) {
+            throw new \LogicException('Regex pattern possibly corrupt: ' . $args);
         }
 
         $message = $context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE;
