@@ -101,7 +101,7 @@ class Parser
             $this->fail(ParserError::TYPE_REPEATED, $context);
         }
 
-        $type = $types[0];
+        [$type] = $types;
 
         if (in_array($type, Type::getValues(), true)) {
             $isCustomType = false;
@@ -202,7 +202,7 @@ class Parser
             $this->fail(ParserError::RULE_AMBIGUOUS, $context, json_encode($ruleIds));
         }
 
-        $ruleId = reset($ruleIds);
+        [$ruleId] = $ruleIds;
         $rule = $this->parseRule($type, $context, $ruleId);
 
         if ($rule !== null) {
@@ -281,24 +281,25 @@ class Parser
 
             switch ($type) {
                 case Type::LIST:
+                    /** @var SchemaList $schema */
                     $schema->setSchema($this->parseSchema($context));
-
                     break;
                 case Type::MAP:
+                    /** @var SchemaMap $schema */
                     $schema->setSchemas($this->parseSchemas($context));
-
                     break;
                 case Type::TUPLE:
-                    // no break
-                default:
+                    /** @var SchemaTuple $schema */
                     $schema->setSchemas($this->parseTupleSchemas($context));
 
                     if (!$schema->hasRule(UnknownAllowedRule::ID)) {
                         $schema->setRule(new Rule(UnknownAllowedRule::ID, false));
+                    } else {
+                        $schema->getRule(UnknownAllowedRule::ID)->setArgs(false);
                     }
 
-                    $schema->getRule(UnknownAllowedRule::ID)->setArgs(false);
-
+                    break;
+                default:
                     break;
             }
 
@@ -383,7 +384,7 @@ class Parser
             $typeRegistryGetCall = array_pop(self::$typeRegistryGetCallStack);
 
             if (isset($schema)) {
-                foreach ($typeRegistryGetCall['references'] as &$schemaReference) {
+                foreach ($typeRegistryGetCall['references'] as $schemaReference) {
                     $schemaReference->setSchema($schema);
                 }
             }

@@ -14,9 +14,11 @@ namespace Ares\Validation;
 use Ares\Exception\InvalidOptionException;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Exception\UnknownValidationRuleIdException;
-use Ares\Schema\Parser;
 use Ares\Schema\Schema;
+use Ares\Schema\SchemaList;
+use Ares\Schema\SchemaMap;
 use Ares\Schema\SchemaReference;
+use Ares\Schema\SchemaTuple;
 use Ares\Schema\Type;
 use Ares\Utility\PhpType;
 use Ares\Validation\Error\ErrorMessageRenderer;
@@ -48,7 +50,7 @@ class Validator
     private $schema;
 
     /**
-     * @param array $schema Schema.
+     * @param Schema $schema Schema.
      */
     public function __construct(Schema $schema)
     {
@@ -100,14 +102,16 @@ class Validator
 
             switch ($schema->getRule(TypeRule::ID)->getArgs()) {
                 case Type::LIST:
+                    /** @var SchemaList $schema */
                     $this->performListValidation($schema->getSchema(), $data, $options);
-
                     break;
                 case Type::MAP:
-                    // no break
-                case Type::TUPLE:
+                    /** @var SchemaMap $schema */
                     $this->performMapValidation($schema->getSchemas(), $data, $options);
-
+                    break;
+                case Type::TUPLE:
+                    /** @var SchemaTuple $schema */
+                    $this->performMapValidation($schema->getSchemas(), $data, $options);
                     break;
                 default:
                     // no op

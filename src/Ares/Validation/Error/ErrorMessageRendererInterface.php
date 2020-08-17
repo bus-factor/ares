@@ -27,4 +27,3 @@ interface ErrorMessageRendererInterface
      */
     public function render(Context $context, string $ruleId, string $message, array $substitutions = []): string;
 }
-

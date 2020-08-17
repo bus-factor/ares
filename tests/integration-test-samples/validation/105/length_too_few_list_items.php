@@ -23,7 +23,7 @@ $schema = [
 $data = [1, 2, 3];
 
 $expectedErrors = [
-    new Error([''], 'length', 'Invalid value length'),
+    new Error([''], 'length', 'Invalid item count'),
 ];
 
 $ares = new Ares($schema);

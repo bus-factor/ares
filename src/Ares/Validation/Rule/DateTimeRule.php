@@ -22,7 +22,7 @@ use DateTime;
 class DateTimeRule extends AbstractRule
 {
     public const ID = 'datetime';
-    public const ERROR_MESSAGE = 'Invalid date/time value';
+    public const ERROR_MESSAGE = 'Value is not a valid date/time string';
 
     /**
      * @return array
