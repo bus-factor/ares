@@ -45,22 +45,31 @@ class MinRule extends AbstractRule
     public function performValidation($args, $data, Context $context): bool
     {
         if (!is_numeric($args)) {
-            throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
+            throw new InvalidValidationRuleArgsException(
+                'Invalid args: ' . json_encode($args)
+            );
         }
 
         if ($data >= $args) {
             return true;
         }
 
-        $message = $context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE;
+        $message = $this->getErrorMessage(
+            $context,
+            self::ID,
+            self::ERROR_MESSAGE
+        );
 
         $context->addError(
             self::ID,
-            $context->getErrorMessageRenderer()
-                ->render($context, self::ID, $message, ['value' => $args])
+            $context->getErrorMessageRenderer()->render(
+                $context,
+                self::ID,
+                $message,
+                ['value' => $args]
+            )
         );
 
         return false;
     }
 }
-

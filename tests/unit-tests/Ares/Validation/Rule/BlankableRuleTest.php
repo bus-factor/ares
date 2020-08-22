@@ -24,6 +24,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class BlankableRuleTest
  *
+ * @covers \Ares\Validation\Rule\AbstractRule
  * @coversDefaultClass \Ares\Validation\Rule\BlankableRule
  */
 class BlankableRuleTest extends TestCase

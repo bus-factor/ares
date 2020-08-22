@@ -13,6 +13,8 @@ namespace Ares\Validation\Rule;
 
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Schema\Schema;
+use Ares\Schema\SchemaMap;
+use Ares\Schema\SchemaTuple;
 use Ares\Schema\Type;
 use Ares\Validation\Context;
 
@@ -48,19 +50,27 @@ class UnknownAllowedRule extends AbstractRule
             return true;
         }
 
+        /** @var SchemaMap|SchemaTuple $schema */
         $schema = $context->getSchema();
-        $unknownFields = array_keys(array_diff_key($data, $schema->getSchemas()));
-
-        $message = $schema->hasRule(self::ID)
-            ? ($schema->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE)
-            : self::ERROR_MESSAGE;
+        $unknownFields = array_keys(
+            array_diff_key($data, $schema->getSchemas())
+        );
+        $message = $this->getErrorMessage(
+            $context,
+            self::ID,
+            self::ERROR_MESSAGE
+        );
 
         foreach ($unknownFields as $field) {
             $context->enter($field, new Schema());
 
             $context->addError(
                 self::ID,
-                $context->getErrorMessageRenderer()->render($context, self::ID, $message)
+                $context->getErrorMessageRenderer()->render(
+                    $context,
+                    self::ID,
+                    $message
+                )
             );
 
             $context->leave();
@@ -69,4 +79,3 @@ class UnknownAllowedRule extends AbstractRule
         return true;
     }
 }
-

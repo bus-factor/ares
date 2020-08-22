@@ -22,6 +22,7 @@ class UuidRule extends AbstractRule
 {
     public const ID            = 'uuid';
     public const ERROR_MESSAGE = 'Invalid UUID';
+    private const UUID_REGEX   = '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i';
 
     /**
      * @return array
@@ -42,35 +43,32 @@ class UuidRule extends AbstractRule
      */
     public function performValidation($args, $data, Context $context): bool
     {
-        if (!is_bool($args)) {
-            throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
+        $validationResult = $this->performFixedStringFormatValidation(
+            $args,
+            $data,
+            $context,
+            self::ID,
+            self::ERROR_MESSAGE
+        );
+
+        if ($validationResult !== null) {
+            return $validationResult;
         }
 
-        if (!$args) {
-            return true;
-        }
-
-        if (!is_string($data)) {
-            $message = $context->getSchema()->hasRule(self::ID)
-                ? ($context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE)
-                : self::ERROR_MESSAGE;
-
-            $context->addError(
+        if (preg_match(self::UUID_REGEX, $data) !== 1) {
+            $message = $this->getErrorMessage(
+                $context,
                 self::ID,
-                $context->getErrorMessageRenderer()->render($context, self::ID, $message)
+                self::ERROR_MESSAGE
             );
 
-            return false;
-        }
-
-        if (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $data) !== 1) {
-            $message = $context->getSchema()->hasRule(self::ID)
-                ? ($context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE)
-                : self::ERROR_MESSAGE;
-
             $context->addError(
                 self::ID,
-                $context->getErrorMessageRenderer()->render($context, self::ID, $message)
+                $context->getErrorMessageRenderer()->render(
+                    $context,
+                    self::ID,
+                    $message
+                )
             );
 
             return false;
@@ -79,4 +77,3 @@ class UuidRule extends AbstractRule
         return true;
     }
 }
-

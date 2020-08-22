@@ -382,6 +382,15 @@ class ParserTest extends TestCase
                             'type' => 'string',
                             'required' => false,
                         ],
+                        [
+                            ['type' => 'tuple', 'message' => 'Must be a tuple'],
+                            'unknownAllowed' => true,
+                            'schema' => [
+                                [
+                                    'type' => 'integer',
+                                ],
+                            ],
+                        ]
                     ],
                 ],
                 'email' => [
@@ -437,6 +446,19 @@ class ParserTest extends TestCase
                                 ->setRules([
                                     'type' => new Rule('type', 'string'),
                                     'required' => new Rule('required', true),
+                                ]),
+                            (new SchemaTuple())
+                                ->setRules([
+                                    'type' => new Rule('type', 'tuple', 'Must be a tuple'),
+                                    'unknownAllowed' => new Rule('unknownAllowed', false),
+                                    'required' => new Rule('required', true),
+                                ])
+                                ->setSchemas([
+                                    (new Schema())
+                                        ->setRules([
+                                            'type' => new Rule('type', 'integer'),
+                                            'required' => new Rule('required', true),
+                                        ]),
                                 ]),
                         ]),
                     'email' => TypeRegistry::get('Email')

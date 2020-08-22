@@ -13,6 +13,7 @@ namespace Ares\Validation\Rule;
 
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Schema\Type;
+use Ares\Utility\PhpType;
 use Ares\Validation\Context;
 
 /**
@@ -20,8 +21,12 @@ use Ares\Validation\Context;
  */
 class LengthRule extends AbstractRule
 {
-    public const ID            = 'length';
-    public const ERROR_MESSAGE = 'Invalid value length';
+    public const ID = 'length';
+
+    public const ERROR_MESSAGES = [
+        PhpType::ARRAY => 'Invalid item count',
+        PhpType::STRING => 'Invalid value length',
+    ];
 
     /**
      * @return array
@@ -44,21 +49,35 @@ class LengthRule extends AbstractRule
     public function performValidation($args, $data, Context $context): bool
     {
         if (!is_int($args) || $args < 0) {
-            throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
+            throw new InvalidValidationRuleArgsException(
+                'Invalid args: ' . json_encode($args)
+            );
         }
 
-        if (is_string($data) && strlen($data) == $args || is_array($data) && count($data) == $args) {
+        $dataType = gettype($data);
+
+        if (
+            $dataType === PhpType::STRING && strlen($data) == $args
+            || $dataType === PhpType::ARRAY && count($data) == $args
+        ) {
             return true;
         }
 
-        $message = $context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE;
+        $message = $this->getErrorMessage(
+            $context,
+            self::ID,
+            self::ERROR_MESSAGES[$dataType]
+        );
 
         $context->addError(
             self::ID,
-            $context->getErrorMessageRenderer()->render($context, self::ID, $message)
+            $context->getErrorMessageRenderer()->render(
+                $context,
+                self::ID,
+                $message
+            )
         );
 
         return false;
     }
 }
-

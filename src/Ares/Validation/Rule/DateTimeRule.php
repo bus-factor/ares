@@ -22,7 +22,7 @@ use DateTime;
 class DateTimeRule extends AbstractRule
 {
     public const ID = 'datetime';
-    public const ERROR_MESSAGE = 'Invalid date/time value';
+    public const ERROR_MESSAGE = 'Value is not a valid date/time string';
 
     /**
      * @return array
@@ -52,7 +52,9 @@ class DateTimeRule extends AbstractRule
         }
 
         if (!is_string($args)) {
-            throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
+            throw new InvalidValidationRuleArgsException(
+                'Invalid args: ' . json_encode($args)
+            );
         }
 
         if (!$this->validateDataProcessability($data, $context)) {
@@ -71,14 +73,22 @@ class DateTimeRule extends AbstractRule
      * @param Context $context Validation context.
      * @return boolean
      */
-    protected function validateDataProcessability($data, Context $context): bool
+    private function validateDataProcessability($data, Context $context): bool
     {
         if (!is_string($data)) {
-            $message = $context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE;
+            $message = $this->getErrorMessage(
+                $context,
+                self::ID,
+                self::ERROR_MESSAGE
+            );
 
             $context->addError(
                 self::ID,
-                $context->getErrorMessageRenderer()->render($context, self::ID, $message)
+                $context->getErrorMessageRenderer()->render(
+                    $context,
+                    self::ID,
+                    $message
+                )
             );
 
             return false;
@@ -87,11 +97,19 @@ class DateTimeRule extends AbstractRule
         $time = strtotime($data);
 
         if ($time === false) {
-            $message = $context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE;
+            $message = $this->getErrorMessage(
+                $context,
+                self::ID,
+                self::ERROR_MESSAGE
+            );
 
             $context->addError(
                 self::ID,
-                $context->getErrorMessageRenderer()->render($context, self::ID, $message)
+                $context->getErrorMessageRenderer()->render(
+                    $context,
+                    self::ID,
+                    $message
+                )
             );
 
             return false;
@@ -107,16 +125,27 @@ class DateTimeRule extends AbstractRule
      * @return bool
      * @throws InvalidValidationRuleArgsException
      */
-    protected function validateDateTimeFormat(string $format, string $data, Context $context): bool
-    {
+    private function validateDateTimeFormat(
+        string $format,
+        string $data,
+        Context $context
+    ): bool {
         $dateTime = DateTime::createFromFormat($format, $data);
 
         if ($dateTime === false) {
-            $message = $context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE;
+            $message = $this->getErrorMessage(
+                $context,
+                self::ID,
+                self::ERROR_MESSAGE
+            );
 
             $context->addError(
                 self::ID,
-                $context->getErrorMessageRenderer()->render($context, self::ID, $message)
+                $context->getErrorMessageRenderer()->render(
+                    $context,
+                    self::ID,
+                    $message
+                )
             );
 
             return false;
@@ -125,4 +154,3 @@ class DateTimeRule extends AbstractRule
         return true;
     }
 }
-

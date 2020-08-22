@@ -18,14 +18,25 @@ use JsonSerializable;
  */
 class Error implements JsonSerializable
 {
-    /** @var string $code */
-    protected $code;
-    /** @var string $message */
-    protected $message;
-    /** @var array $meta */
-    protected $meta;
-    /** @var array $source */
-    protected $source;
+    /**
+     * @var string
+     */
+    private $code;
+
+    /**
+     * @var string
+     */
+    private $message;
+
+    /**
+     * @var array
+     */
+    private $meta;
+
+    /**
+     * @var array
+     */
+    private $source;
 
     /**
      * Initializes the instance.
@@ -35,8 +46,12 @@ class Error implements JsonSerializable
      * @param string $message Error message.
      * @param array  $meta    Error metadata.
      */
-    public function __construct(array $source, string $code, string $message, array $meta = [])
-    {
+    public function __construct(
+        array $source,
+        string $code,
+        string $message,
+        array $meta = []
+    ) {
         $this->code = $code;
         $this->message = $message;
         $this->meta = $meta;
@@ -150,4 +165,3 @@ class Error implements JsonSerializable
         return $this;
     }
 }
-

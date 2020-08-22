@@ -19,11 +19,14 @@ use Ares\Validation\Context;
 use Ares\Validation\Error\ErrorMessageRenderer;
 use Ares\Validation\Rule\RegexRule;
 use Ares\Validation\Rule\TypeRule;
+use LogicException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class RegexRuleTest
  *
+ * @covers \Ares\Validation\Rule\AbstractRule
  * @coversDefaultClass \Ares\Validation\Rule\RegexRule
  */
 class RegexRuleTest extends TestCase
@@ -98,6 +101,7 @@ class RegexRuleTest extends TestCase
      */
     public function testValidate(string $args, $data, bool $expectedRetVal): void
     {
+        /** @var Context&MockObject $context */
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
             ->setMethods(['addError'])
@@ -135,6 +139,7 @@ class RegexRuleTest extends TestCase
         $data = 'bar';
         $customMessage = 'The value must start with "foo"';
 
+        /** @var Context&MockObject $context */
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
             ->setMethods(['addError'])
@@ -154,6 +159,35 @@ class RegexRuleTest extends TestCase
         $regexRule = new RegexRule();
 
         $this->assertFalse($regexRule->performValidation($args, $data, $context));
+    }
+
+    /**
+     * @covers ::performValidation
+     *
+     * @return void
+     */
+    public function testCorruptRegexPatternHandling(): void
+    {
+        $args = '/^foo';
+        $data = 'bar';
+
+        /** @var Context&MockObject $context */
+        $context = $this->getMockBuilder(Context::class)
+            ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
+            ->getMock();
+
+        $context->enter(
+            '',
+            (new Schema())
+                ->setRule(new Rule(TypeRule::ID, Type::STRING))
+        );
+
+        $regexRule = new RegexRule();
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Regex pattern possibly corrupt: ' . $args);
+
+        $regexRule->performValidation($args, $data, $context);
     }
 }
 

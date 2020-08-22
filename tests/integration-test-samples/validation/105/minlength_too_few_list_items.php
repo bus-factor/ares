@@ -23,7 +23,7 @@ $schema = [
 $data = [1, 2, 3];
 
 $expectedErrors = [
-    new Error([''], 'minlength', 'Value too short'),
+    new Error([''], 'minlength', 'Too few items'),
 ];
 
 $ares = new Ares($schema);

@@ -18,6 +18,10 @@ use Ares\Validation\Rule\RuleInterface;
 $ruleId = 'myRule';
 
 $rule = new class implements RuleInterface {
+    public function isApplicable(Context $context): bool {
+        return true;
+    }
+
     public function validate($config, $data, Context $context): bool {
         $context->addError('myRule', 'Working');
 

@@ -14,6 +14,7 @@ namespace Ares\Validation\Rule;
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Schema\Type;
 use Ares\Validation\Context;
+use LogicException;
 
 /**
  * Class RegexRule
@@ -43,21 +44,36 @@ class RegexRule extends AbstractRule
     public function performValidation($args, $data, Context $context): bool
     {
         if (!is_string($args)) {
-            throw new InvalidValidationRuleArgsException('Invalid args: ' . json_encode($args));
+            throw new InvalidValidationRuleArgsException(
+                'Invalid args: ' . json_encode($args)
+            );
         }
 
-        if (preg_match($args, $data) === 1) {
+        if (@preg_match($args, $data) === 1) {
             return true;
         }
 
-        $message = $context->getSchema()->getRule(self::ID)->getMessage() ?? self::ERROR_MESSAGE;
+        if (preg_last_error() !== PREG_NO_ERROR) {
+            throw new LogicException(
+                'Regex pattern possibly corrupt: ' . $args
+            );
+        }
+
+        $message = $this->getErrorMessage(
+            $context,
+            self::ID,
+            self::ERROR_MESSAGE
+        );
 
         $context->addError(
             self::ID,
-            $context->getErrorMessageRenderer()->render($context, self::ID, $message)
+            $context->getErrorMessageRenderer()->render(
+                $context,
+                self::ID,
+                $message
+            )
         );
 
         return false;
     }
 }
-

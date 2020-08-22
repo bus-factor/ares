@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Ares\Schema;
 
 use Ares\Exception\InvalidSchemaException;
-use Closure;
 use InvalidArgumentException;
 
 /**
@@ -20,8 +19,10 @@ use InvalidArgumentException;
  */
 class TypeRegistry
 {
-    /** @var array $schemas */
-    protected static $schemas = [];
+    /**
+     * @var array|callable[]
+     */
+    private static $schemas = [];
 
     /**
      * @param string $type Type name.
@@ -32,10 +33,14 @@ class TypeRegistry
     public static function get(string $type): Schema
     {
         if (!isset(self::$schemas[$type])) {
-            throw new InvalidArgumentException(sprintf('Unknown type: type <%s> is not registered', $type));
+            throw new InvalidArgumentException(
+                sprintf('Unknown type: type <%s> is not registered', $type)
+            );
         }
 
-        return self::$schemas[$type]();
+        $callable = self::$schemas[$type];
+
+        return $callable();
     }
 
     /**
@@ -56,7 +61,9 @@ class TypeRegistry
     public static function register(string $type, array $schema): void
     {
         if (in_array($type, Type::getValues(), true)) {
-            throw new InvalidArgumentException(sprintf('Reserved type: <%s> is a built-in type and must not be overwritten', $type));
+            $format = 'Builtin types must not be overwritten: %s';
+
+            throw new InvalidArgumentException(sprintf($format, $type));
         }
 
         self::$schemas[$type] = function () use ($schema): Schema {
@@ -71,7 +78,9 @@ class TypeRegistry
     public static function unregister(string $type): void
     {
         if (!isset(self::$schemas[$type])) {
-            throw new InvalidArgumentException(sprintf('Unknown type: cannot unregister <%s>', $type));
+            throw new InvalidArgumentException(
+                sprintf('Unknown type: cannot unregister <%s>', $type)
+            );
         }
 
         unset(self::$schemas[$type]);
@@ -85,4 +94,3 @@ class TypeRegistry
         self::$schemas = [];
     }
 }
-

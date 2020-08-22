@@ -25,13 +25,20 @@ class ErrorMessageRenderer implements ErrorMessageRendererInterface
      * @param array   $substitutions Error message substitutions.
      * @return string
      */
-    public function render(Context $context, string $ruleId, string $message, array $substitutions = []): string
-    {
+    public function render(
+        Context $context,
+        string $ruleId,
+        string $message,
+        array $substitutions = []
+    ): string {
+        $callback = function ($key) {
+            return '{' . $key . '}';
+        };
+
         return str_replace(
-            array_map(function ($key) { return '{' . $key . '}'; }, array_keys($substitutions)),
+            array_map($callback, array_keys($substitutions)),
             array_values($substitutions),
             $message
         );
     }
 }
-

@@ -63,7 +63,7 @@ class TypeRegistryTest extends TestCase
     public function testRegisterSecuresBuiltInTypes(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Reserved type: <integer> is a built-in type and must not be overwritten');
+        $this->expectExceptionMessage('Builtin types must not be overwritten: integer');
 
         TypeRegistry::register('integer', ['type' => 'integer']);
     }

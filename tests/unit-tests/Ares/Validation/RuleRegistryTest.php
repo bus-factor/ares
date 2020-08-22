@@ -169,6 +169,10 @@ class RuleRegistryTest extends TestCase
         $ruleId = 'bogus';
 
         $rule = new class implements RuleInterface {
+            public function isApplicable(Context $context): bool {
+                return true;
+            }
+
             public function validate($config, $data, Context $context): bool {
                 return false;
             }
@@ -192,6 +196,10 @@ class RuleRegistryTest extends TestCase
         $ruleId1 = 'foo';
 
         $rule1 = new class implements RuleInterface {
+            public function isApplicable(Context $context): bool {
+                return true;
+            }
+
             public function validate($config, $data, Context $context): bool {
                 return false;
             }
@@ -202,6 +210,10 @@ class RuleRegistryTest extends TestCase
         $ruleId2 = 'bar';
 
         $rule2 = new class implements RuleInterface {
+            public function isApplicable(Context $context): bool {
+                return true;
+            }
+
             public function validate($config, $data, Context $context): bool {
                 return false;
             }
@@ -234,7 +246,7 @@ class RuleRegistryTest extends TestCase
     public function testUnregisterHandlesUnknownRuleIds(): void
     {
         $this->expectException(UnknownValidationRuleIdException::class);
-        $this->expectExceptionMessage('Unknown validation rule: cannot unregister <foobar>');
+        $this->expectExceptionMessage('Unknown validation rule ID: foobar');
 
         RuleRegistry::unregister('foobar');
     }

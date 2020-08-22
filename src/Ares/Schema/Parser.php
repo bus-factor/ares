@@ -19,13 +19,16 @@ use Ares\Validation\Rule\RequiredRule;
 use Ares\Validation\Rule\TypeRule;
 use Ares\Validation\Rule\UnknownAllowedRule;
 use InvalidArgumentException;
+use LogicException;
 
 /**
  * Class Parser
  */
 class Parser
 {
-    /** @const array ERROR_MESSAGES */
+    /**
+     * @const array
+     */
     private const ERROR_MESSAGES = [
         ParserError::RULE_AMBIGUOUS      => 'Invalid schema: %s contains multiple rules (%s)',
         ParserError::RULE_ID_UNKNOWN     => 'Unknown validation rule ID: %s specifies an unknown validation rule ID',
@@ -38,13 +41,17 @@ class Parser
         ParserError::RULE_INAPPLICABLE   => 'Invalid schema: %s validation rule is not applicable to type <%s>',
     ];
 
-    /** @const array VALID_RULE_ADDITION_KEYS */
+    /**
+     * @const array
+     */
     private const VALID_RULE_ADDITION_KEYS = [
         Keyword::MESSAGE,
         Keyword::META,
     ];
 
-    /** @const array SCHEMA_FQCNS_BY_TYPE */
+    /**
+     * @const array
+     */
     private const SCHEMA_FQCNS_BY_TYPE = [
         Type::BOOLEAN => Schema::class,
         Type::FLOAT   => Schema::class,
@@ -56,31 +63,50 @@ class Parser
         Type::TUPLE   => SchemaTuple::class,
     ];
 
-    /** @param array $typeRegistryGetCallStack */
-    protected static $typeRegistryGetCallStack = [];
+    /**
+     * @const array
+     */
+    private const COLLECTION_TYPES = [
+        Type::LIST,
+        Type::MAP,
+        Type::TUPLE,
+    ];
+
+    /**
+     * @param array
+     */
+    private static $typeRegistryGetCallStack = [];
 
     /**
      * @param ParserContext $context Parser context.
      * @return void
      * @throws InvalidSchemaException
      */
-    protected function ascertainInputHoldsArrayOrFail(ParserContext $context): void
-    {
+    private function ascertainInputHoldsArrayOrFail(
+        ParserContext $context
+    ): void {
         $type = gettype($context->getInput());
 
         if ($type !== PhpType::ARRAY) {
-            $this->fail(ParserError::VALUE_TYPE_MISMATCH, $context, PhpType::ARRAY, $type);
+            $this->fail(
+                ParserError::VALUE_TYPE_MISMATCH,
+                $context,
+                PhpType::ARRAY,
+                $type
+            );
         }
     }
 
     /**
      * @param ParserContext $context      Parser context.
-     * @param bool          $isCustomType Set TRUE if extracted a custom type, FALSE otherwise.
+     * @param bool          $isCustomType Set if extracted a custom type.
      * @return string
      * @throws InvalidSchemaException
      */
-    protected function extractTypeOrFail(ParserContext $context, bool &$isCustomType): string
-    {
+    private function extractTypeOrFail(
+        ParserContext $context,
+        bool &$isCustomType
+    ): string {
         $types = [];
 
         foreach ($context->getInput() as $key => $value) {
@@ -101,14 +127,18 @@ class Parser
             $this->fail(ParserError::TYPE_REPEATED, $context);
         }
 
-        $type = $types[0];
+        [$type] = $types;
 
         if (in_array($type, Type::getValues(), true)) {
             $isCustomType = false;
         } elseif (TypeRegistry::isRegistered($type)) {
             $isCustomType = true;
         } else {
-            $this->fail(ParserError::TYPE_UNKNOWN, $context, json_encode($type));
+            $this->fail(
+                ParserError::TYPE_UNKNOWN,
+                $context,
+                json_encode($type)
+            );
         }
 
         return $type;
@@ -117,17 +147,23 @@ class Parser
     /**
      * @param int           $parserError Parser error ID.
      * @param ParserContext $context     Parser context.
-     * @param array         $messageVars Variables to substiture in the message.
+     * @param array         $messageVars Message variable substitutions.
+     * @return void
      * @throws InvalidSchemaException
      * @see ParserError
      */
-    protected function fail(int $parserError, ParserContext $context, ...$messageVars)
-    {
+    private function fail(
+        int $parserError,
+        ParserContext $context,
+        ...$messageVars
+    ): void {
         $message = self::ERROR_MESSAGES[$parserError];
         $source = JsonPointer::encode($context->getInputPosition());
         $sprintfArgs = array_merge([$message, $source], $messageVars);
 
-        throw new InvalidSchemaException(call_user_func_array('sprintf', $sprintfArgs));
+        throw new InvalidSchemaException(
+            call_user_func_array('sprintf', $sprintfArgs)
+        );
     }
 
     /**
@@ -135,6 +171,7 @@ class Parser
      * @return Schema
      * @throws InvalidSchemaException
      * @throws InvalidArgumentException
+     * @throws LogicException
      */
     public function parse($schema): Schema
     {
@@ -150,8 +187,11 @@ class Parser
      * @return Rule|null
      * @throws InvalidSchemaException
      */
-    protected function parseRule(string $type, ParserContext $context, string $ruleId): ?Rule
-    {
+    private function parseRule(
+        string $type,
+        ParserContext $context,
+        string $ruleId
+    ): ?Rule {
         $rule = null;
 
         $context->enter($ruleId);
@@ -167,7 +207,11 @@ class Parser
                 $supportedTypes = $validationRule->getSupportedTypes();
 
                 if (!in_array($type, $supportedTypes, true)) {
-                    $this->fail(ParserError::RULE_INAPPLICABLE, $context, $type);
+                    $this->fail(
+                        ParserError::RULE_INAPPLICABLE,
+                        $context,
+                        $type
+                    );
                 }
             }
 
@@ -186,23 +230,36 @@ class Parser
      * @return Rule|null
      * @throws InvalidSchemaException
      */
-    protected function parseRuleWithAdditions(string $type, ParserContext $context, $index): ?Rule
-    {
+    private function parseRuleWithAdditions(
+        string $type,
+        ParserContext $context,
+        $index
+    ): ?Rule {
         $context->enter($index);
 
         $this->ascertainInputHoldsArrayOrFail($context);
 
         $input = $context->getInput();
-        $ruleIds = array_diff(array_keys($input), self::VALID_RULE_ADDITION_KEYS);
+        $ruleIds = array_diff(
+            array_keys($input),
+            self::VALID_RULE_ADDITION_KEYS
+        );
         $ruleIdsCount = count($ruleIds);
 
         if ($ruleIdsCount < 1) {
-            $this->fail(ParserError::RULE_MISSING, $context);
+            $this->fail(
+                ParserError::RULE_MISSING,
+                $context
+            );
         } elseif ($ruleIdsCount > 1) {
-            $this->fail(ParserError::RULE_AMBIGUOUS, $context, json_encode($ruleIds));
+            $this->fail(
+                ParserError::RULE_AMBIGUOUS,
+                $context,
+                json_encode($ruleIds)
+            );
         }
 
-        $ruleId = reset($ruleIds);
+        [$ruleId] = $ruleIds;
         $rule = $this->parseRule($type, $context, $ruleId);
 
         if ($rule !== null) {
@@ -212,7 +269,12 @@ class Parser
                 if ($type !== PhpType::STRING) {
                     $context->enter(Keyword::MESSAGE);
 
-                    $this->fail(ParserError::VALUE_TYPE_MISMATCH, $context, PhpType::STRING, $type);
+                    $this->fail(
+                        ParserError::VALUE_TYPE_MISMATCH,
+                        $context,
+                        PhpType::STRING,
+                        $type
+                    );
                 }
 
                 $rule->setMessage($input[Keyword::MESSAGE]);
@@ -224,7 +286,12 @@ class Parser
                 if ($type !== PhpType::ARRAY) {
                     $context->enter(Keyword::META);
 
-                    $this->fail(ParserError::VALUE_TYPE_MISMATCH, $context, PhpType::ARRAY, $type);
+                    $this->fail(
+                        ParserError::VALUE_TYPE_MISMATCH,
+                        $context,
+                        PhpType::ARRAY,
+                        $type
+                    );
                 }
 
                 $rule->setMeta($input[Keyword::META]);
@@ -241,8 +308,9 @@ class Parser
      * @return Schema
      * @throws InvalidSchemaException
      * @throws InvalidArgumentException
+     * @throws LogicException
      */
-    protected function parseSchema(ParserContext $context): Schema
+    private function parseSchema(ParserContext $context): Schema
     {
         $this->ascertainInputHoldsArrayOrFail($context);
 
@@ -272,34 +340,45 @@ class Parser
             }
         }
 
-        if (!$isCustomType && in_array($type, [Type::LIST, Type::MAP, Type::TUPLE], true)) {
+        if (!$isCustomType && in_array($type, self::COLLECTION_TYPES, true)) {
             if (!array_key_exists(Keyword::SCHEMA, $context->getInput())) {
-                $this->fail(ParserError::SCHEMA_MISSING, $context, $type);
+                $this->fail(
+                    ParserError::SCHEMA_MISSING,
+                    $context,
+                    $type
+                );
             }
 
             $context->enter(Keyword::SCHEMA);
 
             switch ($type) {
                 case Type::LIST:
+                    /** @var SchemaList $schema */
                     $schema->setSchema($this->parseSchema($context));
-
                     break;
                 case Type::MAP:
+                    /** @var SchemaMap $schema */
                     $schema->setSchemas($this->parseSchemas($context));
-
                     break;
                 case Type::TUPLE:
-                    // no break
-                default:
+                    /** @var SchemaTuple $schema */
                     $schema->setSchemas($this->parseTupleSchemas($context));
 
                     if (!$schema->hasRule(UnknownAllowedRule::ID)) {
-                        $schema->setRule(new Rule(UnknownAllowedRule::ID, false));
+                        $schema->setRule(
+                            new Rule(UnknownAllowedRule::ID, false)
+                        );
+                    } else {
+                        $rule = $schema->getRule(UnknownAllowedRule::ID);
+
+                        $rule->setArgs(false);
                     }
 
-                    $schema->getRule(UnknownAllowedRule::ID)->setArgs(false);
-
                     break;
+                default:
+                    // @codeCoverageIgnoreStart
+                    throw new LogicException('Invalid parser state.');
+                    // @codeCoverageIgnoreEnd
             }
 
             $context->leave();
@@ -314,7 +393,7 @@ class Parser
      * @throws InvalidSchemaException
      * @throws InvalidArgumentException
      */
-    protected function parseSchemas(ParserContext $context): array
+    private function parseSchemas(ParserContext $context): array
     {
         $schemas = [];
 
@@ -338,7 +417,7 @@ class Parser
      * @return array
      * @throws InvalidSchemaException
      */
-    protected function parseTupleSchemas(ParserContext $context): array
+    private function parseTupleSchemas(ParserContext $context): array
     {
         $schemas = $this->parseSchemas($context);
 
@@ -358,12 +437,14 @@ class Parser
      * @return Schema
      * @throws InvalidSchemaException
      */
-    protected function prepareCustomTypeSchemaInstance(string $type): Schema
+    private function prepareCustomTypeSchemaInstance(string $type): Schema
     {
-        for ($i = count(self::$typeRegistryGetCallStack) - 1; $i >= 0; $i--) {
-            $typeRegistryGetCall = self::$typeRegistryGetCallStack[$i];
+        $iMax = count(self::$typeRegistryGetCallStack) - 1;
 
-            if ($typeRegistryGetCall['type'] === $type) {
+        for ($i = $iMax; $i >= 0; $i--) {
+            $call = self::$typeRegistryGetCallStack[$i];
+
+            if ($call['type'] === $type) {
                 $schema = new SchemaReference();
                 self::$typeRegistryGetCallStack[$i]['references'][] = &$schema;
 
@@ -374,16 +455,22 @@ class Parser
         $schema = null;
 
         try {
-            array_push(self::$typeRegistryGetCallStack, ['type' => $type, 'references' => []]);
+            array_push(
+                self::$typeRegistryGetCallStack,
+                [
+                    'type' => $type,
+                    'references' => [],
+                ]
+            );
 
             $schema = TypeRegistry::get($type);
 
             return $schema;
         } finally {
-            $typeRegistryGetCall = array_pop(self::$typeRegistryGetCallStack);
+            $call = array_pop(self::$typeRegistryGetCallStack);
 
             if (isset($schema)) {
-                foreach ($typeRegistryGetCall['references'] as &$schemaReference) {
+                foreach ($call['references'] as $schemaReference) {
                     $schemaReference->setSchema($schema);
                 }
             }
@@ -392,12 +479,14 @@ class Parser
 
     /**
      * @param string $type         Type name.
-     * @param bool   $isCustomType Indicates if the provided type name is a custom type.
+     * @param bool   $isCustomType Set if the provided type name is custom.
      * @return Schema
      * @throws InvalidSchemaException
      */
-    protected function prepareSchemaInstance(string $type, bool $isCustomType): Schema
-    {
+    private function prepareSchemaInstance(
+        string $type,
+        bool $isCustomType
+    ): Schema {
         if ($isCustomType) {
             return $this->prepareCustomTypeSchemaInstance($type);
         }
@@ -407,4 +496,3 @@ class Parser
         return new $schemaFqcn();
     }
 }
-

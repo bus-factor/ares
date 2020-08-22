@@ -18,8 +18,10 @@ use InvalidArgumentException;
  */
 class Schema
 {
-    /** @var array $rules */
-    protected $rules = [];
+    /**
+     * @var array
+     */
+    private $rules = [];
 
     /**
      * @param string $ruleId Validation rule ID.
@@ -29,7 +31,9 @@ class Schema
     public function getRule(string $ruleId): Rule
     {
         if (!$this->hasRule($ruleId)) {
-            throw new InvalidArgumentException(sprintf('Rule not found in schema: %s', $ruleId));
+            throw new InvalidArgumentException(
+                sprintf('Rule not found in schema: %s', $ruleId)
+            );
         }
 
         return $this->rules[$ruleId];
@@ -54,7 +58,7 @@ class Schema
 
     /**
      * @param Rule    $rule    Schema rule.
-     * @param boolean $replace Indicate if the rule should be replace if already set.
+     * @param boolean $replace Set if the rule should be replaced.
      * @return self
      */
     public function setRule(Rule $rule, bool $replace = false): self
@@ -68,7 +72,7 @@ class Schema
 
     /**
      * @param array   $rules   Schema rules.
-     * @param boolean $replace Indicate if the rule should be replace if already set.
+     * @param boolean $replace Set if the rule should be replaced.
      * @return self
      */
     public function setRules(array $rules, bool $replace = false): self
@@ -80,4 +84,3 @@ class Schema
         return $this;
     }
 }
-

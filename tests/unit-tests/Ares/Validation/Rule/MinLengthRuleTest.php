@@ -19,11 +19,13 @@ use Ares\Validation\Context;
 use Ares\Validation\Error\ErrorMessageRenderer;
 use Ares\Validation\Rule\MinLengthRule;
 use Ares\Validation\Rule\TypeRule;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class MinLengthRuleTest
  *
+ * @covers \Ares\Validation\Rule\AbstractRule
  * @coversDefaultClass \Ares\Validation\Rule\MinLengthRule
  */
 class MinLengthRuleTest extends TestCase
@@ -97,6 +99,7 @@ class MinLengthRuleTest extends TestCase
      */
     public function testValidate($args, $data, bool $expectedRetVal): void
     {
+        /** @var Context&MockObject $context */
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
             ->setMethods(['addError'])
@@ -112,7 +115,7 @@ class MinLengthRuleTest extends TestCase
         if ($expectedRetVal === false) {
             $context->expects($this->once())
                 ->method('addError')
-                ->with(MinLengthRule::ID, MinLengthRule::ERROR_MESSAGE);
+                ->with(MinLengthRule::ID, MinLengthRule::ERROR_MESSAGES[gettype($data)]);
         } else {
             $context->expects($this->never())
                 ->method('addError');
@@ -168,6 +171,7 @@ class MinLengthRuleTest extends TestCase
         $data = 'fo';
         $customMessage = 'Must be at least {value} chars long';
 
+        /** @var Context&MockObject $context */
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
             ->setMethods(['addError'])

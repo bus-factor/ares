@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Ares;
 
+use Ares\Exception\InvalidOptionException;
 use Ares\Exception\InvalidSchemaException;
-use Ares\Exception\InvalidValidationOptionException;
 use Ares\Sanitization\Sanitizer;
 use Ares\Schema\Parser;
 use Ares\Schema\Schema;
@@ -23,12 +23,20 @@ use Ares\Validation\Validator;
  */
 class Ares
 {
-    /** @var Sanitizer $sanitizer */
-    protected $sanitizer;
-    /** @var Schema $schema */
-    protected $schema;
-    /** @var Validator $validator */
-    protected $validator;
+    /**
+     * @var Sanitizer
+     */
+    private $sanitizer;
+
+    /**
+     * @var Schema
+     */
+    private $schema;
+
+    /**
+     * @var Validator
+     */
+    private $validator;
 
     /**
      * @param array $schema Schema definition.
@@ -81,11 +89,10 @@ class Ares
      * @param mixed $data    Input data.
      * @param array $options Validation options.
      * @return bool
-     * @throws InvalidValidationOptionException
+     * @throws InvalidOptionException
      */
     public function validate($data, array $options = []): bool
     {
         return $this->getValidator()->validate($data, $options);
     }
 }
-

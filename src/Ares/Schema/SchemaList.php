@@ -16,8 +16,10 @@ namespace Ares\Schema;
  */
 class SchemaList extends Schema
 {
-    /** @var Schema|null $schema */
-    protected $schema;
+    /**
+     * @var Schema|null
+     */
+    private $schema;
 
     /**
      * @return Schema|null
@@ -38,4 +40,3 @@ class SchemaList extends Schema
         return $this;
     }
 }
-

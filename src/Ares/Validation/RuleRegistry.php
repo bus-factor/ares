@@ -38,7 +38,9 @@ use Ares\Validation\Rule\UuidRule;
  */
 class RuleRegistry
 {
-    /** @const array BUILT_IN_RULE_FQCNS */
+    /**
+     * @const array
+     */
     private const BUILT_IN_RULE_FQCNS = [
         AllowedRule::ID        => ['className' => AllowedRule::class,        'reserved' => false],
         BlankableRule::ID      => ['className' => BlankableRule::class,      'reserved' => true],
@@ -61,8 +63,10 @@ class RuleRegistry
         UuidRule::ID           => ['className' => UuidRule::class,           'reserved' => false],
     ];
 
-    /** @var RuleInterface[] $rules */
-    protected static $rules = [];
+    /**
+     * @var array|RuleInterface[]
+     */
+    private static $rules = [];
 
     /**
      * @param string $ruleId Validation rule ID.
@@ -73,7 +77,9 @@ class RuleRegistry
     {
         if (!isset(self::$rules[$ruleId])) {
             if (!isset(self::BUILT_IN_RULE_FQCNS[$ruleId])) {
-                throw new UnknownValidationRuleIdException("Unknown validation rule ID: {$ruleId}");
+                throw new UnknownValidationRuleIdException(
+                    'Unknown validation rule ID: ' . $ruleId
+                );
             }
 
             $ruleFqcn = self::BUILT_IN_RULE_FQCNS[$ruleId]['className'];
@@ -89,7 +95,8 @@ class RuleRegistry
      */
     public static function isRegistered(string $ruleId): bool
     {
-        return isset(self::$rules[$ruleId]) || isset(self::BUILT_IN_RULE_FQCNS[$ruleId]);
+        return isset(self::$rules[$ruleId])
+            || isset(self::BUILT_IN_RULE_FQCNS[$ruleId]);
     }
 
     /**
@@ -118,7 +125,9 @@ class RuleRegistry
     public static function unregister(string $ruleId): void
     {
         if (!isset(self::$rules[$ruleId])) {
-            throw new UnknownValidationRuleIdException(sprintf('Unknown validation rule: cannot unregister <%s>', $ruleId));
+            throw new UnknownValidationRuleIdException(
+                'Unknown validation rule ID: ' . $ruleId
+            );
         }
 
         unset(self::$rules[$ruleId]);
@@ -132,4 +141,3 @@ class RuleRegistry
         self::$rules = [];
     }
 }
-

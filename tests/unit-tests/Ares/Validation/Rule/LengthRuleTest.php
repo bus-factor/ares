@@ -19,11 +19,13 @@ use Ares\Validation\Context;
 use Ares\Validation\Error\ErrorMessageRenderer;
 use Ares\Validation\Rule\LengthRule;
 use Ares\Validation\Rule\TypeRule;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class LengthRuleTest
  *
+ * @covers \Ares\Validation\Rule\AbstractRule
  * @coversDefaultClass \Ares\Validation\Rule\LengthRule
  */
 class LengthRuleTest extends TestCase
@@ -97,6 +99,7 @@ class LengthRuleTest extends TestCase
      */
     public function testValidate($args, $data, bool $expectedRetVal): void
     {
+        /** @var Context&MockObject $context */
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
             ->setMethods(['addError'])
@@ -112,7 +115,7 @@ class LengthRuleTest extends TestCase
         if ($expectedRetVal === false) {
             $context->expects($this->once())
                 ->method('addError')
-                ->with(LengthRule::ID, LengthRule::ERROR_MESSAGE);
+                ->with(LengthRule::ID, LengthRule::ERROR_MESSAGES[gettype($data)]);
         } else {
             $context->expects($this->never())
                 ->method('addError');
@@ -173,6 +176,7 @@ class LengthRuleTest extends TestCase
         $data = 'foo';
         $customMessage = 'The provided value must be exactly 2 chars long';
 
+        /** @var Context&MockObject $context */
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
             ->setMethods(['addError'])

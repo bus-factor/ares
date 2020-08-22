@@ -22,6 +22,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class UuidRuleTest
  *
+ * @covers \Ares\Validation\Rule\AbstractRule
  * @coversDefaultClass \Ares\Validation\Rule\UuidRule
  */
 class UuidRuleTest extends TestCase

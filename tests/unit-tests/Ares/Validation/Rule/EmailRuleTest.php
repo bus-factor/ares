@@ -24,6 +24,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class EmailRuleTest
  *
+ * @covers \Ares\Validation\Rule\AbstractRule
  * @coversDefaultClass \Ares\Validation\Rule\EmailRule
  */
 class EmailRuleTest extends TestCase

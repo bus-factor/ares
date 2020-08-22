@@ -23,4 +23,3 @@ class PhpType extends Enum
     public const NULL    = 'NULL';
     public const STRING  = 'string';
 }
-
