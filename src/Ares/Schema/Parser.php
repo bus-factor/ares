@@ -64,6 +64,15 @@ class Parser
     ];
 
     /**
+     * @const array
+     */
+    private const COLLECTION_TYPES = [
+        Type::LIST,
+        Type::MAP,
+        Type::TUPLE,
+    ];
+
+    /**
      * @param array
      */
     private static $typeRegistryGetCallStack = [];
@@ -331,10 +340,7 @@ class Parser
             }
         }
 
-        if (
-            !$isCustomType
-            && in_array($type, [Type::LIST, Type::MAP, Type::TUPLE], true)
-        ) {
+        if (!$isCustomType && in_array($type, self::COLLECTION_TYPES, true)) {
             if (!array_key_exists(Keyword::SCHEMA, $context->getInput())) {
                 $this->fail(
                     ParserError::SCHEMA_MISSING,
@@ -363,16 +369,16 @@ class Parser
                             new Rule(UnknownAllowedRule::ID, false)
                         );
                     } else {
-                        $schema
-                            ->getRule(UnknownAllowedRule::ID)
-                            ->setArgs(false);
+                        $rule = $schema->getRule(UnknownAllowedRule::ID);
+
+                        $rule->setArgs(false);
                     }
 
                     break;
                 default:
-                    throw new LogicException(
-                        'Invalid parser state -- this should never happen.'
-                    );
+                    // @codeCoverageIgnoreStart
+                    throw new LogicException('Invalid parser state.');
+                    // @codeCoverageIgnoreEnd
             }
 
             $context->leave();
@@ -433,10 +439,12 @@ class Parser
      */
     private function prepareCustomTypeSchemaInstance(string $type): Schema
     {
-        for ($i = count(self::$typeRegistryGetCallStack) - 1; $i >= 0; $i--) {
-            $typeRegistryGetCall = self::$typeRegistryGetCallStack[$i];
+        $iMax = count(self::$typeRegistryGetCallStack) - 1;
 
-            if ($typeRegistryGetCall['type'] === $type) {
+        for ($i = $iMax; $i >= 0; $i--) {
+            $call = self::$typeRegistryGetCallStack[$i];
+
+            if ($call['type'] === $type) {
                 $schema = new SchemaReference();
                 self::$typeRegistryGetCallStack[$i]['references'][] = &$schema;
 
@@ -459,10 +467,10 @@ class Parser
 
             return $schema;
         } finally {
-            $typeRegistryGetCall = array_pop(self::$typeRegistryGetCallStack);
+            $call = array_pop(self::$typeRegistryGetCallStack);
 
             if (isset($schema)) {
-                foreach ($typeRegistryGetCall['references'] as $schemaReference) {
+                foreach ($call['references'] as $schemaReference) {
                     $schemaReference->setSchema($schema);
                 }
             }

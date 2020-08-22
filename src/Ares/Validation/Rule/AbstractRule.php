@@ -133,11 +133,10 @@ abstract class AbstractRule implements RuleInterface
     public function validate($args, $data, Context $context): bool
     {
         if (!$this->isApplicable($context)) {
+            $types = implode('>, <', $this->getSupportedTypes());
+
             throw new InapplicableValidationRuleException(
-                sprintf(
-                    'This rule is only applicable to the type(s) <%s>',
-                    implode('>, <', $this->getSupportedTypes())
-                )
+                sprintf('Rule not applicable. Allowed types: <%s>', $types)
             );
         }
 

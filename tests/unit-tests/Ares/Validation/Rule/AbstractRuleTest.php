@@ -135,7 +135,7 @@ class AbstractRuleTest extends TestCase
             ->method('performValidation');
 
         $this->expectException(InapplicableValidationRuleException::class);
-        $this->expectExceptionMessage('This rule is only applicable to the type(s) <string>, <map>');
+        $this->expectExceptionMessage('Rule not applicable. Allowed types: <string>, <map>');
 
         $abstractRule->validate($args, $data, $context);
     }
