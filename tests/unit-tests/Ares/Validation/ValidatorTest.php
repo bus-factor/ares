@@ -61,11 +61,11 @@ class ValidatorTest extends TestCase
      *           [{"allBlankable": true}, null]
      *           [{"allNullable": true}, null]
      *           [{"allUnknownAllowed": true}, null]
-     *           [{"allRequired": 13.37}, "Invalid validation option: 'allRequired' must be of type <boolean>, got <double>"]
-     *           [{"allBlankable": 13.37},  "Invalid validation option: 'allBlankable' must be of type <boolean>, got <double>"]
-     *           [{"allNullable": 13.37},  "Invalid validation option: 'allNullable' must be of type <boolean>, got <double>"]
-     *           [{"allUnknownAllowed": 13.37},  "Invalid validation option: 'allUnknownAllowed' must be of type <boolean>, got <double>"]
-     *           [{"foo": "bar"}, "Unknown validation option: 'foo' is not a supported validation option"]
+     *           [{"allRequired": 13.37}, "Invalid validation option value: 'allRequired' must be of type <boolean>, got <double>"]
+     *           [{"allBlankable": 13.37},  "Invalid validation option value: 'allBlankable' must be of type <boolean>, got <double>"]
+     *           [{"allNullable": 13.37},  "Invalid validation option value: 'allNullable' must be of type <boolean>, got <double>"]
+     *           [{"allUnknownAllowed": 13.37},  "Invalid validation option value: 'allUnknownAllowed' must be of type <boolean>, got <double>"]
+     *           [{"foo": "bar"}, "Unknown validation option key: 'foo'"]
      *
      * @param array       $options                  Validation options.
      * @param string|null $expectedExceptionMessage Expected exception message.

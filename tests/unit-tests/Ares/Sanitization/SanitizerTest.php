@@ -33,11 +33,11 @@ class SanitizerTest extends TestCase
      * @testWith [{}]
      *           [{"trimStrings": true}]
      *           [{"trimStrings": false}]
-     *           [{"trimStrings": "foo"}, "Invalid sanitization option: 'trimStrings' must be of type <boolean>, got <string>"]
+     *           [{"trimStrings": "foo"}, "Invalid sanitization option value: 'trimStrings' must be of type <boolean>, got <string>"]
      *           [{"purgeUnknown": true}]
      *           [{"purgeUnknown": false}]
-     *           [{"purgeUnknown": "foo"}, "Invalid sanitization option: 'purgeUnknown' must be of type <boolean>, got <string>"]
-     *           [{"foo": true}, "Unknown sanitization option: 'foo' is not a supported sanitization option"]
+     *           [{"purgeUnknown": "foo"}, "Invalid sanitization option value: 'purgeUnknown' must be of type <boolean>, got <string>"]
+     *           [{"foo": true}, "Unknown sanitization option key: 'foo'"]
      *
      * @return void
      */

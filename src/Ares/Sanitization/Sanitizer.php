@@ -55,23 +55,19 @@ class Sanitizer
     {
         foreach ($options as $key => $value) {
             if (!in_array($key, Option::getValues())) {
-                throw new InvalidOptionException(
-                    sprintf(
-                        'Unknown sanitization option: \'%s\' is not a supported sanitization option',
-                        $key
-                    )
-                );
+                $format = 'Unknown sanitization option key: \'%s\'';
+
+                throw new InvalidOptionException(sprintf($format, $key));
             }
 
             $type = gettype($value);
 
             if ($type !== PhpType::BOOLEAN) {
+                $format = 'Invalid sanitization option value: '
+                    . '\'%s\' must be of type <boolean>, got <%s>';
+
                 throw new InvalidOptionException(
-                    sprintf(
-                        'Invalid sanitization option: \'%s\' must be of type <boolean>, got <%s>',
-                        $key,
-                        $type
-                    )
+                    sprintf($format, $key, $type)
                 );
             }
         }

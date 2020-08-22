@@ -226,23 +226,19 @@ class Validator
     {
         foreach ($options as $key => $value) {
             if (!in_array($key, Option::getValues())) {
-                throw new InvalidOptionException(
-                    sprintf(
-                        'Unknown validation option: \'%s\' is not a supported validation option',
-                        $key
-                    )
-                );
+                $format = 'Unknown validation option key: \'%s\'';
+
+                throw new InvalidOptionException(sprintf($format, $key));
             }
 
             $type = gettype($value);
 
             if ($type !== PhpType::BOOLEAN) {
+                $format = 'Invalid validation option value: '
+                    . '\'%s\' must be of type <boolean>, got <%s>';
+
                 throw new InvalidOptionException(
-                    sprintf(
-                        'Invalid validation option: \'%s\' must be of type <boolean>, got <%s>',
-                        $key,
-                        $type
-                    )
+                    sprintf($format, $key, $type)
                 );
             }
         }

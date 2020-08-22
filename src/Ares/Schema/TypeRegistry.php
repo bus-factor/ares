@@ -61,12 +61,9 @@ class TypeRegistry
     public static function register(string $type, array $schema): void
     {
         if (in_array($type, Type::getValues(), true)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Reserved type: <%s> is a built-in type and must not be overwritten',
-                    $type
-                )
-            );
+            $format = 'Builtin types must not be overwritten: %s';
+
+            throw new InvalidArgumentException(sprintf($format, $type));
         }
 
         self::$schemas[$type] = function () use ($schema): Schema {
