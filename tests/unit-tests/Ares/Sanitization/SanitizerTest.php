@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace UnitTest\Ares\Sanitization;
 
 use Ares\Exception\InvalidOptionException;
-use Ares\Sanitization\Option;
 use Ares\Sanitization\Sanitizer;
 use Ares\Schema\Rule;
 use Ares\Schema\Schema;
