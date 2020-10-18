@@ -6,9 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+### Fixed
+
+## [4.0.0] 2020-10-18
+### Added
 - regex validation rule pattern check and error handling
+- ```Ares\Ares::getValidationErrors()``` now returns an error collection object capable of generating json:api style and nested array error collections
 ### Fixed
 - fixes clean code issues
+- updates outdated ```README.md``` contents
 
 ## [3.0.0] 2020-08-16
 ### Added

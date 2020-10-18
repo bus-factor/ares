@@ -91,10 +91,14 @@ $errors = $ares->getValidationErrors();
 
 The ```validate()``` method returns ```true``` if the provided data is valid, otherwise ```false```.
 
-The ```getErrors()``` method returns a list of validation errors that occurred during the last data validation.
-The list of validation errors is reset each time ```validate()``` is called.
+The ```getValidationErrors()``` method returns an ```Ares\Validation\Error\ErrorCollection``` object that holds a list of ```Ares\Validation\Error\Error``` instances that are collected during the last data validation.
+The list of validation errors gets reset each time ```validate()``` is called.
 
-Each ```Ares\Error\Error``` object implements the ```JsonSerializable``` interface and contains details about the error.
+Each ```Ares\Validation\Error\Error``` object implements the ```JsonSerializable``` interface and contains details about the error.
+
+The ```Ares\Validation\Error\ErrorCollection``` object is iterable but also offers 2 convenience methods:
+* ```::toArrayJsonApiStyle()``` - returns an array of arrays that reflects the json:api spec
+* ```::toArrayNested``` - returns a nested array of error messages whose nested structure matches the input data's structure
 
 # <a name="validation-options"></a>Validation Options
 

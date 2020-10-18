@@ -35,5 +35,5 @@ $data = [
 $ares = new Ares($schema);
 
 $this->assertTrue($ares->validate($data));
-$this->assertCount(0, $ares->getValidationErrors());
+$this->assertCount(0, $ares->getValidationErrors()->getArrayCopy());
 

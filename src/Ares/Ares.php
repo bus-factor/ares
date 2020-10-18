@@ -16,6 +16,7 @@ use Ares\Exception\InvalidSchemaException;
 use Ares\Sanitization\Sanitizer;
 use Ares\Schema\Parser;
 use Ares\Schema\Schema;
+use Ares\Validation\Error\ErrorCollection;
 use Ares\Validation\Validator;
 
 /**
@@ -58,11 +59,11 @@ class Ares
     }
 
     /**
-     * @return array
+     * @return ErrorCollection
      */
-    public function getValidationErrors(): array
+    public function getValidationErrors(): ErrorCollection
     {
-        return $this->getValidator()->getErrors();
+        return new ErrorCollection($this->getValidator()->getErrors());
     }
 
     /**
