@@ -25,5 +25,5 @@ $expectedErrors = [];
 $ares = new Ares($schema);
 
 $this->assertSame(empty($expectedErrors), $ares->validate($data));
-$this->assertEquals($expectedErrors, $ares->getValidationErrors());
+$this->assertEquals($expectedErrors, $ares->getValidationErrors()->getArrayCopy());
 

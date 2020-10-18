@@ -76,7 +76,7 @@ $expectedErrors = [
 ];
 
 $this->assertSame(empty($expectedErrors), $ares->validate($data));
-$this->assertEquals($expectedErrors, $ares->getValidationErrors());
+$this->assertEquals($expectedErrors, $ares->getValidationErrors()->getArrayCopy());
 
 // invalid data
 
@@ -102,5 +102,5 @@ $expectedErrors = [
 ];
 
 $this->assertSame(empty($expectedErrors), $ares->validate($data));
-$this->assertEquals($expectedErrors, $ares->getValidationErrors());
+$this->assertEquals($expectedErrors, $ares->getValidationErrors()->getArrayCopy());
 

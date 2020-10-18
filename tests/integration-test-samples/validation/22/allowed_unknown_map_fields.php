@@ -44,5 +44,5 @@ $expectedErrors = [];
 $ares = new Ares($schema);
 
 $this->assertSame(empty($expectedErrors), $ares->validate($data, $options));
-$this->assertEquals($expectedErrors, $ares->getValidationErrors());
+$this->assertEquals($expectedErrors, $ares->getValidationErrors()->getArrayCopy());
 
