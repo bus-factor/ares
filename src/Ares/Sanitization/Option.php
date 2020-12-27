@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Ares\Sanitization;
 
-use Ares\Utility\Enum;
+use BusFactor\Ddd\ValueObject\Enum;
 
 /**
  * Class Option

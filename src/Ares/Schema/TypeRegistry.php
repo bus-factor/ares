@@ -60,7 +60,7 @@ class TypeRegistry
      */
     public static function register(string $type, array $schema): void
     {
-        if (in_array($type, Type::getValues(), true)) {
+        if (in_array($type, Type::getValidValues(), true)) {
             $format = 'Builtin types must not be overwritten: %s';
 
             throw new InvalidArgumentException(sprintf($format, $type));

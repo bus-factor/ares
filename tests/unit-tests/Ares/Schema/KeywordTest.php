@@ -32,7 +32,7 @@ class KeywordTest extends TestCase
      */
     public function testValues(string $constantName, string $constantValue): void
     {
-        $values = Keyword::getValues();
+        $values = Keyword::getValidValues();
 
         $this->assertArrayHasKey($constantName, $values);
         $this->assertSame($constantValue, $values[$constantName]);

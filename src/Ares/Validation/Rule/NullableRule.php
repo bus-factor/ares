@@ -28,7 +28,7 @@ class NullableRule extends AbstractRule
      */
     public function getSupportedTypes(): array
     {
-        return Type::getValues();
+        return Type::getValidValues();
     }
 
     /**

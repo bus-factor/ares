@@ -31,7 +31,7 @@ class OptionTest extends TestCase
             'PURGE_UNKNOWN' => 'purgeUnknown',
         ];
 
-        $this->assertEquals($expectedValues, Option::getValues());
+        $this->assertEquals($expectedValues, Option::getValidValues());
     }
 }
 

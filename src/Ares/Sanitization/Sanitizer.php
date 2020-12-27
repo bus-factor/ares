@@ -17,8 +17,8 @@ use Ares\Schema\SchemaList;
 use Ares\Schema\SchemaMap;
 use Ares\Schema\SchemaTuple;
 use Ares\Schema\Type;
-use Ares\Utility\PhpType;
 use Ares\Validation\Rule\TypeRule;
+use BusFactor\Ddd\ValueObject\PhpType;
 
 /**
  * Class Sanitizer
@@ -54,7 +54,7 @@ class Sanitizer
     private function prepareOptions(array $options): array
     {
         foreach ($options as $key => $value) {
-            if (!in_array($key, Option::getValues())) {
+            if (!in_array($key, Option::getValidValues())) {
                 $format = 'Unknown sanitization option key: \'%s\'';
 
                 throw new InvalidOptionException(sprintf($format, $key));

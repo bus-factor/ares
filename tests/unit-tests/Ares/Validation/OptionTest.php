@@ -33,7 +33,7 @@ class OptionTest extends TestCase
             'ALL_REQUIRED'        => 'allRequired',
         ];
 
-        $this->assertEquals($expectedValues, Option::getValues());
+        $this->assertEquals($expectedValues, Option::getValidValues());
     }
 }
 

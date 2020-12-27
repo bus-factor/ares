@@ -13,8 +13,8 @@ namespace Ares\Validation\Rule;
 
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Schema\Type;
-use Ares\Utility\PhpType;
 use Ares\Validation\Context;
+use BusFactor\Ddd\ValueObject\PhpType;
 
 /**
  * Class TypeRule
@@ -40,7 +40,7 @@ class TypeRule extends AbstractRule
      */
     public function getSupportedTypes(): array
     {
-        return Type::getValues();
+        return Type::getValidValues();
     }
 
     /**
@@ -61,7 +61,7 @@ class TypeRule extends AbstractRule
      */
     public function performValidation($args, $data, Context $context): bool
     {
-        if (!in_array($args, Type::getValues(), true)) {
+        if (!in_array($args, Type::getValidValues(), true)) {
             throw new InvalidValidationRuleArgsException(
                 'Invalid args: ' . json_encode($args)
             );

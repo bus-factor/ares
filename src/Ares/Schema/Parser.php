@@ -13,11 +13,11 @@ namespace Ares\Schema;
 
 use Ares\Exception\InvalidSchemaException;
 use Ares\Utility\JsonPointer;
-use Ares\Utility\PhpType;
 use Ares\Validation\RuleRegistry;
 use Ares\Validation\Rule\RequiredRule;
 use Ares\Validation\Rule\TypeRule;
 use Ares\Validation\Rule\UnknownAllowedRule;
+use BusFactor\Ddd\ValueObject\PhpType;
 use InvalidArgumentException;
 use LogicException;
 
@@ -129,7 +129,7 @@ class Parser
 
         [$type] = $types;
 
-        if (in_array($type, Type::getValues(), true)) {
+        if (in_array($type, Type::getValidValues(), true)) {
             $isCustomType = false;
         } elseif (TypeRegistry::isRegistered($type)) {
             $isCustomType = true;

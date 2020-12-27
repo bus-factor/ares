@@ -20,7 +20,6 @@ use Ares\Schema\SchemaMap;
 use Ares\Schema\SchemaReference;
 use Ares\Schema\SchemaTuple;
 use Ares\Schema\Type;
-use Ares\Utility\PhpType;
 use Ares\Validation\Error\ErrorMessageRenderer;
 use Ares\Validation\Error\ErrorMessageRendererInterface;
 use Ares\Validation\Rule\BlankableRule;
@@ -28,6 +27,7 @@ use Ares\Validation\Rule\NullableRule;
 use Ares\Validation\Rule\RequiredRule;
 use Ares\Validation\Rule\TypeRule;
 use Ares\Validation\Rule\UnknownAllowedRule;
+use BusFactor\Ddd\ValueObject\PhpType;
 
 /**
  * Class Validator
@@ -225,7 +225,7 @@ class Validator
     private function prepareOptions(array $options): array
     {
         foreach ($options as $key => $value) {
-            if (!in_array($key, Option::getValues())) {
+            if (!in_array($key, Option::getValidValues())) {
                 $format = 'Unknown validation option key: \'%s\'';
 
                 throw new InvalidOptionException(sprintf($format, $key));
