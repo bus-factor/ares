@@ -37,7 +37,7 @@ class TypeTest extends TestCase
      */
     public function testValues(string $constantName, string $constantValue): void
     {
-        $values = Type::getValues();
+        $values = Type::getValidValues();
 
         $this->assertArrayHasKey($constantName, $values);
         $this->assertSame($constantValue, $values[$constantName]);

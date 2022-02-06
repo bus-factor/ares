@@ -13,8 +13,8 @@ namespace Ares\Validation\Rule;
 
 use Ares\Exception\InvalidValidationRuleArgsException;
 use Ares\Schema\Type;
-use Ares\Utility\PhpType;
 use Ares\Validation\Context;
+use BusFactor\Ddd\ValueObject\PhpType;
 
 /**
  * Class MinLengthRule

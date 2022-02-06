@@ -103,7 +103,7 @@ class Error implements JsonSerializable
      *
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'code' => $this->code,
