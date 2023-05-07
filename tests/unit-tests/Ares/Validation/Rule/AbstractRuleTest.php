@@ -65,7 +65,7 @@ class AbstractRuleTest extends TestCase
         $context->enter('', $schema);
 
         $abstractRule = $this->getMockBuilder(AbstractRule::class)
-            ->setMethods(['getSupportedTypes'])
+            ->onlyMethods(['getSupportedTypes'])
             ->getMockForAbstractClass();
 
         $abstractRule->expects($this->once())
@@ -92,7 +92,7 @@ class AbstractRuleTest extends TestCase
         $context = new Context($data, new ErrorMessageRenderer());
 
         $abstractRule = $this->getMockBuilder(AbstractRule::class)
-            ->setMethods(['isApplicable', 'performValidation'])
+            ->onlyMethods(['isApplicable', 'performValidation'])
             ->getMockForAbstractClass();
 
         $abstractRule->expects($this->once())
@@ -120,7 +120,7 @@ class AbstractRuleTest extends TestCase
         $context = new Context($data, new ErrorMessageRenderer());
 
         $abstractRule = $this->getMockBuilder(AbstractRule::class)
-            ->setMethods(['getSupportedTypes', 'isApplicable', 'performValidation'])
+            ->onlyMethods(['getSupportedTypes', 'isApplicable', 'performValidation'])
             ->getMockForAbstractClass();
 
         $abstractRule->expects($this->once())

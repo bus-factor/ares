@@ -20,37 +20,21 @@ use Ares\Schema\Schema;
  */
 class Context
 {
-    /**
-     * @var mixed
-     */
-    private $data;
+    private mixed $data;
 
     /**
-     * @var array
+     * @var array<Error>
      */
-    private $errors = [];
+    private array $errors = [];
 
-    /**
-     * @var ErrorMessageRendererInterface
-     */
-    private $errorMessageRenderer;
+    private ErrorMessageRendererInterface $errorMessageRenderer;
 
-    /**
-     * @var array
-     */
-    private $schemas = [];
+    private array $schemas = [];
 
-    /**
-     * @var array
-     */
-    private $source = [];
+    private array $source = [];
 
-    /**
-     * @param mixed                         $data                 Input data.
-     * @param ErrorMessageRendererInterface $errorMessageRenderer Error message renderer.
-     */
     public function __construct(
-        &$data,
+        mixed &$data,
         ErrorMessageRendererInterface $errorMessageRenderer
     ) {
         $this->data = &$data;
@@ -63,70 +47,47 @@ class Context
      * @param array  $meta    Error metadata.
      * @return self
      */
-    public function addError(
-        string $code,
-        string $message,
-        array $meta = []
-    ): self {
+    public function addError(string $code, string $message, array $meta = []): self
+    {
         $this->errors[] = new Error($this->source, $code, $message, $meta);
 
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function &getData()
+    public function &getData(): mixed
     {
         return $this->data;
     }
 
     /**
-     * @return array
+     * @return array<Error>
      */
     public function getErrors(): array
     {
         return $this->errors;
     }
 
-    /**
-     * @return ErrorMessageRendererInterface
-     */
     public function getErrorMessageRenderer(): ErrorMessageRendererInterface
     {
         return $this->errorMessageRenderer;
     }
 
-    /**
-     * @return Schema
-     */
     public function getSchema(): Schema
     {
         return end($this->schemas);
     }
 
-    /**
-     * @return array
-     */
     public function getSource(): array
     {
         return $this->source;
     }
 
-    /**
-     * @return boolean
-     */
     public function hasErrors(): bool
     {
         return !empty($this->errors);
     }
 
-    /**
-     * @param mixed  $reference Source reference.
-     * @param Schema $schema    Source specific schema.
-     * @return self
-     */
-    public function enter($reference, Schema $schema): self
+    public function enter(string|int $reference, Schema $schema): self
     {
         $this->source[] = $reference;
         $this->schemas[] = $schema;
@@ -134,9 +95,6 @@ class Context
         return $this;
     }
 
-    /**
-     * @return self
-     */
     public function leave(): self
     {
         array_pop($this->source);

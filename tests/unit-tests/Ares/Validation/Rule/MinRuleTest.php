@@ -105,7 +105,7 @@ class MinRuleTest extends TestCase
 
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, $errorMessageRenderer])
-            ->setMethods(['addError'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $context->enter(
@@ -132,7 +132,7 @@ class MinRuleTest extends TestCase
     /**
      * @return array
      */
-    public function getValidateSamples(): array
+    public static function getValidateSamples(): array
     {
         return [
             'integer value too small' => [Type::INTEGER, 12, 11, false],
@@ -159,7 +159,7 @@ class MinRuleTest extends TestCase
 
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, $errorMessageRenderer])
-            ->setMethods(['addError'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $context->enter(
@@ -178,4 +178,3 @@ class MinRuleTest extends TestCase
         $this->assertFalse($minRule->performValidation($args, $data, $context));
     }
 }
-

@@ -28,11 +28,7 @@ class JsonPointer
         $encodedReferences = explode('/', $jsonPointer);
 
         foreach ($encodedReferences as $encodedReference) {
-            $references[] = str_replace(
-                ['~1', '~0'],
-                ['/', '~'],
-                $encodedReference
-            );
+            $references[] = str_replace(['~1', '~0'], ['/', '~'], (string) $encodedReference);
         }
 
         return $references;
@@ -46,19 +42,13 @@ class JsonPointer
     public static function encode(array $references): string
     {
         if (empty($references)) {
-            throw new InvalidArgumentException(
-                'Cannot encode JSON pointer without references'
-            );
+            throw new InvalidArgumentException('Cannot encode JSON pointer without references');
         }
 
         $encodedReferences = [];
 
         foreach ($references as $reference) {
-            $encodedReferences[] = str_replace(
-                ['~', '/'],
-                ['~0', '~1'],
-                $reference
-            );
+            $encodedReferences[] = str_replace(['~', '/'], ['~0', '~1'], (string) $reference);
         }
 
         return implode('/', $encodedReferences);

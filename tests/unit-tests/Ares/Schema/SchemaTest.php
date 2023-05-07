@@ -91,7 +91,7 @@ class SchemaTest extends TestCase
     /**
      * @return array
      */
-    public function getSetRuleSamples(): array
+    public static function getSetRuleSamples(): array
     {
         $rule1 = new Rule('foo', true);
         $rule2 = new Rule('foo', false);
@@ -139,4 +139,3 @@ class SchemaTest extends TestCase
         );
     }
 }
-

@@ -11,14 +11,12 @@ declare(strict_types=1);
 
 namespace Ares\Schema;
 
-use BusFactor\Ddd\ValueObject\Enum;
-
 /**
  * Class Keyword
  */
-class Keyword extends Enum
+enum Keyword: string
 {
-    public const MESSAGE = 'message';
-    public const META    = 'meta';
-    public const SCHEMA  = 'schema';
+    case MESSAGE = 'message';
+    case META = 'meta';
+    case SCHEMA = 'schema';
 }

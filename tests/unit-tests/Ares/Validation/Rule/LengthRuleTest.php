@@ -102,7 +102,7 @@ class LengthRuleTest extends TestCase
         /** @var Context&MockObject $context */
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
-            ->setMethods(['addError'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $context->enter(
@@ -129,7 +129,7 @@ class LengthRuleTest extends TestCase
     /**
      * @return array
      */
-    public function getValidateSamples(): array
+    public static function getValidateSamples(): array
     {
         return [
             'valid string #1' => [
@@ -179,7 +179,7 @@ class LengthRuleTest extends TestCase
         /** @var Context&MockObject $context */
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
-            ->setMethods(['addError'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $context->enter(
@@ -198,4 +198,3 @@ class LengthRuleTest extends TestCase
         $this->assertFalse($lengthRule->performValidation($args, $data, $context));
     }
 }
-

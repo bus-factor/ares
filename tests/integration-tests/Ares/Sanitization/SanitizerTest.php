@@ -40,7 +40,7 @@ class SanitizerTest extends TestCase
     /**
      * @return array
      */
-    public function getSanitizeSamples(): array
+    public static function getSanitizeSamples(): array
     {
         $paths = [];
 
@@ -56,4 +56,3 @@ class SanitizerTest extends TestCase
         return $paths;
     }
 }
-

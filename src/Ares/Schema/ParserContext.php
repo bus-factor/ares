@@ -16,31 +16,17 @@ namespace Ares\Schema;
  */
 class ParserContext
 {
-    /**
-     * @var array
-     */
-    private $inputs = [];
+    private array $inputs = [];
 
-    /**
-     * @var array
-     */
-    private $inputPosition = [];
+    private array $inputPosition = [];
 
-    /**
-     * @param mixed $input            Input.
-     * @param mixed $relInputPosition Current input position.
-     */
-    public function __construct($input, $relInputPosition)
+    public function __construct(mixed $input, string|int $relInputPosition)
     {
         $this->inputs[] = $input;
         $this->inputPosition[] = $relInputPosition;
     }
 
-    /**
-     * @param mixed $relInputPosition Relative input position.
-     * @return self
-     */
-    public function enter($relInputPosition): self
+    public function enter(string|int $relInputPosition): self
     {
         $this->inputPosition[] = $relInputPosition;
         $this->inputs[] = $this->getInput()[$relInputPosition];
@@ -48,25 +34,16 @@ class ParserContext
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getInput()
+    public function getInput(): mixed
     {
         return end($this->inputs);
     }
 
-    /**
-     * @return mixed
-     */
     public function getInputPosition(): array
     {
         return $this->inputPosition;
     }
 
-    /**
-     * @return self
-     */
     public function leave(): self
     {
         array_pop($this->inputs);

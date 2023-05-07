@@ -66,7 +66,7 @@ class AresTest extends TestCase
 
         $sanitizer = $this->getMockBuilder(Sanitizer::class)
             ->disableOriginalConstructor()
-            ->setMethods(['sanitize'])
+            ->onlyMethods(['sanitize'])
             ->getMock();
 
         $sanitizer->expects($this->once())
@@ -76,7 +76,7 @@ class AresTest extends TestCase
 
         $ares = $this->getMockBuilder(Ares::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getSanitizer'])
+            ->onlyMethods(['getSanitizer'])
             ->getMock();
 
         $ares->expects($this->once())
@@ -102,7 +102,7 @@ class AresTest extends TestCase
 
         $validator = $this->getMockBuilder(Validator::class)
             ->disableOriginalConstructor()
-            ->setMethods(['validate'])
+            ->onlyMethods(['validate'])
             ->getMock();
 
         $validator->expects($this->once())
@@ -112,7 +112,7 @@ class AresTest extends TestCase
 
         $ares = $this->getMockBuilder(Ares::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getValidator'])
+            ->onlyMethods(['getValidator'])
             ->getMock();
 
         $ares->expects($this->once())
@@ -122,4 +122,3 @@ class AresTest extends TestCase
         $this->assertSame($retVal, $ares->validate($data, $options));
     }
 }
-

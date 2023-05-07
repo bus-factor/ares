@@ -102,7 +102,7 @@ class ForbiddenRuleTest extends TestCase
     {
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
-            ->setMethods(['addError'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $context->enter(
@@ -129,7 +129,7 @@ class ForbiddenRuleTest extends TestCase
     /**
      * @return array
      */
-    public function getValidateSamples(): array
+    public static function getValidateSamples(): array
     {
         return [
             'forbidden value #1'        => [['foo', 'bar'],   'foo',    false],
@@ -158,7 +158,7 @@ class ForbiddenRuleTest extends TestCase
 
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
-            ->setMethods(['addError'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $context->enter(
@@ -177,4 +177,3 @@ class ForbiddenRuleTest extends TestCase
         $this->assertFalse($forbiddenRule->performValidation($args, $data, $context));
     }
 }
-

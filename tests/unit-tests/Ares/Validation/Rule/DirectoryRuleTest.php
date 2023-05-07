@@ -124,7 +124,7 @@ class DirectoryRuleTest extends TestCase
     {
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
-            ->setMethods(['addError'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $context->enter(
@@ -151,7 +151,7 @@ class DirectoryRuleTest extends TestCase
     /**
      * @return array
      */
-    public function getValidateSamples(): array
+    public static function getValidateSamples(): array
     {
         return [
             'valid directory #1' => [
@@ -195,7 +195,7 @@ class DirectoryRuleTest extends TestCase
 
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
-            ->setMethods(['addError'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $context->enter(
@@ -214,4 +214,3 @@ class DirectoryRuleTest extends TestCase
         $this->assertFalse($directoryRule->performValidation($args, $data, $context));
     }
 }
-

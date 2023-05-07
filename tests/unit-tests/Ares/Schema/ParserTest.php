@@ -75,7 +75,7 @@ class ParserTest extends TestCase
     /**
      * @return array
      */
-    public function getParseErrorHandlingSamples(): array
+    public static function getParseErrorHandlingSamples(): array
     {
         return [
             'invalid schema' => [
@@ -469,4 +469,3 @@ class ParserTest extends TestCase
         );
     }
 }
-

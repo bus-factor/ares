@@ -101,7 +101,7 @@ class UrlRuleTest extends TestCase
     {
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
-            ->setMethods(['addError'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $context->enter('', (new Schema())->setRule(new Rule(UrlRule::ID, $args)));
@@ -133,7 +133,7 @@ class UrlRuleTest extends TestCase
 
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
-            ->setMethods(['addError'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $context->enter('', (new Schema())->setRule(new Rule(UrlRule::ID, $args, $customMessage)));

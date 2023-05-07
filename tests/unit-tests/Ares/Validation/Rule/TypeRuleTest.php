@@ -119,7 +119,7 @@ class TypeRuleTest extends TestCase
     {
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
-            ->setMethods(['addError'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $context->enter('', (new Schema())->setRule(new Rule(TypeRule::ID, $args)));
@@ -141,7 +141,7 @@ class TypeRuleTest extends TestCase
     /**
      * @return array
      */
-    public function getValidateSamples(): array
+    public static function getValidateSamples(): array
     {
         return [
             'array + map' => [
@@ -295,7 +295,7 @@ class TypeRuleTest extends TestCase
 
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
-            ->setMethods(['addError'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $context->enter('', (new Schema())->setRule(new Rule(TypeRule::ID, $args, $customMessage)));
@@ -309,4 +309,3 @@ class TypeRuleTest extends TestCase
         $this->assertFalse($typeRule->performValidation($args, $data, $context));
     }
 }
-

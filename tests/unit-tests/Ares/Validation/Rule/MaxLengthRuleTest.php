@@ -102,7 +102,7 @@ class MaxLengthRuleTest extends TestCase
         /** @var Context&MockObject $context */
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
-            ->setMethods(['addError'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $context->enter(
@@ -129,7 +129,7 @@ class MaxLengthRuleTest extends TestCase
     /**
      * @return array
      */
-    public function getValidateSamples(): array
+    public static function getValidateSamples(): array
     {
         return [
             'valid string #1' => [
@@ -174,7 +174,7 @@ class MaxLengthRuleTest extends TestCase
         /** @var Context&MockObject $context */
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
-            ->setMethods(['addError'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $context->enter(
@@ -193,4 +193,3 @@ class MaxLengthRuleTest extends TestCase
         $this->assertFalse($maxLengthRule->performValidation($args, $data, $context));
     }
 }
-

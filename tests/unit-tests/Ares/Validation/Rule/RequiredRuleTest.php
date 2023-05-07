@@ -126,7 +126,7 @@ class RequiredRuleTest extends TestCase
     ): void {
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
-            ->setMethods(['addError', 'getMessage'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         foreach ($source as $reference) {
@@ -150,7 +150,7 @@ class RequiredRuleTest extends TestCase
     /**
      * @return array
      */
-    public function getValidateSamples(): array
+    public static function getValidateSamples(): array
     {
         return [
             'primitive value' => [
@@ -232,7 +232,7 @@ class RequiredRuleTest extends TestCase
 
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
-            ->setMethods(['addError', 'getMessage'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $innerSchema = (new Schema())
@@ -251,4 +251,3 @@ class RequiredRuleTest extends TestCase
         $this->assertFalse($requiredRule->performValidation($args, $data, $context));
     }
 }
-

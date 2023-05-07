@@ -40,7 +40,7 @@ class ValidatorTest extends TestCase
     /**
      * @return array
      */
-    public function getValidateSamples(): array
+    public static function getValidateSamples(): array
     {
         $paths = [];
 
@@ -56,4 +56,3 @@ class ValidatorTest extends TestCase
         return $paths;
     }
 }
-

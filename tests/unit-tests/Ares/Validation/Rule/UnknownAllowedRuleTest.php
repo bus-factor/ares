@@ -87,7 +87,7 @@ class UnknownAllowedRuleTest extends TestCase
     /**
      * @return array
      */
-    public function getValidateSamples(): array
+    public static function getValidateSamples(): array
     {
         return [
             'unknown allowed' => [
@@ -132,7 +132,7 @@ class UnknownAllowedRuleTest extends TestCase
 
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
-            ->setMethods(['addError', 'getMessage'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $innerSchema = (new Schema())
@@ -154,4 +154,3 @@ class UnknownAllowedRuleTest extends TestCase
         $this->assertTrue($unknownAllowedRule->performValidation($args, $data, $context));
     }
 }
-

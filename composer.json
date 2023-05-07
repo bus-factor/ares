@@ -45,13 +45,19 @@
     "phpunit/phpunit": ">=5.7"
   },
   "require": {
-    "php": ">=7.3",
+    "php": "^8.1",
     "ext-json": "*",
     "bus-factor/ddd": "^5.0"
   },
   "scripts": {
     "test": "phpunit",
-    "test:cov:text": "phpunit --coverage-text=php://stdout",
-    "test:cov:html": "phpunit --coverage-html=coverage"
+    "test:cov:text": [
+      "@putenv XDEBUG_MODE=coverage",
+      "phpunit --coverage-text=php://stdout"
+    ],
+    "test:cov:html": [
+      "@putenv XDEBUG_MODE=coverage",
+      "phpunit --coverage-html=coverage"
+    ]
   }
 }

@@ -196,7 +196,7 @@ class Parser
 
         $context->enter($ruleId);
 
-        if ($ruleId !== Keyword::SCHEMA) {
+        if ($ruleId !== Keyword::SCHEMA->value) {
             if (!RuleRegistry::isRegistered($ruleId)) {
                 $this->fail(ParserError::RULE_ID_UNKNOWN, $context);
             }
@@ -242,7 +242,7 @@ class Parser
         $input = $context->getInput();
         $ruleIds = array_diff(
             array_keys($input),
-            self::VALID_RULE_ADDITION_KEYS
+            array_map(fn (Keyword $keyword): string => $keyword->value, self::VALID_RULE_ADDITION_KEYS)
         );
         $ruleIdsCount = count($ruleIds);
 
@@ -263,11 +263,11 @@ class Parser
         $rule = $this->parseRule($type, $context, $ruleId);
 
         if ($rule !== null) {
-            if (isset($input[Keyword::MESSAGE])) {
-                $type = gettype($input[Keyword::MESSAGE]);
+            if (isset($input[Keyword::MESSAGE->value])) {
+                $type = gettype($input[Keyword::MESSAGE->value]);
 
                 if ($type !== PhpType::STRING) {
-                    $context->enter(Keyword::MESSAGE);
+                    $context->enter(Keyword::MESSAGE->value);
 
                     $this->fail(
                         ParserError::VALUE_TYPE_MISMATCH,
@@ -277,14 +277,14 @@ class Parser
                     );
                 }
 
-                $rule->setMessage($input[Keyword::MESSAGE]);
+                $rule->setMessage($input[Keyword::MESSAGE->value]);
             }
 
-            if (isset($input[Keyword::META])) {
-                $type = gettype($input[Keyword::META]);
+            if (isset($input[Keyword::META->value])) {
+                $type = gettype($input[Keyword::META->value]);
 
                 if ($type !== PhpType::ARRAY) {
-                    $context->enter(Keyword::META);
+                    $context->enter(Keyword::META->value);
 
                     $this->fail(
                         ParserError::VALUE_TYPE_MISMATCH,
@@ -294,7 +294,7 @@ class Parser
                     );
                 }
 
-                $rule->setMeta($input[Keyword::META]);
+                $rule->setMeta($input[Keyword::META->value]);
             }
         }
 
@@ -341,7 +341,7 @@ class Parser
         }
 
         if (!$isCustomType && in_array($type, self::COLLECTION_TYPES, true)) {
-            if (!array_key_exists(Keyword::SCHEMA, $context->getInput())) {
+            if (!array_key_exists(Keyword::SCHEMA->value, $context->getInput())) {
                 $this->fail(
                     ParserError::SCHEMA_MISSING,
                     $context,
@@ -349,7 +349,7 @@ class Parser
                 );
             }
 
-            $context->enter(Keyword::SCHEMA);
+            $context->enter(Keyword::SCHEMA->value);
 
             switch ($type) {
                 case Type::LIST:

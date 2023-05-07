@@ -100,7 +100,7 @@ class AllowedRuleTest extends TestCase
     {
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
-            ->setMethods(['addError'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $context->enter('', (new Schema())->setRule(new Rule(AllowedRule::ID, $args)));
@@ -122,7 +122,7 @@ class AllowedRuleTest extends TestCase
     /**
      * @return array
      */
-    public function getValidateSamples(): array
+    public static function getValidateSamples(): array
     {
         return [
             'allowed value #1' => [
@@ -189,7 +189,7 @@ class AllowedRuleTest extends TestCase
 
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
-            ->setMethods(['addError'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $context->enter('', (new Schema())->setRule(new Rule(AllowedRule::ID, [], $customMessage)));
@@ -203,4 +203,3 @@ class AllowedRuleTest extends TestCase
         $this->assertFalse($allowedRule->performValidation([], 'some-value', $context));
     }
 }
-

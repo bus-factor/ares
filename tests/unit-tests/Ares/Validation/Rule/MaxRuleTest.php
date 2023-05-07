@@ -105,7 +105,7 @@ class MaxRuleTest extends TestCase
 
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, $errorMessageRenderer])
-            ->setMethods(['addError'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $context->enter(
@@ -132,7 +132,7 @@ class MaxRuleTest extends TestCase
     /**
      * @return array
      */
-    public function getValidateSamples(): array
+    public static function getValidateSamples(): array
     {
         return [
             'integer value too great' => [Type::INTEGER, 12, 13, false],
@@ -160,7 +160,7 @@ class MaxRuleTest extends TestCase
 
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, $errorMessageRenderer])
-            ->setMethods(['addError'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $context->enter(
@@ -179,4 +179,3 @@ class MaxRuleTest extends TestCase
         $this->assertFalse($maxRule->performValidation($args, $data, $context));
     }
 }
-

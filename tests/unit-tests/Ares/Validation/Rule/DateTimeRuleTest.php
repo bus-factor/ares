@@ -99,7 +99,7 @@ class DateTimeRuleTest extends TestCase
     {
         $context = $this->getMockBuilder(Context::class)
             ->setConstructorArgs([&$data, new ErrorMessageRenderer()])
-            ->setMethods(['addError'])
+            ->onlyMethods(['addError'])
             ->getMock();
 
         $context->enter(
@@ -125,7 +125,7 @@ class DateTimeRuleTest extends TestCase
     /**
      * @return array
      */
-    public function getValidateSamples(): array
+    public static function getValidateSamples(): array
     {
         return [
             'args = false' => [
@@ -193,4 +193,3 @@ class DateTimeRuleTest extends TestCase
         ];
     }
 }
-
