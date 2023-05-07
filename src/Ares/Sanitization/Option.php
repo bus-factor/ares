@@ -11,13 +11,11 @@ declare(strict_types=1);
 
 namespace Ares\Sanitization;
 
-use BusFactor\Ddd\ValueObject\Enum;
-
 /**
  * Class Option
  */
-class Option extends Enum
+enum Option: string
 {
-    public const PURGE_UNKNOWN = 'purgeUnknown';
-    public const TRIM_STRINGS  = 'trimStrings';
+    case PURGE_UNKNOWN = 'purgeUnknown';
+    case TRIM_STRINGS = 'trimStrings';
 }

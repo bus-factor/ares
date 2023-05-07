@@ -25,18 +25,7 @@ use BusFactor\Ddd\ValueObject\PhpType;
  */
 class Sanitizer
 {
-    /**
-     * @const array
-     */
-    private const OPTIONS_DEFAULTS = [
-        Option::TRIM_STRINGS  => true,
-        Option::PURGE_UNKNOWN => true,
-    ];
-
-    /**
-     * @var Schema
-     */
-    private $schema;
+    private Schema $schema;
 
     /**
      * @param Schema $schema Schema instance.
@@ -54,7 +43,9 @@ class Sanitizer
     private function prepareOptions(array $options): array
     {
         foreach ($options as $key => $value) {
-            if (!in_array($key, Option::getValidValues())) {
+            $optionKey = Option::tryFrom($key);
+
+            if ($optionKey === null) {
                 $format = 'Unknown sanitization option key: \'%s\'';
 
                 throw new InvalidOptionException(sprintf($format, $key));
@@ -72,7 +63,10 @@ class Sanitizer
             }
         }
 
-        return $options + self::OPTIONS_DEFAULTS;
+        return $options + [
+            Option::TRIM_STRINGS->value => true,
+            Option::PURGE_UNKNOWN->value => true,
+        ];
     }
 
     /**
@@ -80,7 +74,7 @@ class Sanitizer
      * @param array $options Sanitization options.
      * @return mixed
      */
-    private function performBooleanSanitization($data, array $options)
+    private function performBooleanSanitization(mixed $data, array $options): mixed
     {
         $type = gettype($data);
 
@@ -98,7 +92,7 @@ class Sanitizer
      * @param array $options Sanitization options.
      * @return mixed
      */
-    private function performFloatSanitization($data, array $options)
+    private function performFloatSanitization(mixed $data, array $options): mixed
     {
         return is_numeric($data)
             ? (float)$data
@@ -110,7 +104,7 @@ class Sanitizer
      * @param array $options Sanitization options.
      * @return mixed
      */
-    private function performIntegerSanitization($data, array $options)
+    private function performIntegerSanitization(mixed $data, array $options): mixed
     {
         return is_numeric($data)
             ? (int)$data
@@ -123,18 +117,11 @@ class Sanitizer
      * @param array  $options Sanitization options.
      * @return mixed
      */
-    private function performListSanitization(
-        Schema $schema,
-        $data,
-        array $options
-    ) {
+    private function performListSanitization(Schema $schema, mixed $data, array $options): mixed
+    {
         if (is_array($data)) {
             foreach ($data as $index => $value) {
-                $data[$index] = $this->performSanitization(
-                    $schema,
-                    $data[$index],
-                    $options
-                );
+                $data[$index] = $this->performSanitization($schema, $value, $options);
             }
         }
 
@@ -147,29 +134,19 @@ class Sanitizer
      * @param array    $options Sanitization options.
      * @return mixed
      */
-    private function performMapSanitization(
-        array $schemas,
-        $data,
-        array $options
-    ) {
+    private function performMapSanitization(array $schemas, mixed $data, array $options): mixed
+    {
         if (is_array($data)) {
             foreach ($schemas as $index => $schema) {
                 if (!array_key_exists($index, $data)) {
                     continue;
                 }
 
-                $data[$index] = $this->performSanitization(
-                    $schema,
-                    $data[$index],
-                    $options
-                );
+                $data[$index] = $this->performSanitization($schema, $data[$index], $options);
             }
 
-            if ($options[Option::PURGE_UNKNOWN]) {
-                $unknownIndices = array_diff(
-                    array_keys($data),
-                    array_keys($schemas)
-                );
+            if ($options[Option::PURGE_UNKNOWN->value]) {
+                $unknownIndices = array_diff(array_keys($data), array_keys($schemas));
 
                 foreach ($unknownIndices as $unknownIndex) {
                     unset($data[$unknownIndex]);
@@ -186,37 +163,22 @@ class Sanitizer
      * @param array  $options Sanitization options.
      * @return mixed
      */
-    private function performSanitization(Schema $schema, $data, array $options)
+    private function performSanitization(Schema $schema, mixed $data, array $options): mixed
     {
         $type = $schema->getRule(TypeRule::ID)->getArgs();
 
         switch ($type) {
             case Type::LIST:
                 /** @var SchemaList $schema */
-                $data = $this->performListSanitization(
-                    $schema->getSchema(),
-                    $data,
-                    $options
-                );
-
+                $data = $this->performListSanitization($schema->getSchema(), $data, $options);
                 break;
             case Type::MAP:
                 /** @var SchemaMap $schema */
-                $data = $this->performMapSanitization(
-                    $schema->getSchemas(),
-                    $data,
-                    $options
-                );
-
+                $data = $this->performMapSanitization($schema->getSchemas(), $data, $options);
                 break;
             case Type::TUPLE:
                 /** @var SchemaTuple $schema */
-                $data = $this->performMapSanitization(
-                    $schema->getSchemas(),
-                    $data,
-                    $options
-                );
-
+                $data = $this->performMapSanitization($schema->getSchemas(), $data, $options);
                 break;
             case Type::FLOAT:
                 $data = $this->performFloatSanitization($data, $options);
@@ -242,9 +204,9 @@ class Sanitizer
      * @param array $options Sanitization options.
      * @return mixed
      */
-    private function performStringSanitization($data, array $options)
+    private function performStringSanitization(mixed $data, array $options): mixed
     {
-        return (is_string($data) && $options[Option::TRIM_STRINGS])
+        return (is_string($data) && $options[Option::TRIM_STRINGS->value])
             ? trim($data)
             : $data;
     }
@@ -256,7 +218,7 @@ class Sanitizer
      * @param array $options Sanitization options.
      * @return mixed
      */
-    public function sanitize($data, array $options = [])
+    public function sanitize(mixed $data, array $options = []): mixed
     {
         $options = $this->prepareOptions($options);
 

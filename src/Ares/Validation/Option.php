@@ -11,15 +11,13 @@ declare(strict_types=1);
 
 namespace Ares\Validation;
 
-use BusFactor\Ddd\ValueObject\Enum;
-
 /**
  * Class Option
  */
-class Option extends Enum
+enum Option: string
 {
-    public const ALL_UNKNOWN_ALLOWED = 'allUnknownAllowed';
-    public const ALL_BLANKABLE       = 'allBlankable';
-    public const ALL_NULLABLE        = 'allNullable';
-    public const ALL_REQUIRED        = 'allRequired';
+    case ALL_UNKNOWN_ALLOWED = 'allUnknownAllowed';
+    case ALL_BLANKABLE       = 'allBlankable';
+    case ALL_NULLABLE        = 'allNullable';
+    case ALL_REQUIRED        = 'allRequired';
 }

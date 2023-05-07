@@ -33,7 +33,11 @@ class OptionTest extends TestCase
             'ALL_REQUIRED'        => 'allRequired',
         ];
 
-        $this->assertEquals($expectedValues, Option::getValidValues());
+        $actualValues = array_combine(
+            array_map(fn (Option $option): string => $option->name, Option::cases()),
+            array_map(fn (Option $option): string => $option->value, Option::cases()),
+        );
+
+        $this->assertEquals($expectedValues, $actualValues);
     }
 }
-

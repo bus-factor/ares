@@ -20,6 +20,7 @@ use Ares\Schema\SchemaMap;
 use Ares\Schema\SchemaReference;
 use Ares\Schema\SchemaTuple;
 use Ares\Schema\Type;
+use Ares\Validation\Error\Error;
 use Ares\Validation\Error\ErrorMessageRenderer;
 use Ares\Validation\Error\ErrorMessageRendererInterface;
 use Ares\Validation\Rule\BlankableRule;
@@ -34,45 +35,23 @@ use BusFactor\Ddd\ValueObject\PhpType;
  */
 class Validator
 {
-    /**
-     * @const array
-     */
-    private const OPTIONS_DEFAULTS = [
-        Option::ALL_UNKNOWN_ALLOWED => false,
-        Option::ALL_BLANKABLE       => false,
-        Option::ALL_NULLABLE        => false,
-        Option::ALL_REQUIRED        => true,
-    ];
+    private Context $context;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private ErrorMessageRendererInterface $errorMessageRenderer;
 
-    /**
-     * @var ErrorMessageRendererInterface
-     */
-    private $errorMessageRenderer;
+    private Schema $schema;
 
-    /**
-     * @var Schema
-     */
-    private $schema;
-
-    /**
-     * @param Schema $schema Schema.
-     */
     public function __construct(Schema $schema)
     {
         $this->schema = $schema;
     }
 
     /**
-     * @return array
+     * @return array<Error>
      */
     public function getErrors(): array
     {
-        return isset($this->context) ? $this->context->getErrors() : [];
+        return $this->context?->getErrors() ?? [];
     }
 
     /**
@@ -80,7 +59,7 @@ class Validator
      */
     public function getErrorMessageRenderer(): ErrorMessageRendererInterface
     {
-        if (!isset($this->errorMessageRenderer)) {
+        if (! isset($this->errorMessageRenderer)) {
             $this->errorMessageRenderer = new ErrorMessageRenderer();
         }
 
@@ -96,12 +75,8 @@ class Validator
      * @throws InvalidValidationRuleArgsException
      * @throws UnknownValidationRuleIdException
      */
-    private function performValidation(
-        Schema $schema,
-        $data,
-        $field,
-        array $options
-    ): void {
+    private function performValidation(Schema $schema, mixed $data, mixed $field, array $options): void
+    {
         if ($schema instanceof SchemaReference) {
             $schema = $schema->getSchema();
         }
@@ -109,6 +84,7 @@ class Validator
         $this->context->enter($field, $schema);
 
         $skipRules = false;
+
         $builtInValidationsOk = $this->runBuiltinValidationRules(
             $schema,
             $data,
@@ -122,29 +98,17 @@ class Validator
             switch ($schema->getRule(TypeRule::ID)->getArgs()) {
                 case Type::LIST:
                     /** @var SchemaList $schema */
-                    $this->performListValidation(
-                        $schema->getSchema(),
-                        $data,
-                        $options
-                    );
+                    $this->performListValidation($schema->getSchema(), $data, $options);
 
                     break;
                 case Type::MAP:
                     /** @var SchemaMap $schema */
-                    $this->performMapValidation(
-                        $schema->getSchemas(),
-                        $data,
-                        $options
-                    );
+                    $this->performMapValidation($schema->getSchemas(), $data, $options);
 
                     break;
                 case Type::TUPLE:
                     /** @var SchemaTuple $schema */
-                    $this->performMapValidation(
-                        $schema->getSchemas(),
-                        $data,
-                        $options
-                    );
+                    $this->performMapValidation($schema->getSchemas(), $data, $options);
 
                     break;
                 default:
@@ -174,7 +138,7 @@ class Validator
                 $this->context
             );
 
-            if (!$valid) {
+            if (! $valid) {
                 break;
             }
         }
@@ -186,11 +150,8 @@ class Validator
      * @param array  $options Validation options.
      * @return void
      */
-    private function performListValidation(
-        Schema $schema,
-        $data,
-        array $options
-    ): void {
+    private function performListValidation(Schema $schema, mixed $data, array $options): void
+    {
         foreach ($data as $key => $value) {
             $this->performValidation($schema, $value, $key, $options);
         }
@@ -202,18 +163,10 @@ class Validator
      * @param array $options Validation options.
      * @return void
      */
-    private function performMapValidation(
-        array $schemas,
-        $data,
-        array $options
-    ): void {
+    private function performMapValidation(array $schemas, mixed $data, array $options): void
+    {
         foreach ($schemas as $field => $schema) {
-            $this->performValidation(
-                $schema,
-                $data[$field] ?? null,
-                $field,
-                $options
-            );
+            $this->performValidation($schema, $data[$field] ?? null, $field, $options);
         }
     }
 
@@ -225,7 +178,9 @@ class Validator
     private function prepareOptions(array $options): array
     {
         foreach ($options as $key => $value) {
-            if (!in_array($key, Option::getValidValues())) {
+            $optionKey = Option::tryFrom($key);
+
+            if ($optionKey === null) {
                 $format = 'Unknown validation option key: \'%s\'';
 
                 throw new InvalidOptionException(sprintf($format, $key));
@@ -237,13 +192,16 @@ class Validator
                 $format = 'Invalid validation option value: '
                     . '\'%s\' must be of type <boolean>, got <%s>';
 
-                throw new InvalidOptionException(
-                    sprintf($format, $key, $type)
-                );
+                throw new InvalidOptionException(sprintf($format, $key, $type));
             }
         }
 
-        return $options + self::OPTIONS_DEFAULTS;
+        return $options + [
+            Option::ALL_UNKNOWN_ALLOWED->value => false,
+            Option::ALL_BLANKABLE->value => false,
+            Option::ALL_NULLABLE->value => false,
+            Option::ALL_REQUIRED->value => true,
+        ];
     }
 
     /**
@@ -253,18 +211,14 @@ class Validator
      * @param bool   $skipRules Set if all following rules should be skipped.
      * @return bool
      */
-    private function runBuiltinValidationRules(
-        Schema $schema,
-        $data,
-        array $options,
-        bool &$skipRules
-    ): bool {
+    private function runBuiltinValidationRules(Schema $schema, mixed $data, array $options, bool &$skipRules): bool
+    {
         $rules = [
-            RequiredRule::ID       => $options[Option::ALL_REQUIRED],
-            TypeRule::ID           => null,
-            NullableRule::ID       => $options[Option::ALL_NULLABLE],
-            UnknownAllowedRule::ID => $options[Option::ALL_UNKNOWN_ALLOWED],
-            BlankableRule::ID      => $options[Option::ALL_BLANKABLE],
+            RequiredRule::ID => $options[Option::ALL_REQUIRED->value],
+            TypeRule::ID => null,
+            NullableRule::ID => $options[Option::ALL_NULLABLE->value],
+            UnknownAllowedRule::ID => $options[Option::ALL_UNKNOWN_ALLOWED->value],
+            BlankableRule::ID => $options[Option::ALL_BLANKABLE->value],
         ];
 
         $skipRules = false;
@@ -294,9 +248,8 @@ class Validator
      * @param ErrorMessageRendererInterface $errorMessageRenderer Error message renderer.
      * @return self
      */
-    public function setErrorMessageRenderer(
-        ErrorMessageRendererInterface $errorMessageRenderer
-    ): self {
+    public function setErrorMessageRenderer(ErrorMessageRendererInterface $errorMessageRenderer): self
+    {
         $this->errorMessageRenderer = $errorMessageRenderer;
 
         return $this;
@@ -305,12 +258,12 @@ class Validator
     /**
      * @param mixed $data    Input data.
      * @param array $options Validation options.
-     * @return boolean
+     * @return bool
      * @throws InvalidOptionException
      * @throws InvalidValidationRuleArgsException
      * @throws UnknownValidationRuleIdException
      */
-    public function validate($data, array $options = []): bool
+    public function validate(mixed $data, array $options = []): bool
     {
         $options = $this->prepareOptions($options);
         $this->context = new Context($data, $this->getErrorMessageRenderer());

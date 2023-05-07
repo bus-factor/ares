@@ -46,6 +46,7 @@
   },
   "require": {
     "php": "^8.1",
+    "ext-ctype": "*",
     "ext-json": "*",
     "bus-factor/ddd": "^5.0"
   },
